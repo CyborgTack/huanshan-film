@@ -415,6 +415,11 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 
 /* ============ 馆藏卷宗 · 目录陈列 ============ */
 .works-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-6)}
+#videosHead{cursor:pointer;user-select:none;transition:opacity .25s}
+#videosHead:hover{opacity:.82}
+#videosHead .vg-toggle{width:22px;height:22px;flex-shrink:0;transition:transform .3s var(--ease)}
+#videos.collapsed .filters,#videos.collapsed #vgArchive,#videos.collapsed .work-srcs{display:none}
+#videos.collapsed #videosHead .vg-toggle{transform:rotate(-90deg)}
 .filters{display:flex;gap:var(--space-3);flex-wrap:wrap}
 .filter{
   font-size:13px;letter-spacing:.14em;color:var(--text-secondary);
@@ -883,21 +888,16 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 <!-- ===== 影像长卷 · 视频展陈 ===== -->
 <section class="section" id="videos">
   <div class="container">
-    <div class="works-head" data-reveal>
+    <div class="works-head" id="videosHead" role="button" tabindex="0" aria-expanded="true" aria-controls="vgArchive" data-reveal>
       <div>
         <span class="sec-line" aria-hidden="true"></span>
         <span class="sec-label">影像长卷</span>
-        <h2 class="sec-title">四十二卷 · 逐一可览</h2>
+        <div style="display:flex;align-items:center;gap:12px">
+          <h2 class="sec-title">四十二卷 · 逐一可览</h2>
+          <svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
       </div>
-      <div class="filters" role="tablist" aria-label="项目卷筛选">
-        <button class="vfilter active" data-vfilter="all" role="tab" aria-selected="true">全部</button>
-        <button class="vfilter" data-vfilter="chaoxi" role="tab" aria-selected="false">潮汐</button>
-        <button class="vfilter" data-vfilter="gongchang" role="tab" aria-selected="false">工厂宣传</button>
-        <button class="vfilter" data-vfilter="yanjing" role="tab" aria-selected="false">眼镜店</button>
-        <button class="vfilter" data-vfilter="wulin" role="tab" aria-selected="false">武林</button>
-        <button class="vfilter" data-vfilter="taguofenye" role="tab" aria-selected="false">他过分野</button>
-        <button class="vfilter" data-vfilter="tvc" role="tab" aria-selected="false">房产</button>
-      </div>
+      <div class="filters" id="vFilters" role="tablist" aria-label="项目卷筛选"></div>
     </div>
     <div class="vg-block" id="vgArchive" data-reveal></div>
     <div class="work-srcs" aria-hidden="true">
@@ -1462,32 +1462,54 @@ const VIDEOS = [
     });
   }
   renderFeatured(); renderArchive(); renderInbox();
-  /* 项目筛选 */
-  var vfilters = Array.prototype.slice.call(document.querySelectorAll(".vfilter"));
-  vfilters.forEach(function(btn){
-    btn.addEventListener("click", function(){
-      vfilters.forEach(function(b){ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
-      btn.classList.add("active"); btn.setAttribute("aria-selected","true");
-      var f = btn.dataset.vfilter;
-      var blocks = document.querySelectorAll("#vgArchive .vg-block");
-      blocks.forEach(function(b){
-        if(f === "all"){ b.style.display = ""; }
-        else{
-          b.style.display = (b.dataset.vgroup === f) ? "" : "none";
-          if(b.dataset.vgroup === f){
-            b.classList.remove("collapsed");
-            var h2 = b.querySelector(".vg-head");
-            if(h2){ h2.setAttribute("aria-expanded", "true"); }
-            var c2 = b.querySelector(".vg-count");
-            if(c2){
-              var tx = c2.textContent;
-              if(tx.indexOf("点此展卷") > -1){ c2.textContent = tx.replace("点此展卷", "点此合卷"); }
+  /* 项目筛选（动态渲染：新增项目自动加标签） */
+  function renderFilters(){
+    var fw = document.getElementById("vFilters");
+    if(!fw)return;
+    var html = '<button class="vfilter active" data-vfilter="all" role="tab" aria-selected="true">全部</button>';
+    html += PROJECTS.map(function(pr){
+      return '<button class="vfilter" data-vfilter="' + pr.k + '" role="tab" aria-selected="false">' + pr.n.replace(/[《》]/g,"") + '</button>';
+    }).join("");
+    fw.innerHTML = html;
+    var vfilters = Array.prototype.slice.call(fw.querySelectorAll(".vfilter"));
+    vfilters.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        vfilters.forEach(function(b){ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
+        btn.classList.add("active"); btn.setAttribute("aria-selected","true");
+        var f = btn.dataset.vfilter;
+        var blocks = document.querySelectorAll("#vgArchive .vg-block");
+        blocks.forEach(function(b){
+          if(f === "all"){ b.style.display = ""; }
+          else{
+            b.style.display = (b.dataset.vgroup === f) ? "" : "none";
+            if(b.dataset.vgroup === f){
+              b.classList.remove("collapsed");
+              var h2 = b.querySelector(".vg-head");
+              if(h2){ h2.setAttribute("aria-expanded", "true"); }
+              var c2 = b.querySelector(".vg-count");
+              if(c2){
+                var tx = c2.textContent;
+                if(tx.indexOf("点此展卷") > -1){ c2.textContent = tx.replace("点此展卷", "点此合卷"); }
+              }
             }
           }
-        }
+        });
       });
     });
-  });
+  }
+  renderFilters();
+  var videosSec = document.getElementById("videos");
+  var videosHeadEl = document.getElementById("videosHead");
+  if(videosSec && videosHeadEl){
+    videosHeadEl.addEventListener("click", function(e){
+      if(e.target.closest(".vfilter")){ return; }
+      var collapsed = videosSec.classList.toggle("collapsed");
+      videosHeadEl.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    });
+    videosHeadEl.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); videosHeadEl.click(); }
+    });
+  }
   /* 概念画廊渲染 */
   var conceptGrid = document.getElementById("conceptGrid");
   if(conceptGrid){
@@ -1869,7 +1891,7 @@ const VIDEOS = [
     });
   }
 window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;window.INBOX=INBOX;
-  window.renderFeatured=renderFeatured;window.renderArchive=renderArchive;window.renderInbox=renderInbox;
+  window.renderFeatured=renderFeatured;window.renderArchive=renderArchive;window.renderInbox=renderInbox;window.renderFilters=renderFilters;
 })();
 
 /* ===== 管理卷宗 ===== */
@@ -1977,9 +1999,9 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       }
     });
   }
-  function markDone(){if(doneEl){doneEl.textContent='已记录变更 · 记得导出'}}
+  function markDone(){if(doneEl){doneEl.textContent='已记录变更 · 记得同步入库'}}
   function exportChanges(){
-    var payload={version:3,exportedAt:new Date().toISOString(),producers:window.PRODUCERS,videos:window.VIDEOS,concepts:window.CONCEPTS};
+    var payload={version:3,exportedAt:new Date().toISOString(),producers:window.PRODUCERS,videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,inbox:window.INBOX};
     var blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
     var a=document.createElement('a');a.href=URL.createObjectURL(blob);
     a.download='huanshan-changes.json';document.body.appendChild(a);a.click();a.remove();
@@ -2048,7 +2070,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       if(Array.isArray(d.projects)){window.PROJECTS.splice.apply(window.PROJECTS,[0,window.PROJECTS.length].concat(d.projects))}
       if(Array.isArray(d.producers)){window.PRODUCERS.splice.apply(window.PRODUCERS,[0,window.PRODUCERS.length].concat(d.producers))}
       if(Array.isArray(d.inbox)){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(d.inbox))}
-      window.renderFeatured();window.renderArchive();window.renderInbox();renderMembers();
+      window.renderFeatured();window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();
     }catch(e){}
   }
   function syncToRepo(){
@@ -2199,6 +2221,34 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       });
     });
   }
+  var projBtn=document.getElementById('amAddProject');
+  if(projBtn){
+    projBtn.addEventListener('click',function(){
+      var old=document.getElementById('amProjRow');
+      if(old){old.remove();return}
+      var row=document.createElement('div');
+      row.className='am-add-row';
+      row.id='amProjRow';
+      row.innerHTML='<input id="amProjName" placeholder="项目名（如 仙侠短剧）" maxlength="24">'+
+        '<input id="amProjDesc" placeholder="一句话定位（如 古装仙侠 · 系列短剧）" maxlength="40" style="flex-basis:100%">'+
+        '<button class="am-op active" type="button" data-pj-save>立卷</button>'+
+        '<button class="am-op" type="button" data-pj-cancel>取消</button>';
+      listEl.parentNode.insertBefore(row,listEl);
+      row.querySelector('#amProjName').focus();
+      row.addEventListener('click',function(e){
+        if(e.target.dataset.pjSave!==undefined){
+          var name=row.querySelector('#amProjName').value.trim();
+          if(!name){row.querySelector('#amProjName').focus();return}
+          var clean=name.replace(/^《|》$/g,'');
+          var dup=window.PROJECTS.some(function(pr){return pr.n==='《'+clean+'》'});
+          if(dup){if(doneEl)doneEl.textContent='已有同名卷「《'+clean+'》」，请换个名字';row.querySelector('#amProjName').select();return}
+          var desc=row.querySelector('#amProjDesc').value.trim()||'新卷 · 待编修归卷';
+          window.PROJECTS.push({k:'p'+Date.now(),n:'《'+clean+'》',d:desc});
+          window.renderArchive();window.renderFilters();renderList();markDone();row.remove();
+        }else if(e.target.dataset.pjCancel!==undefined){row.remove()}
+      });
+    });
+  }
   var undoBtn=document.getElementById('amUndo');
   if(undoBtn){
     undoBtn.addEventListener('click',function(){
@@ -2287,6 +2337,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       <button class="am-op" id="amAuth" type="button">仓库授权</button>
       <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
       <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
+      <button class="am-op" id="amAddProject" type="button">新增项目</button>
       <button class="am-op" id="amUndo" type="button">撤销全部</button>
     </div>
     <datalist id="amAuthorList"></datalist>
