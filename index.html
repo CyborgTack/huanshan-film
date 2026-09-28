@@ -1833,6 +1833,29 @@ const VIDEOS = [
   document.getElementById("lbClose").addEventListener("click", closeLightbox);
   document.getElementById("lbPrev").addEventListener("click", function(){ stepLightbox(-1); });
   document.getElementById("lbNext").addEventListener("click", function(){ stepLightbox(1); });
+  /* 手机端：右滑关闭灯箱（视频底部控制条区域除外；桌面鼠标不受影响） */
+  var __lbSwipeStart = null;
+  lightbox.addEventListener("touchstart", function(e){
+    if(!lightbox.classList.contains("open")){ return; }
+    var t = e.changedTouches[0];
+    __lbSwipeStart = { x: t.clientX, y: t.clientY, el: e.target };
+  }, { passive: true });
+  lightbox.addEventListener("touchend", function(e){
+    if(!__lbSwipeStart || !lightbox.classList.contains("open")){ return; }
+    var t = e.changedTouches[0];
+    var dx = t.clientX - __lbSwipeStart.x;
+    var dy = t.clientY - __lbSwipeStart.y;
+    var s = __lbSwipeStart;
+    __lbSwipeStart = null;
+    if(dx > 70 && Math.abs(dx) > Math.abs(dy) * 1.4){
+      var el = s.el;
+      if(el && el.tagName === "VIDEO"){
+        var r = el.getBoundingClientRect();
+        if(r.height > 0 && (s.y - r.top) / r.height > 0.72){ return; }
+      }
+      closeLightbox();
+    }
+  }, { passive: true });
   lightbox.addEventListener("click", function(e){ if(e.target === lightbox){ closeLightbox(); } });
   document.addEventListener("keydown", function(e){
     if(!lightbox.classList.contains("open")){
