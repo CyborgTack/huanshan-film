@@ -2450,13 +2450,8 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     <p class="sp-desc">讙山图是一间 AIGC 影像创作馆。我们以生成式电影与 CG 造景为笔，承接 TVC 广告、短剧、宣传片、MV、产品设计与海报——凡所想象，皆可成片。</p>
     <div class="sp-label">编修司员</div>
     <ul class="sp-members" id="spMembers"></ul>
-    <a class="btn btn-primary sp-upload" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener">上呈作品
-      <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-    </a>
     <div class="am-row-actions"><button class="btn btn-primary am-btn" id="btnAdmin" type="button">管理卷宗
       <svg viewBox="0 0 24 24" fill="none"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
-    </button><button class="btn btn-primary am-btn" id="btnCarryNow" type="button">立即搬运
-      <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
     </button></div>
   </div>
 </div>
@@ -2497,6 +2492,10 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     </div>
     <div class="am-toolbar">
       <span class="am-hint">操作即时预览 · 改动需「导出变更」后由主理人入库</span>
+      <a class="am-op" id="amUploadLink" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">上呈作品
+        <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor"/></svg>
+      </a>
+      <button class="am-op" id="btnCarryNow" type="button">立即搬运</button>
       <button class="am-op" id="amAuth" type="button">仓库授权</button>
       <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
       <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
