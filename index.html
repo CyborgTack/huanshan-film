@@ -1431,7 +1431,16 @@ const VIDEOS = [
         if(f === "all"){ b.style.display = ""; }
         else{
           b.style.display = (b.dataset.vgroup === f) ? "" : "none";
-          if(b.dataset.vgroup === f){ b.classList.remove("collapsed"); }
+          if(b.dataset.vgroup === f){
+            b.classList.remove("collapsed");
+            var h2 = b.querySelector(".vg-head");
+            if(h2){ h2.setAttribute("aria-expanded", "true"); }
+            var c2 = b.querySelector(".vg-count");
+            if(c2){
+              var tx = c2.textContent;
+              if(tx.indexOf("点此展卷") > -1){ c2.textContent = tx.replace("点此展卷", "点此合卷"); }
+            }
+          }
         }
       });
     });
@@ -1473,12 +1482,37 @@ const VIDEOS = [
     if(vh){
       var blk = vh.closest(".vg-block");
       if(blk){
-        var collapsed = blk.classList.toggle("collapsed");
-        vh.setAttribute("aria-expanded", collapsed ? "false" : "true");
-        var cnt = blk.querySelector(".vg-count");
-        if(cnt){
-          var t2 = cnt.textContent;
-          cnt.textContent = t2.indexOf("点此合卷") > -1 ? t2.replace("点此合卷", "点此展卷") : (t2.indexOf("点此展卷") > -1 ? t2.replace("点此展卷", "点此合卷") : t2);
+        var willOpen = blk.classList.contains("collapsed");
+        var vblocks = document.querySelectorAll("#vgArchive .vg-block");
+        vblocks.forEach(function(b){
+          if(b === blk){ return; }
+          if(!b.classList.contains("collapsed")){
+            b.classList.add("collapsed");
+            var h2 = b.querySelector(".vg-head");
+            if(h2){ h2.setAttribute("aria-expanded", "false"); }
+            var c2 = b.querySelector(".vg-count");
+            if(c2){
+              var tx = c2.textContent;
+              if(tx.indexOf("点此合卷") > -1){ c2.textContent = tx.replace("点此合卷", "点此展卷"); }
+            }
+          }
+        });
+        if(willOpen){
+          blk.classList.remove("collapsed");
+          vh.setAttribute("aria-expanded", "true");
+          var cnt = blk.querySelector(".vg-count");
+          if(cnt){
+            var t2 = cnt.textContent;
+            if(t2.indexOf("点此展卷") > -1){ cnt.textContent = t2.replace("点此展卷", "点此合卷"); }
+          }
+        }else{
+          blk.classList.add("collapsed");
+          vh.setAttribute("aria-expanded", "false");
+          var cnt2 = blk.querySelector(".vg-count");
+          if(cnt2){
+            var t3 = cnt2.textContent;
+            if(t3.indexOf("点此合卷") > -1){ cnt2.textContent = t3.replace("点此合卷", "点此展卷"); }
+          }
         }
       }
       return;
