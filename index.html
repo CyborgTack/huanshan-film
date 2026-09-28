@@ -241,6 +241,11 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   position:absolute;top:-10%;left:0;width:100%;height:140%;object-fit:cover;
   will-change:transform;transform:translate3d(0,0,0);
 }
+.ip-figure{position:absolute;bottom:0;z-index:1;pointer-events:none;user-select:none;opacity:.16;mix-blend-mode:screen;filter:grayscale(.25) contrast(1.06) brightness(1.05)}
+.ip-figure img{width:100%;height:100%;object-fit:contain;-webkit-mask-image:radial-gradient(72% 72% at 50% 42%,#000 32%,transparent 74%);mask-image:radial-gradient(72% 72% at 50% 42%,#000 32%,transparent 74%)}
+.ip-beast{right:-4%;width:min(46vw,560px);transform:translateY(5%);animation:ipDrift 13s ease-in-out infinite alternate}
+.ip-cat{left:-5%;width:min(38vw,470px);transform:translateY(9%) scaleX(-1);animation:ipDrift 17s ease-in-out infinite alternate-reverse}
+@keyframes ipDrift{from{transform:translateY(5%)}to{transform:translateY(calc(5% - 16px))}}
 .hero-veil{position:absolute;inset:0;background:
   radial-gradient(120% 90% at 78% 30%,rgba(194,59,46,.10),transparent 55%),
   linear-gradient(90deg,rgba(5,5,7,.88) 0%,rgba(5,5,7,.55) 42%,rgba(5,5,7,.20) 100%),
@@ -850,6 +855,8 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 <!-- ===== 主视觉 ===== -->
 <section class="hero" id="top">
   <img class="hero-bg" id="heroBg" src="assets/hero.jpg" alt="夜色墨山间宫阙灯影，雾中隐现巨兽剪影">
+  <div class="ip-figure ip-beast" aria-hidden="true"><img src="assets/ip/ip-beast.jpg" alt=""></div>
+  <div class="ip-figure ip-cat" aria-hidden="true"><img src="assets/ip/ip-cat.jpg" alt=""></div>
   <div class="hero-veil"></div>
   <canvas class="hero-ember" id="emberCanvas" aria-hidden="true"></canvas>
   <div class="hero-inner">
@@ -1366,6 +1373,8 @@ const VIDEOS = [
   {p:"眼镜店宣传",pk:"yanjing",m:"王奥",t:"眼镜店广告",d:"0:43",img:"assets/covers/cover-yanjing.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877472340514884.mp4?sign=1793090850-9f6ce91ff0-b4e4eca797dd4dd181619d1d26398113-674658fa63c7e009f1cfa44922d9016a"},
   {p:"眼镜店宣传",pk:"yanjing",m:"郭子键",t:"广告2",d:"1:01",img:"assets/covers/cover-yanjing.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877472430536777.mp4?sign=1793090851-7dbcd82523-b4e4eca797dd4dd181619d1d26398113-b6e4c2c1bfa0cb40bca2379e2fe22b99"},
   {p:"房产 TVC",pk:"tvc",m:"史顺棋",t:"房产 TVC",d:"1:15",img:"assets/covers/cover-tvc.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473673891866.mp4?sign=1793090856-57ec2c4ad5-b4e4eca797dd4dd181619d1d26398113-0cc1f82d97acdb372be7eb5042752656"},
+  {p:"《讙山灵物》",pk:"ip",m:"",t:"讙山神兽 · 三视图",d:"IP 设定",img:"assets/ip/ip-beast.jpg",u:""},
+  {p:"《讙山灵物》",pk:"ip",m:"",t:"讙山灵猫 · 三视图",d:"IP 设定",img:"assets/ip/ip-cat.jpg",u:""},
 ];
   var CONCEPTS = [
     {img:"assets/concepts/concept-01.jpg", t:"《玄圃》", k:"浮空古木 · 造物卷"},
@@ -1380,6 +1389,7 @@ const VIDEOS = [
     {img:"assets/concepts/concept-10.jpg", t:"《灵根》", k:"古木灵光 · 造物卷"}
   ];
   var PROJECTS = [
+    {k:"ip", n:"《讙山灵物》", d:"品牌主角 · IP 设定"},
     {k:"chaoxi", n:"《潮汐》", d:"克苏鲁海怪 · 暗黑奇幻剧集"},
     {k:"gongchang", n:"《工厂宣传》", d:"实业纪实 · 企业形象"},
     {k:"yanjing", n:"《眼镜店宣传》", d:"产品广告 · 门店形象"},
@@ -1392,10 +1402,10 @@ const VIDEOS = [
   function cardHTML(v, feat){
     var svg = '<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z"/></svg>';
     var i = VIDEOS.indexOf(v);
-    return '<button class="vg-card' + (feat ? " vg-feat" : "") + '" data-vi="' + i + '" aria-label="播放 ' + v.p + ' ' + v.t + '">' +
+    var isImg = !v.u;
+    return '<button class="vg-card' + (feat ? " vg-feat" : "") + '" data-vi="' + i + '" aria-label="' + (isImg ? "查看" : "播放") + ' ' + v.p + ' ' + v.t + '">' +
       '<span class="vg-poster"><img src="' + v.img + '" alt="' + v.p + ' · ' + v.t + '" loading="lazy">' +
-      '<span class="vg-play">' + svg + '</span>' +
-      '<span class="vg-badge">' + (feat ? "精品" : v.p) + '</span></span>' +
+      (isImg ? '<span class="vg-badge">' + (feat ? "精品" : v.p) + '</span>' : '<span class="vg-play">' + svg + '</span><span class="vg-badge">' + (feat ? "精品" : v.p) + '</span>') + '</span>' +
       '<span class="vg-meta"><h4>' + v.t + '</h4>' +
       '<span class="vg-sub"><span class="vg-member">' + (v.m ? v.m + " · " : "") + v.p + '</span><span class="vg-dur">' + v.d + '</span></span></span></button>';
   }
@@ -1526,7 +1536,10 @@ const VIDEOS = [
     var card = e.target.closest(".vg-card");
     if(card){
       var vi = Number(card.dataset.vi);
-      if(!isNaN(vi) && VIDEOS[vi]){ openVideoLightbox(VIDEOS[vi]); }
+      if(!isNaN(vi) && VIDEOS[vi]){
+        if(VIDEOS[vi].u){ openVideoLightbox(VIDEOS[vi]); }
+        else{ openArchiveImageLightbox(VIDEOS[vi]); }
+      }
       return;
     }
     var cg = e.target.closest(".cg-card");
@@ -1612,6 +1625,23 @@ const VIDEOS = [
     lbCat.textContent = "幻境卷 · 概念造物";
     lbMeta.textContent = c.k;
     lbDesc.textContent = "AI 概念原画 · 编修司收存，点击图片可全屏细览。";
+    lightbox.classList.remove("video-mode");
+    lightbox.classList.add("open");
+    document.body.style.overflow = "hidden";
+    var lbCloseBtn = document.getElementById("lbClose");
+    if(lbCloseBtn){ lbCloseBtn.focus(); }
+  }
+  function openArchiveImageLightbox(v){
+    var img = document.createElement("img");
+    img.src = v.img; img.alt = v.t;
+    lbFigure.innerHTML = ""; lbFigure.appendChild(img);
+    lbFigure.style.display = "";
+    if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
+    lbVideoWrap.hidden = true;
+    lbTitle.textContent = v.t;
+    lbCat.textContent = v.p;
+    lbMeta.textContent = (v.m ? v.m + " · " : "") + v.d;
+    lbDesc.textContent = "影像长卷 · 馆藏展陈，点击图片可全屏细览。";
     lightbox.classList.remove("video-mode");
     lightbox.classList.add("open");
     document.body.style.overflow = "hidden";
