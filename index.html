@@ -311,7 +311,8 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-pwd-input{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.25);border-radius:10px;color:var(--ink-gold);font-family:var(--font-latin);font-size:15px;letter-spacing:.08em;padding:12px 14px;outline:none;transition:.2s}
 .am-pwd-input:focus{border-color:rgba(212,175,55,.6);box-shadow:0 0 0 3px rgba(212,175,55,.12)}
 .am-pwd-err{color:#e0605a;font-size:12px;min-height:16px;letter-spacing:.06em}
-#adminPanel .sp-card{width:min(760px,94vw);max-height:84vh;display:flex;flex-direction:column}
+#adminPanel .sp-card{width:min(760px,94vw);max-height:84vh;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
+#adminPanel .sp-head{position:sticky;top:0;z-index:4;background:rgba(18,16,12,.98);padding-bottom:14px;margin-bottom:12px}
 .am-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .am-toolbar .am-hint{font-size:11px;color:var(--text-muted);letter-spacing:.08em}
 .am-list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;border-top:1px solid rgba(212,175,55,.12)}
@@ -328,7 +329,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-op.active{color:var(--ink-gold);border-color:rgba(212,175,55,.55);background:rgba(212,175,55,.1)}
 .am-edit-form{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
 .am-edit-form select,.am-edit-form input{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:12px;padding:7px 9px;outline:none}
-.am-foot{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
+.am-foot{display:flex;gap:10px;margin-top:14px;justify-content:flex-end;position:sticky;bottom:0;z-index:4;background:rgba(18,16,12,.98);padding-top:10px;margin-bottom:-6px}
 .am-done{color:#7fae7f;font-size:12px;letter-spacing:.08em;margin-right:auto;align-self:center}
 .am-add-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
 .am-proj-list{display:flex;flex-direction:column;gap:2px;margin-bottom:14px;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12)}
@@ -387,6 +388,10 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-inbox-list{list-style:none;margin:0;padding:0}
 .am-inbox-list .am-row{font-size:12px}
 .am-inbox-list select{max-width:130px}
+.am-inbox.collapsed .am-inbox-list{display:none}
+.am-inbox h4{cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+.am-inbox h4::after{content:"▾";font-size:10px;color:var(--gold-dim);transition:.2s}
+.am-inbox.collapsed h4::after{transform:rotate(-90deg)}
 /* 管理面板：分组收纳 */
 .am-toolbar{flex-direction:column;align-items:stretch;justify-content:flex-start}
 .am-grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -670,6 +675,12 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   .vg-grid,.vg-grid.feat{grid-template-columns:1fr;gap:14px}
   .vg-meta{padding:10px 11px 12px}
   .vg-meta h4{font-size:14px}
+}
+@media(max-width:720px){
+  .am-inbox-list .am-row{flex-wrap:wrap;padding:10px 2px}
+  .am-inbox-list .am-ops{width:100%;justify-content:flex-end;margin-top:8px;flex-wrap:wrap;gap:8px}
+  .am-inbox-list .am-op,.am-inbox-list select{min-height:44px;padding:9px 14px;font-size:12px}
+  .am-inbox-list select{flex:1;min-width:0;max-width:none}
 }
 
 
@@ -2110,6 +2121,11 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     if(!admPanel)return;
     if(snapshot===null){snapshot={videos:JSON.parse(JSON.stringify(window.VIDEOS)),producers:window.PRODUCERS.slice(),inbox:JSON.parse(JSON.stringify(window.INBOX))}}
     admPanel.classList.add('open');lockBody();renderList();renderInboxList();doneEl.textContent='';
+    var ibx=document.querySelector('#adminPanel .am-inbox');
+    if(ibx){ibx.classList.add('collapsed');
+      var ibt=document.getElementById('amInboxTitle');
+      if(ibt&&!ibt._bound){ibt._bound=true;ibt.addEventListener('click',function(){ibx.classList.toggle('collapsed')});}
+    }
   }
   function closeAdmin(){if(admPanel)admPanel.classList.remove('open');unlockBody()}
   function projOf(pk){
@@ -2632,7 +2648,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     <div class="am-proj-list" id="amProjList" hidden></div>
     <ul class="am-list" id="amList"></ul>
     <div class="am-inbox">
-      <h4>待归卷 · 上呈合集的新作</h4>
+      <h4 id="amInboxTitle">待归卷 · 上呈合集的新作</h4>
       <ul class="am-inbox-list" id="amInboxList"></ul>
     </div>
     <div class="am-foot">
