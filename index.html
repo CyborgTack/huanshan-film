@@ -323,6 +323,10 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-add-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
 .am-add-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:13px;padding:8px 12px;outline:none;letter-spacing:.12em}
 .am-add-row input:focus{border-color:rgba(212,175,55,.55)}
+.am-sync-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
+.am-sync-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:12px;padding:8px 12px;outline:none;letter-spacing:.06em}
+.am-sync-row input:focus{border-color:rgba(212,175,55,.55)}
+.am-sync-hint{font-size:11px;color:var(--text-muted);letter-spacing:.06em;margin:0 4px 8px}
 
 .studio-panel{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
 .studio-panel.open{display:flex}
@@ -1821,6 +1825,76 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       });
     });
   }
+  /* ===== 真自动：GitHub 数据源 ===== */
+  var REMOTE='https://api.github.com/repos/CyborgTack/huanshan-film/contents/data.json';
+  var REMOTE_CDN='https://cdn.jsdelivr.net/gh/CyborgTack/huanshan-film@main/data.json';
+  var PAT_KEY='hs_pat';
+  function loadRemote(){
+    fetch(REMOTE_CDN,{cache:'no-store'}).then(function(r){return r.ok?r.json():Promise.reject('cdn')})
+    .then(function(d){applyData(d)}).catch(function(){});
+  }
+  function applyData(d){
+    if(!d||!Array.isArray(d.videos)||!d.videos.length)return;
+    try{
+      window.VIDEOS.splice.apply(window.VIDEOS,[0,window.VIDEOS.length].concat(d.videos));
+      if(Array.isArray(d.concepts)){window.CONCEPTS.splice.apply(window.CONCEPTS,[0,window.CONCEPTS.length].concat(d.concepts))}
+      if(Array.isArray(d.projects)){window.PROJECTS.splice.apply(window.PROJECTS,[0,window.PROJECTS.length].concat(d.projects))}
+      if(Array.isArray(d.producers)){window.PRODUCERS.splice.apply(window.PRODUCERS,[0,window.PRODUCERS.length].concat(d.producers))}
+      window.renderFeatured();window.renderArchive();renderMembers();
+    }catch(e){}
+  }
+  function syncToRepo(){
+    var pat=localStorage.getItem(PAT_KEY);
+    if(!pat)return Promise.reject('nopat');
+    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,producers:window.PRODUCERS};
+    var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    return fetch(REMOTE,{headers:{Authorization:'Bearer '+pat}}).then(function(r){return r.json()}).then(function(meta){
+      if(!meta.sha)return Promise.reject('meta:'+JSON.stringify(meta).slice(0,80));
+      return fetch(REMOTE,{method:'PUT',headers:{Authorization:'Bearer '+pat,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+        body:JSON.stringify({message:'讙山图管理卷宗·同步入库',content:content,sha:meta.sha})});
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.content&&d.content.sha)return {ok:true};
+      return Promise.reject('put:'+JSON.stringify(d).slice(0,120));
+    });
+  }
+  var authBtn=document.getElementById('amAuth');
+  if(authBtn){
+    authBtn.addEventListener('click',function(){
+      var old=document.getElementById('amSyncRow');
+      if(old){old.remove();return}
+      var row=document.createElement('div');
+      row.className='am-sync-row';
+      row.id='amSyncRow';
+      var saved=localStorage.getItem(PAT_KEY)||'';
+      row.innerHTML='<input id="amPat" type="password" placeholder="GitHub 令牌（PAT，仅存本机浏览器）" value="'+saved+'">'+
+        '<button class="am-op active" type="button" data-save>保存</button>'+
+        '<button class="am-op" type="button" data-clear>清除</button>'+
+        '<button class="am-op" type="button" data-cancel>取消</button>';
+      listEl.parentNode.insertBefore(row,listEl);
+      var inp=row.querySelector('#amPat');if(!saved)inp.focus();
+      row.addEventListener('click',function(e){
+        if(e.target.dataset.save!==undefined){
+          var v=inp.value.trim();
+          if(!v){inp.focus();return}
+          localStorage.setItem(PAT_KEY,v);
+          row.remove();if(doneEl)doneEl.textContent='令牌已保存 · 可点「同步入库」';
+        }else if(e.target.dataset.clear!==undefined){
+          localStorage.removeItem(PAT_KEY);row.remove();if(doneEl)doneEl.textContent='令牌已清除';
+        }else if(e.target.dataset.cancel!==undefined){row.remove()}
+      });
+    });
+  }
+  var syncBtn=document.getElementById('amSync');
+  if(syncBtn){
+    syncBtn.addEventListener('click',function(){
+      if(doneEl)doneEl.textContent='正在写入仓库…';
+      syncToRepo().then(function(){
+        if(doneEl)doneEl.textContent='已入库 · 刷新后全站生效（CDN 约数分钟内同步）';
+      }).catch(function(e){
+        if(doneEl)doneEl.textContent=(e==='nopat')?'请先「仓库授权」填写令牌':('入库失败：'+String(e));
+      });
+    });
+  }
   var addBtn=document.getElementById('amAddProducer');
   if(addBtn){
     addBtn.addEventListener('click',function(){
@@ -1861,6 +1935,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
   if(expBtn){expBtn.addEventListener('click',exportChanges)}
   var closeBtn=document.getElementById('amClose');
   if(closeBtn){closeBtn.addEventListener('click',closeAdmin)}
+  loadRemote();
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}
   else{init()}
@@ -1928,6 +2003,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     </div>
     <div class="am-toolbar">
       <span class="am-hint">操作即时预览 · 改动需「导出变更」后由主理人入库</span>
+      <button class="am-op" id="amAuth" type="button">仓库授权</button>
       <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
       <button class="am-op" id="amUndo" type="button">撤销全部</button>
     </div>
@@ -1936,6 +2012,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     <div class="am-foot">
       <span class="am-done" id="amDone"></span>
       <button class="am-op" id="amClose" type="button">关闭</button>
+      <button class="am-op active" id="amSync" type="button">同步入库</button>
       <button class="am-op active" id="amExport" type="button">导出变更</button>
     </div>
   </div>
