@@ -1609,13 +1609,13 @@ const VIDEOS = [
   var featCountTitle = document.getElementById("featCountTitle");
   function renderFeatured(){
     if(!featGrid)return;
-    if(!window.FEATURED.length){
+    if(!FEATURED.length){
       featGrid.innerHTML = '<div class="inbox-empty">四部之最 · 待主理人甄选上架</div>';
       if(featCountTitle){ featCountTitle.textContent = '四部之最 · 馆藏甄选'; }
       return;
     }
     var svgIco='<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z"/></svg>';
-    featGrid.innerHTML = window.FEATURED.map(function(v,i){
+    featGrid.innerHTML = FEATURED.map(function(v,i){
       var isImg = !v.u;
       return '<button class="feat-card" data-fi="' + i + '" aria-label="' + (isImg ? '查看' : '播放') + ' ' + v.p + ' ' + v.t + '">' +
         '<img src="' + v.img + '" alt="' + v.p + ' · ' + v.t + '" loading="lazy">' +
@@ -1623,7 +1623,7 @@ const VIDEOS = [
         '<span class="feat-badge">' + (isImg ? '图' : '影') + '</span>' +
         '<span class="feat-meta"><h4>' + v.t + '</h4><span>' + (v.m ? v.m + ' · ' : '') + v.p + '</span></span></button>';
     }).join("");
-    if(featCountTitle){ featCountTitle.textContent = window.FEATURED.length + ' 件甄选 · 四部之最'; }
+    if(featCountTitle){ featCountTitle.textContent = FEATURED.length + ' 件甄选 · 四部之最'; }
   }
   renderFeatured();
   }
