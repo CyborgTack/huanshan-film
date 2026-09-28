@@ -1141,15 +1141,19 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 <script>
 
 (function(){
-  var panel=document.getElementById('studioPanel');
-  if(!panel)return;
-  function openStudio(){panel.classList.add('open');document.body.style.overflow='hidden'}
-  function closeStudio(){panel.classList.remove('open');document.body.style.overflow=''}
-  document.addEventListener('click',function(e){
-    if(e.target.closest('[data-sp-close]')){closeStudio();return}
-    if(e.target.closest('.brand-logo')){e.preventDefault();openStudio();return}
-  });
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeStudio()});
+  function init(){
+    var panel=document.getElementById('studioPanel');
+    if(!panel)return;
+    function openStudio(){panel.classList.add('open');document.body.style.overflow='hidden'}
+    function closeStudio(){panel.classList.remove('open');document.body.style.overflow=''}
+    document.addEventListener('click',function(e){
+      if(e.target.closest('[data-sp-close]')){closeStudio();return}
+      if(e.target.closest('.brand')){e.preventDefault();openStudio();return}
+    });
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeStudio()});
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}
+  else{init()}
 })();
 
 (function(){
