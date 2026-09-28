@@ -2085,7 +2085,9 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       var best=null;
       list.forEach(function(d){
         if(d&&Array.isArray(d.videos)&&d.videos.length){
-          if(!best||((d.updatedAt||'')>(best.updatedAt||''))){best=d;}
+          var newer = (d.updatedAt||'')>(best&&best.updatedAt||'');
+          var same = (d.updatedAt||'')===(best&&best.updatedAt||'');
+          if(!best||newer||(same&&d.videos.length>best.videos.length)){best=d;}
         }
       });
       if(best)applyData(best);
