@@ -346,6 +346,14 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .inbox-meta h4{font-size:13px;color:var(--text-bright);font-weight:500;margin:0 0 4px;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inbox-meta span{display:block;font-size:11px;color:var(--text-muted);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inbox-empty{color:var(--text-muted);font-size:12px;letter-spacing:.1em;padding:var(--space-6) 0;border:1px dashed rgba(212,175,55,.14);border-radius:var(--radius-md);text-align:center}
+/* 项目卷：展开/收起 */
+.vg-block.collapsed .vg-grid{display:none}
+.vg-block .vg-head{cursor:pointer;user-select:none;transition:opacity .25s}
+.vg-block .vg-head:hover{opacity:.82}
+.vg-toggle{width:16px;height:16px;stroke:currentColor;color:var(--ink-gold);flex:none;margin-left:8px;transition:transform .3s}
+.vg-block.collapsed .vg-toggle{transform:rotate(-90deg)}
+.vg-block .vg-head .vg-count{transition:color .25s}
+.vg-block.collapsed .vg-head .vg-count{color:var(--text-muted)}
 /* 管理面板：待归卷 */
 .am-inbox{margin-top:10px;border-top:1px solid rgba(212,175,55,.12);padding-top:8px}
 .am-inbox h4{font-size:11px;color:var(--ink-gold);letter-spacing:.2em;margin:0 0 6px;font-weight:600}
@@ -1380,9 +1388,11 @@ const VIDEOS = [
     PROJECTS.forEach(function(proj){
       var list = rest.filter(function(v){ return v.pk === proj.k; });
       if(!list.length){ return; }
-      html += '<div class="vg-block" data-vgroup="' + proj.k + '">' +
-        '<div class="vg-head"><div><span class="vg-no">' + ("0" + (PROJECTS.indexOf(proj) + 1)).slice(-2) + '</span><h3>' + proj.n + '</h3></div>' +
-        '<span class="vg-count">' + proj.d + ' · ' + list.length + ' 卷</span></div>' +
+      var isFirst = PROJECTS.indexOf(proj) === 0;
+      html += '<div class="vg-block' + (isFirst ? "" : " collapsed") + '" data-vgroup="' + proj.k + '">' +
+        '<div class="vg-head" role="button" aria-expanded="' + (isFirst ? "true" : "false") + '"><div><span class="vg-no">' + ("0" + (PROJECTS.indexOf(proj) + 1)).slice(-2) + '</span><h3>' + proj.n + '</h3></div>' +
+        '<span class="vg-count">' + proj.d + ' · ' + list.length + ' 卷 · ' + (isFirst ? "点此合卷" : "点此展卷") + '</span>' +
+        '<svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div>' +
         '<div class="vg-grid">' + list.map(function(v){ return cardHTML(v, false); }).join("") + '</div></div>';
     });
     vgArchive.innerHTML = html;
@@ -1417,7 +1427,13 @@ const VIDEOS = [
       btn.classList.add("active"); btn.setAttribute("aria-selected","true");
       var f = btn.dataset.vfilter;
       var blocks = document.querySelectorAll("#vgArchive .vg-block");
-      blocks.forEach(function(b){ b.style.display = (f === "all" || b.dataset.vgroup === f) ? "" : "none"; });
+      blocks.forEach(function(b){
+        if(f === "all"){ b.style.display = ""; }
+        else{
+          b.style.display = (b.dataset.vgroup === f) ? "" : "none";
+          if(b.dataset.vgroup === f){ b.classList.remove("collapsed"); }
+        }
+      });
     });
   });
   /* 概念画廊渲染 */
@@ -1451,6 +1467,21 @@ const VIDEOS = [
       if(!isNaN(ii) && INBOX[ii]){
         if(INBOX[ii].u){ openVideoLightbox(INBOX[ii]); }
       }
+      return;
+    }
+    var vh = e.target.closest(".vg-head");
+    if(vh){
+      var blk = vh.closest(".vg-block");
+      if(blk){
+        var collapsed = blk.classList.toggle("collapsed");
+        vh.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        var cnt = blk.querySelector(".vg-count");
+        if(cnt){
+          var t2 = cnt.textContent;
+          cnt.textContent = t2.indexOf("点此合卷") > -1 ? t2.replace("点此合卷", "点此展卷") : (t2.indexOf("点此展卷") > -1 ? t2.replace("点此展卷", "点此合卷") : t2);
+        }
+      }
+      return;
     }
   });
   function openVideoLightbox(v){
