@@ -288,6 +288,25 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   display:flex;flex-direction:column;align-items:center;gap:12px;
   animation:rise 1.1s var(--ease) 2.5s both;
 }
+
+
+/* ===== 制作人档案面板 ===== */
+.studio-panel{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
+.studio-panel.open{display:flex}
+.sp-backdrop{position:absolute;inset:0;background:rgba(5,5,7,.82);backdrop-filter:blur(6px)}
+.sp-card{position:relative;width:min(440px,92vw);background:linear-gradient(160deg,#15130e,#0d0c0a);border:1px solid rgba(212,175,55,.32);border-radius:14px;padding:34px 32px 30px;box-shadow:0 24px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(212,175,55,.16);animation:spIn .38s var(--ease) both}
+@keyframes spIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.sp-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border:1px solid rgba(212,175,55,.25);border-radius:50%;background:transparent;color:var(--ink-gold);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.sp-close:hover{background:rgba(212,175,55,.12)}
+.sp-head{display:flex;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid rgba(212,175,55,.18);margin-bottom:18px}
+.sp-logo{width:52px;height:52px;border-radius:50%;flex:none;-webkit-user-drag:none;user-drag:none}
+.sp-title{font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--ink-gold);letter-spacing:.04em}
+.sp-sub{font-family:var(--font-latin);font-size:10px;letter-spacing:.3em;color:var(--text-muted);margin-top:6px}
+.sp-desc{color:var(--text-secondary);font-size:13.5px;line-height:1.9;margin-bottom:16px}
+.sp-label{font-family:var(--font-display);font-size:11px;letter-spacing:.24em;color:var(--gold-dim);margin-bottom:10px}
+.sp-members{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;padding:0}
+.sp-members li{font-size:12px;letter-spacing:.14em;color:var(--ink-gold);border:1px solid rgba(212,175,55,.26);border-radius:999px;padding:5px 14px;background:rgba(212,175,55,.06)}
+.sp-upload{width:100%;justify-content:center;margin-top:2px}
 .hero-brand-name{
   width:158px;height:auto;flex:none;
   -webkit-user-drag:none;user-drag:none;touch-action:manipulation;
@@ -1120,6 +1139,19 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 </div>
 
 <script>
+
+(function(){
+  var panel=document.getElementById('studioPanel');
+  if(!panel)return;
+  function openStudio(){panel.classList.add('open');document.body.style.overflow='hidden'}
+  function closeStudio(){panel.classList.remove('open');document.body.style.overflow=''}
+  document.addEventListener('click',function(e){
+    if(e.target.closest('[data-sp-close]')){closeStudio();return}
+    if(e.target.closest('.brand-logo')){e.preventDefault();openStudio();return}
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeStudio()});
+})();
+
 (function(){
   "use strict";
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1610,5 +1642,29 @@ const VIDEOS = [
   }
 })();
 </script>
+
+<!-- ===== 制作人档案面板 ===== -->
+<div class="studio-panel" id="studioPanel" role="dialog" aria-modal="true" aria-label="制作人档案">
+  <div class="sp-backdrop" data-sp-close></div>
+  <div class="sp-card">
+    <button class="sp-close" data-sp-close aria-label="关闭">&times;</button>
+    <div class="sp-head">
+      <img class="sp-logo" src="assets/brand/logo-totem.png" alt="" draggable="false" oncontextmenu="return false">
+      <div>
+        <div class="sp-title">讙山图 · 制作人档案</div>
+        <div class="sp-sub">HUAN SHAN FILM · 编修司员名录</div>
+      </div>
+    </div>
+    <p class="sp-desc">讙山图是一间 AIGC 影像创作馆。我们以生成式电影与 CG 造景为笔，承接 TVC 广告、短剧、宣传片、MV、产品设计与海报——凡所想象，皆可成片。</p>
+    <div class="sp-label">编修司员</div>
+    <ul class="sp-members">
+      <li>史顺棋</li><li>李尚书</li><li>王奥</li><li>杨子琪</li><li>郭子键</li><li>廖棋稚</li>
+    </ul>
+    <a class="btn btn-primary sp-upload" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener">上呈作品
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+    </a>
+  </div>
+</div>
+
 </body>
 </html>
