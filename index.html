@@ -320,6 +320,9 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-edit-form select,.am-edit-form input{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:12px;padding:7px 9px;outline:none}
 .am-foot{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
 .am-done{color:#7fae7f;font-size:12px;letter-spacing:.08em;margin-right:auto;align-self:center}
+.am-add-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
+.am-add-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:13px;padding:8px 12px;outline:none;letter-spacing:.12em}
+.am-add-row input:focus{border-color:rgba(212,175,55,.55)}
 
 .studio-panel{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
 .studio-panel.open{display:flex}
@@ -1317,6 +1320,7 @@ const VIDEOS = [
     {k:"taguofenye", n:"《他过分野》", d:"都市情感 · 系列短剧"},
     {k:"tvc", n:"《房产 TVC》", d:"商业广告 · 房产宣传"}
   ];
+  var PRODUCERS = ["史顺棋","李尚书","王奥","杨子琪","郭子键","廖棋稚"];
   function cardHTML(v, feat){
     var svg = '<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z"/></svg>';
     var i = VIDEOS.indexOf(v);
@@ -1674,7 +1678,7 @@ const VIDEOS = [
       else if(!reduceMotion){ emberOn = true; requestAnimationFrame(loopEmbers); }
     });
   }
-window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
+window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;
   window.renderFeatured=renderFeatured;window.renderArchive=renderArchive;
 })();
 
@@ -1694,6 +1698,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
   var admPanel=document.getElementById('adminPanel');
   var listEl=document.getElementById('amList');
   var doneEl=document.getElementById('amDone');
+  renderMembers();
   var snapshot=null;
   function lockBody(){document.body.style.overflow='hidden'}
   function unlockBody(){document.body.style.overflow=''}
@@ -1701,13 +1706,24 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
   function closePwd(){if(pwdPanel)pwdPanel.classList.remove('open');unlockBody()}
   function openAdmin(){
     if(!admPanel)return;
-    if(snapshot===null){snapshot=JSON.parse(JSON.stringify(window.VIDEOS))}
+    if(snapshot===null){snapshot={videos:JSON.parse(JSON.stringify(window.VIDEOS)),producers:window.PRODUCERS.slice()}}
     admPanel.classList.add('open');lockBody();renderList();doneEl.textContent='';
   }
   function closeAdmin(){if(admPanel)admPanel.classList.remove('open');unlockBody()}
   function projOf(pk){
     for(var i=0;i<window.PROJECTS.length;i++){if(window.PROJECTS[i].k===pk)return window.PROJECTS[i]}
     return null;
+  }
+  function renderMembers(){
+    var ul=document.getElementById('spMembers');
+    if(!ul)return;
+    ul.innerHTML=window.PRODUCERS.map(function(n){return '<li>'+n+'</li>'}).join('');
+    var dl=document.getElementById('amAuthorList');
+    if(dl){
+      var all=window.PRODUCERS.slice();
+      window.VIDEOS.forEach(function(v){if(v.m&&all.indexOf(v.m)<0)all.push(v.m)});
+      dl.innerHTML=all.map(function(n){return '<option value="'+n.replace(/"/g,'&quot;')+'">'}).join('');
+    }
   }
   function renderList(){
     if(!listEl)return;
@@ -1759,7 +1775,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
     form.className='am-edit-form';
     form.innerHTML='<select data-f="pk">'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'"'+(pr.k===v.pk?' selected':'')+'>'+pr.n+'</option>'}).join('')+'</select>'+
       '<input data-f="t" value="'+v.t.replace(/"/g,'&quot;')+'" placeholder="标题">'+
-      '<input data-f="m" value="'+(v.m||'').replace(/"/g,'&quot;')+'" placeholder="作者">'+
+      '<input data-f="m" list="amAuthorList" value="'+(v.m||'').replace(/"/g,'&quot;')+'" placeholder="作者">'+
       '<input data-f="d" value="'+(v.d||'').replace(/"/g,'&quot;')+'" placeholder="时长" style="width:64px">'+
       '<button class="am-op active" type="button" data-save>保存</button><button class="am-op" type="button" data-cancel>取消</button>';
     var wrap=btn.closest('.am-row');
@@ -1780,7 +1796,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
   }
   function markDone(){if(doneEl){doneEl.textContent='已记录变更 · 记得导出'}}
   function exportChanges(){
-    var payload={version:2,exportedAt:new Date().toISOString(),videos:VIDEOS,concepts:window.CONCEPTS};
+    var payload={version:3,exportedAt:new Date().toISOString(),producers:window.PRODUCERS,videos:window.VIDEOS,concepts:window.CONCEPTS};
     var blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
     var a=document.createElement('a');a.href=URL.createObjectURL(blob);
     a.download='huanshan-changes.json';document.body.appendChild(a);a.click();a.remove();
@@ -1805,11 +1821,40 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
       });
     });
   }
+  var addBtn=document.getElementById('amAddProducer');
+  if(addBtn){
+    addBtn.addEventListener('click',function(){
+      var old=document.getElementById('amAddRow');
+      if(old){old.remove();return}
+      var row=document.createElement('div');
+      row.className='am-add-row';
+      row.id='amAddRow';
+      row.innerHTML='<input id="amNewProducer" placeholder="制作人姓名" maxlength="12">'+
+        '<button class="am-op active" type="button" data-ap-save>加入名录</button>'+
+        '<button class="am-op" type="button" data-ap-cancel>取消</button>';
+      listEl.parentNode.insertBefore(row,listEl);
+      var inp=row.querySelector('#amNewProducer');inp.focus();
+      row.addEventListener('click',function(e){
+        if(e.target.dataset.apSave!==undefined){
+          var name=inp.value.trim();
+          if(!name){inp.focus();return}
+          if(window.PRODUCERS.indexOf(name)>-1){inp.select();return}
+          window.PRODUCERS.push(name);
+          renderMembers();renderList();markDone();row.remove();
+        }else if(e.target.dataset.apCancel!==undefined){row.remove()}
+      });
+    });
+  }
   var undoBtn=document.getElementById('amUndo');
   if(undoBtn){
     undoBtn.addEventListener('click',function(){
-      if(snapshot){window.VIDEOS.splice.apply(window.VIDEOS,[0,window.VIDEOS.length].concat(snapshot))}
-      window.renderFeatured();window.renderArchive();renderList();if(doneEl)doneEl.textContent='已撤销全部变更';
+      if(snapshot){
+        window.VIDEOS.splice.apply(window.VIDEOS,[0,window.VIDEOS.length].concat(snapshot.videos));
+        window.PRODUCERS.splice(0,window.PRODUCERS.length);
+        snapshot.producers.forEach(function(n){window.PRODUCERS.push(n)});
+        renderMembers();
+      }
+      renderFeatured();renderArchive();renderList();if(doneEl)doneEl.textContent='已撤销全部变更';
     });
   }
   var expBtn=document.getElementById('amExport');
@@ -1837,9 +1882,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
     </div>
     <p class="sp-desc">讙山图是一间 AIGC 影像创作馆。我们以生成式电影与 CG 造景为笔，承接 TVC 广告、短剧、宣传片、MV、产品设计与海报——凡所想象，皆可成片。</p>
     <div class="sp-label">编修司员</div>
-    <ul class="sp-members">
-      <li>史顺棋</li><li>李尚书</li><li>王奥</li><li>杨子琪</li><li>郭子键</li><li>廖棋稚</li>
-    </ul>
+    <ul class="sp-members" id="spMembers"></ul>
     <a class="btn btn-primary sp-upload" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener">上呈作品
       <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
     </a>
@@ -1885,8 +1928,10 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
     </div>
     <div class="am-toolbar">
       <span class="am-hint">操作即时预览 · 改动需「导出变更」后由主理人入库</span>
+      <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
       <button class="am-op" id="amUndo" type="button">撤销全部</button>
     </div>
+    <datalist id="amAuthorList"></datalist>
     <ul class="am-list" id="amList"></ul>
     <div class="am-foot">
       <span class="am-done" id="amDone"></span>
