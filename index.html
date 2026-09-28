@@ -882,7 +882,6 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
         <button class="vfilter" data-vfilter="tvc" role="tab" aria-selected="false">房产</button>
       </div>
     </div>
-    <div class="vg-block" id="vgFeatured" data-reveal></div>
     <div class="vg-block" id="vgArchive" data-reveal></div>
     <div class="work-srcs" aria-hidden="true">
       <img src="assets/covers/cover-chaoxi.jpg" alt="" loading="lazy">
@@ -1373,16 +1372,11 @@ const VIDEOS = [
       '<span class="vg-meta"><h4>' + v.t + '</h4>' +
       '<span class="vg-sub"><span class="vg-member">' + (v.m ? v.m + " · " : "") + v.p + '</span><span class="vg-dur">' + v.d + '</span></span></span></button>';
   }
-  var vgFeatured = document.getElementById("vgFeatured");
   var vgArchive = document.getElementById("vgArchive");
-  var featured = VIDEOS.filter(function(v){ return v.m === "李尚书"; });
-  var rest = VIDEOS.filter(function(v){ return v.m !== "李尚书"; });
-  function renderFeatured(){
-    vgFeatured.innerHTML = '<div class="vg-head"><div><span class="vg-no">VOL. 01</span><h3>主创展陈 · 李尚书</h3></div><span class="vg-count">' + featured.length + ' 卷 · 精品在藏</span></div>' +
-      '<div class="vg-grid feat">' + featured.map(function(v){ return cardHTML(v, true); }).join("") + '</div>';
-  }
+  var rest = VIDEOS;
+  function renderFeatured(){}
   function renderArchive(){
-    var html = '<div class="vg-head"><div><span class="vg-no">VOL. 02</span><h3>全卷收录</h3></div><span class="vg-count">' + rest.length + ' 卷 · 按项目编目</span></div>';
+    var html = '<div class="vg-head"><div><span class="vg-no">VOL. 01</span><h3>全卷收录</h3></div><span class="vg-count">' + rest.length + ' 卷 · 按项目编目</span></div>';
     PROJECTS.forEach(function(proj){
       var list = rest.filter(function(v){ return v.pk === proj.k; });
       if(!list.length){ return; }
@@ -1424,7 +1418,6 @@ const VIDEOS = [
       var f = btn.dataset.vfilter;
       var blocks = document.querySelectorAll("#vgArchive .vg-block");
       blocks.forEach(function(b){ b.style.display = (f === "all" || b.dataset.vgroup === f) ? "" : "none"; });
-      vgFeatured.style.display = (f === "all") ? "" : "none";
     });
   });
   /* 概念画廊渲染 */
@@ -1801,12 +1794,10 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     listEl.innerHTML=window.VIDEOS.map(function(v,idx){
       var proj=projOf(v.pk);
       var projName=proj?proj.n:v.p;
-      var feat=v.m==='李尚书';
       return '<li class="am-row"><span class="am-idx">'+('0'+(idx+1)).slice(-2)+'</span>'+
-        '<div class="am-main"><b>'+(feat?'<span class="am-feat-tag">[精品] </span>':'')+projName+' · '+v.t+'</b>'+
+        '<div class="am-main"><b>'+projName+' · '+v.t+'</b>'+
         '<span>'+(v.m||'佚名')+' · '+v.d+'</span></div>'+
         '<div class="am-ops">'+
-        '<button class="am-op'+(feat?' active':'')+'" type="button" data-am-feat="'+idx+'">精品</button>'+
         '<select class="am-op" data-am-move="'+idx+'">'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'"'+(pr.k===v.pk?' selected':'')+'>'+pr.n+'</option>'}).join('')+'</select>'+
         '<button class="am-op" type="button" data-am-edit="'+idx+'">修改</button>'+
         '<button class="am-op danger" type="button" data-am-del="'+idx+'">删除</button>'+
@@ -1828,12 +1819,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
   });
   listEl.addEventListener('change',function(e){
     var t=e.target;
-    if(t.dataset.amFeat!==undefined){
-      var idx=+t.dataset.amFeat;var v=window.VIDEOS[idx];if(!v)return;
-      if(t.classList.contains('active')){v.m=v._prevM||v.m}else{v._prevM=v.m;v.m='李尚书'}
-      t.classList.toggle('active');
-      window.renderFeatured();window.renderArchive();renderList();markDone();
-    }else if(t.dataset.amMove!==undefined){
+    if(t.dataset.amMove!==undefined){
       var idx2=+t.dataset.amMove;var v2=VIDEOS[idx2];if(!v2)return;
       var pk=t.value;var proj=projOf(pk);
       if(proj){v2.p=proj.n;v2.pk=proj.k}
@@ -1972,7 +1958,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       return '<li class="am-row"><div class="am-main"><b>'+((v.p||'未命名')+' · '+(v.t||''))+'</b>'+
         '<span>'+(v.m||'佚名')+(v.d?' · '+v.d:'')+'</span></div>'+
         '<div class="am-ops">'+
-        '<select class="am-op" data-ib-into="'+i+'"><option value="">归入卷…</option>'+opts+'<option value="__feat">主创展陈（精品）</option></select>'+
+        '<select class="am-op" data-ib-into="'+i+'"><option value="">归入卷…</option>'+opts+'</select>'+
         '<button class="am-op active" type="button" data-ib-move="'+i+'">归卷</button>'+
         '<button class="am-op danger" type="button" data-ib-del="'+i+'">移除</button>'+
         '</div></li>';
@@ -2022,12 +2008,8 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
           return;
         }
         var copy=JSON.parse(JSON.stringify(v));
-        if(target==='__feat'){
-          copy._prevM=copy.m;copy.m='李尚书';
-        }else{
-          var proj=projOf(target);
-          if(proj){copy.p=proj.n;copy.pk=proj.k}
-        }
+        var proj=projOf(target);
+        if(proj){copy.p=proj.n;copy.pk=proj.k}
         window.VIDEOS.push(copy);
         window.INBOX.splice(i,1);
         window.renderFeatured();window.renderArchive();window.renderInbox();renderInboxList();markInboxDone();
