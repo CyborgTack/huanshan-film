@@ -331,6 +331,11 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-foot{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
 .am-done{color:#7fae7f;font-size:12px;letter-spacing:.08em;margin-right:auto;align-self:center}
 .am-add-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
+.am-proj-list{display:flex;flex-direction:column;gap:2px;margin-bottom:14px;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12)}
+.am-proj-row{display:flex;align-items:center;gap:10px;font-size:12px;padding:6px 4px;border-bottom:1px solid rgba(212,175,55,.06)}
+.am-proj-row:last-child{border-bottom:0}
+.am-proj-name{flex:1;color:var(--text-bright);letter-spacing:.06em}
+.am-proj-count{color:var(--text-muted);font-size:11px}
 .am-add-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:13px;padding:8px 12px;outline:none;letter-spacing:.12em}
 .am-add-row input:focus{border-color:rgba(212,175,55,.55)}
 .am-sync-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
@@ -352,6 +357,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .inbox-card:hover .inbox-poster{filter:grayscale(.15) brightness(.95)}
 .inbox-poster img{width:100%;height:100%;object-fit:cover;display:block}
 .inbox-new{position:absolute;top:8px;right:8px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.5);color:var(--ink-gold-bright);font-size:9px;letter-spacing:.2em;padding:2px 7px;border-radius:2px;backdrop-filter:blur(4px)}
+.inbox-new.old{background:rgba(150,150,150,.14);border-color:rgba(190,190,190,.4);color:#b9b9b9}
 .inbox-meta{padding:10px 12px 12px}
 .inbox-meta h4{font-size:13px;color:var(--text-bright);font-weight:500;margin:0 0 4px;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inbox-meta span{display:block;font-size:11px;color:var(--text-muted);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1466,7 +1472,7 @@ const VIDEOS = [
         var sub = (v.m ? v.m + ' · ' : '') + (v.d || '');
         return '<button class="inbox-card" data-ii="' + oi + '" aria-label="查看新作 ' + pname + '">' +
           '<span class="inbox-poster"><img src="' + img + '" alt="' + pname + ' · ' + t + '" loading="lazy">' +
-          '<span class="inbox-new">新</span></span>' +
+          '<span class="inbox-new"'+(v.p==='旧作待处理'?' old':'')+'>'+(v.p==='旧作待处理'?'旧':'新')+'</span></span>' +
           '<span class="inbox-meta"><h4>' + (t || pname) + '</h4><span>' + sub + '</span></span></button>';
       }).join('');
       return '<div class="inbox-group"><div class="inbox-gtitle">' + label + ' <span class="inbox-gcount">' + list.length + '</span></div>' +
@@ -2319,6 +2325,34 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       });
     });
   }
+  var projListBtn=document.getElementById('amProjectsBtn');
+  var projListEl=document.getElementById('amProjList');
+  function renderProjList(){
+    if(!projListEl)return;
+    if(!window.PROJECTS.length){projListEl.innerHTML='<div class="am-hint">暂无卷宗</div>';return}
+    projListEl.innerHTML=window.PROJECTS.map(function(pr){
+      var n=window.VIDEOS.filter(function(v){return v.pk===pr.k}).length;
+      return '<div class="am-proj-row"><span class="am-proj-name">'+pr.n+'</span><span class="am-proj-count">'+n+' 件</span>'+
+        '<button class="am-op danger" type="button" data-pj-del="'+pr.k+'">删卷</button></div>';
+    }).join('');
+  }
+  if(projListBtn&&projListEl){
+    projListBtn.addEventListener('click',function(){
+      if(projListEl.hasAttribute('hidden')){projListEl.removeAttribute('hidden')}
+      else{projListEl.setAttribute('hidden','')}
+      renderProjList();
+    });
+    projListEl.addEventListener('click',function(e){
+      var k=e.target.dataset.pjDel;
+      if(!k)return;
+      var pr=projOf(k);if(!pr)return;
+      var items=window.VIDEOS.filter(function(v){return v.pk===k});
+      if(!window.confirm('删除卷「'+pr.n+'」？其中 '+items.length+' 件作品将自动转入「新作待归卷」并标记旧作，可在底部「撤销全部」恢复。'))return;
+      window.PROJECTS=window.PROJECTS.filter(function(p){return p.k!==k});
+      items.forEach(function(v){delete v.pk;v.p='旧作待处理';window.INBOX.push(v)});
+      window.renderFeatured();window.renderArchive();window.renderInbox();renderList();renderInboxList();renderProjList();markDone();
+    });
+  }
   var undoBtn=document.getElementById('amUndo');
   if(undoBtn){
     undoBtn.addEventListener('click',function(){
@@ -2408,9 +2442,11 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
       <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
       <button class="am-op" id="amAddProject" type="button">新增项目</button>
+      <button class="am-op" id="amProjectsBtn" type="button">卷宗一览</button>
       <button class="am-op" id="amUndo" type="button">撤销全部</button>
     </div>
     <datalist id="amAuthorList"></datalist>
+    <div class="am-proj-list" id="amProjList" hidden></div>
     <ul class="am-list" id="amList"></ul>
     <div class="am-inbox">
       <h4>待归卷 · 上呈合集的新作</h4>
