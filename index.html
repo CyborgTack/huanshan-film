@@ -1947,9 +1947,31 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
   var REMOTE='https://api.github.com/repos/CyborgTack/huanshan-film/contents/data.json';
   var REMOTE_CDN='https://cdn.jsdelivr.net/gh/CyborgTack/huanshan-film@main/data.json';
   var PAT_KEY='hs_pat';
+  function tryFetch(u,kind){
+    return fetch(u,{cache:'no-store'}).then(function(r){
+      if(!r.ok)return Promise.reject('src:'+kind);
+      if(kind==='api'){
+        return r.json().then(function(m){
+          if(!m||!m.content)return Promise.reject('api:empty');
+          var bin=atob(m.content.replace(/\s/g,''));
+          return JSON.parse(decodeURIComponent(escape(bin)));
+        });
+      }
+      return r.json();
+    });
+  }
   function loadRemote(){
-    fetch(REMOTE_CDN,{cache:'no-store'}).then(function(r){return r.ok?r.json():Promise.reject('cdn')})
-    .then(function(d){applyData(d)}).catch(function(){});
+    var sources=[
+      {u:REMOTE_CDN,k:'cdn'},
+      {u:'https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/data.json',k:'raw'},
+      {u:REMOTE,k:'api'}
+    ];
+    var idx=0;
+    (function next(){
+      if(idx>=sources.length)return;
+      var s=sources[idx++];
+      tryFetch(s.u,s.k).then(function(d){applyData(d)}).catch(function(){next()});
+    })();
   }
   function applyData(d){
     if(!d||!Array.isArray(d.videos)||!d.videos.length)return;
