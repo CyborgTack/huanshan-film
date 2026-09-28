@@ -1151,9 +1151,9 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 </section>
 
 <!-- ===== 新作待归卷（合集仓） ===== -->
-<section class="inbox" id="inbox">
+<section class="inbox collapsed" id="inbox">
   <div class="container inbox-inner">
-    <div class="inbox-head" id="inboxHead" role="button" tabindex="0" aria-expanded="true" aria-controls="inboxStrip">
+    <div class="inbox-head" id="inboxHead" role="button" tabindex="0" aria-expanded="false" aria-controls="inboxStrip">
       <div><span class="vg-no">VOL. 00</span><h3>新作待归卷</h3></div>
       <span class="vg-count" id="inboxCount">0 件新作 · 待编修归卷</span>
       <svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
@@ -1251,9 +1251,18 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   "use strict";
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ===== 开场：序曲盖章 → 卷轴展开 ===== */
+  /* ===== 开场：序曲盖章 → 卷轴展开（最短展示 + 数据就绪后进入） ===== */
   if(reduceMotion){ document.body.classList.remove("intro"); }
-  setTimeout(function(){ document.body.classList.add("intro-done"); }, 1700);
+  var __hsIntroMin = false, __hsIntroData = false, __hsIntroTimeout = false;
+  function __hsFinishIntro(){
+    if(reduceMotion){ return; }
+    if(__hsIntroMin && (__hsIntroData || __hsIntroTimeout)){
+      document.body.classList.add("intro-done");
+    }
+  }
+  window.__hsIntroDataReady = function(){ __hsIntroData = true; __hsFinishIntro(); };
+  setTimeout(function(){ __hsIntroMin = true; __hsFinishIntro(); }, 2600);
+  setTimeout(function(){ __hsIntroTimeout = true; __hsFinishIntro(); }, 10000);
 
   /* ===== 导航滚动状态 ===== */
   var nav = document.getElementById("nav");
@@ -2028,6 +2037,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
         }
       });
       if(best)applyData(best);
+      if(window.__hsIntroDataReady){ window.__hsIntroDataReady(); }
     });
   }
   function applyData(d){
