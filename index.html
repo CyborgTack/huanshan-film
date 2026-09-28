@@ -1966,12 +1966,17 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       {u:'https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/data.json',k:'raw'},
       {u:REMOTE,k:'api'}
     ];
-    var idx=0;
-    (function next(){
-      if(idx>=sources.length)return;
-      var s=sources[idx++];
-      tryFetch(s.u,s.k).then(function(d){applyData(d)}).catch(function(){next()});
-    })();
+    Promise.all(sources.map(function(s){
+      return tryFetch(s.u,s.k).catch(function(){return null;});
+    })).then(function(list){
+      var best=null;
+      list.forEach(function(d){
+        if(d&&Array.isArray(d.videos)&&d.videos.length){
+          if(!best||((d.updatedAt||'')>(best.updatedAt||''))){best=d;}
+        }
+      });
+      if(best)applyData(best);
+    });
   }
   function applyData(d){
     if(!d||!Array.isArray(d.videos)||!d.videos.length)return;
