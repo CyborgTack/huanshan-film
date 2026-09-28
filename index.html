@@ -290,7 +290,37 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 }
 
 
-/* ===== 制作人档案面板 ===== */
+
+/* ===== 管理卷宗：密码验证 + 管理面板 ===== */
+.am-row-actions{display:flex;gap:8px;margin-top:14px}
+.am-btn{flex:1;justify-content:center}
+.am-btn.ghost{border-color:rgba(212,175,55,.22);color:var(--text-secondary);background:rgba(212,175,55,.04)}
+.am-btn.ghost:hover{color:var(--ink-gold);border-color:rgba(212,175,55,.45)}
+#adminPwdPanel .sp-card,#adminPanel .sp-card{width:min(460px,92vw)}
+.am-pwd-form{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.am-pwd-input{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.25);border-radius:10px;color:var(--ink-gold);font-family:var(--font-latin);font-size:15px;letter-spacing:.08em;padding:12px 14px;outline:none;transition:.2s}
+.am-pwd-input:focus{border-color:rgba(212,175,55,.6);box-shadow:0 0 0 3px rgba(212,175,55,.12)}
+.am-pwd-err{color:#e0605a;font-size:12px;min-height:16px;letter-spacing:.06em}
+#adminPanel .sp-card{width:min(760px,94vw);max-height:84vh;display:flex;flex-direction:column}
+.am-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.am-toolbar .am-hint{font-size:11px;color:var(--text-muted);letter-spacing:.08em}
+.am-list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;border-top:1px solid rgba(212,175,55,.12)}
+.am-row{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.08)}
+.am-idx{font-family:var(--font-latin);font-size:10px;color:var(--gold-dim);min-width:38px}
+.am-main{flex:1;min-width:0}
+.am-main b{font-size:13px;color:var(--ink-gold);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.am-main span{font-size:11px;color:var(--text-muted)}
+.am-feat-tag{color:#c06a4a}
+.am-ops{display:flex;gap:6px;flex:none;align-items:center}
+.am-op{font-size:11px;letter-spacing:.1em;color:var(--text-secondary);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:5px 10px;background:transparent;cursor:pointer;transition:.2s}
+.am-op:hover{color:var(--ink-gold);border-color:rgba(212,175,55,.5)}
+.am-op.danger:hover{color:#e0605a;border-color:rgba(224,96,90,.5)}
+.am-op.active{color:var(--ink-gold);border-color:rgba(212,175,55,.55);background:rgba(212,175,55,.1)}
+.am-edit-form{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.am-edit-form select,.am-edit-form input{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:12px;padding:7px 9px;outline:none}
+.am-foot{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
+.am-done{color:#7fae7f;font-size:12px;letter-spacing:.08em;margin-right:auto;align-self:center}
+
 .studio-panel{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
 .studio-panel.open{display:flex}
 .sp-backdrop{position:absolute;inset:0;background:rgba(5,5,7,.82);backdrop-filter:blur(6px)}
@@ -1644,7 +1674,153 @@ const VIDEOS = [
       else if(!reduceMotion){ emberOn = true; requestAnimationFrame(loopEmbers); }
     });
   }
+window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;
+  window.renderFeatured=renderFeatured;window.renderArchive=renderArchive;
 })();
+
+/* ===== 管理卷宗 ===== */
+(function(){
+  function init(){
+  var PW_HASH = "a470d9d7d1215aba80a86a7f8edbb4acbdab2181ff7f12cf637c228743303644";
+  function checkPwd(s){
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(d){
+      var hex='';
+      var arr=new Uint8Array(d);
+      for(var i=0;i<arr.length;i++){hex+=('0'+arr[i].toString(16)).slice(-2)}
+      return hex===PW_HASH;
+    });
+  }
+  var pwdPanel=document.getElementById('adminPwdPanel');
+  var admPanel=document.getElementById('adminPanel');
+  var listEl=document.getElementById('amList');
+  var doneEl=document.getElementById('amDone');
+  var snapshot=null;
+  function lockBody(){document.body.style.overflow='hidden'}
+  function unlockBody(){document.body.style.overflow=''}
+  function openPwd(){if(pwdPanel)pwdPanel.classList.add('open');lockBody();var i=document.getElementById('adminPwdInput');if(i){i.value='';i.focus();}var e=document.getElementById('adminPwdErr');if(e)e.textContent=''}
+  function closePwd(){if(pwdPanel)pwdPanel.classList.remove('open');unlockBody()}
+  function openAdmin(){
+    if(!admPanel)return;
+    if(snapshot===null){snapshot=JSON.parse(JSON.stringify(window.VIDEOS))}
+    admPanel.classList.add('open');lockBody();renderList();doneEl.textContent='';
+  }
+  function closeAdmin(){if(admPanel)admPanel.classList.remove('open');unlockBody()}
+  function projOf(pk){
+    for(var i=0;i<window.PROJECTS.length;i++){if(window.PROJECTS[i].k===pk)return window.PROJECTS[i]}
+    return null;
+  }
+  function renderList(){
+    if(!listEl)return;
+    listEl.innerHTML=window.VIDEOS.map(function(v,idx){
+      var proj=projOf(v.pk);
+      var projName=proj?proj.n:v.p;
+      var feat=v.m==='李尚书';
+      return '<li class="am-row"><span class="am-idx">'+('0'+(idx+1)).slice(-2)+'</span>'+
+        '<div class="am-main"><b>'+(feat?'<span class="am-feat-tag">[精品] </span>':'')+projName+' · '+v.t+'</b>'+
+        '<span>'+(v.m||'佚名')+' · '+v.d+'</span></div>'+
+        '<div class="am-ops">'+
+        '<button class="am-op'+(feat?' active':'')+'" type="button" data-am-feat="'+idx+'">精品</button>'+
+        '<select class="am-op" data-am-move="'+idx+'">'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'"'+(pr.k===v.pk?' selected':'')+'>'+pr.n+'</option>'}).join('')+'</select>'+
+        '<button class="am-op" type="button" data-am-edit="'+idx+'">修改</button>'+
+        '<button class="am-op danger" type="button" data-am-del="'+idx+'">删除</button>'+
+        '</div></li>';
+    }).join('');
+  }
+  listEl.addEventListener('click',function(e){
+    var t=e.target;
+    if(t.dataset.amDel!==undefined){
+      var idx=+t.dataset.amDel;var v=window.VIDEOS[idx];
+      if(!v)return;
+      if(!window.confirm('删除「'+v.p+' · '+v.t+'」？可在底部「撤销全部」恢复。'))return;
+      window.VIDEOS.splice(idx,1);
+      window.renderFeatured();window.renderArchive();renderList();markDone();
+    }else if(t.dataset.amEdit!==undefined){
+      var idx2=+t.dataset.amEdit;var v2=VIDEOS[idx2];if(!v2)return;
+      editRow(t,v2);
+    }
+  });
+  listEl.addEventListener('change',function(e){
+    var t=e.target;
+    if(t.dataset.amFeat!==undefined){
+      var idx=+t.dataset.amFeat;var v=window.VIDEOS[idx];if(!v)return;
+      if(t.classList.contains('active')){v.m=v._prevM||v.m}else{v._prevM=v.m;v.m='李尚书'}
+      t.classList.toggle('active');
+      window.renderFeatured();window.renderArchive();renderList();markDone();
+    }else if(t.dataset.amMove!==undefined){
+      var idx2=+t.dataset.amMove;var v2=VIDEOS[idx2];if(!v2)return;
+      var pk=t.value;var proj=projOf(pk);
+      if(proj){v2.p=proj.n;v2.pk=proj.k}
+      window.renderFeatured();window.renderArchive();renderList();markDone();
+    }
+  });
+  function editRow(btn,v){
+    var proj=projOf(v.pk);
+    var form=document.createElement('div');
+    form.className='am-edit-form';
+    form.innerHTML='<select data-f="pk">'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'"'+(pr.k===v.pk?' selected':'')+'>'+pr.n+'</option>'}).join('')+'</select>'+
+      '<input data-f="t" value="'+v.t.replace(/"/g,'&quot;')+'" placeholder="标题">'+
+      '<input data-f="m" value="'+(v.m||'').replace(/"/g,'&quot;')+'" placeholder="作者">'+
+      '<input data-f="d" value="'+(v.d||'').replace(/"/g,'&quot;')+'" placeholder="时长" style="width:64px">'+
+      '<button class="am-op active" type="button" data-save>保存</button><button class="am-op" type="button" data-cancel>取消</button>';
+    var wrap=btn.closest('.am-row');
+    btn.style.display='none';
+    wrap.appendChild(form);
+    form.addEventListener('click',function(ev){
+      if(ev.target.dataset.save!==undefined){
+        var proj2=projOf(form.querySelector('[data-f="pk"]').value);
+        if(proj2){v.p=proj2.n;v.pk=proj2.k}
+        v.t=form.querySelector('[data-f="t"]').value||v.t;
+        v.m=form.querySelector('[data-f="m"]').value||'';
+        v.d=form.querySelector('[data-f="d"]').value||v.d;
+        window.renderFeatured();window.renderArchive();renderList();markDone();
+      }else if(ev.target.dataset.cancel!==undefined){
+        renderList();
+      }
+    });
+  }
+  function markDone(){if(doneEl){doneEl.textContent='已记录变更 · 记得导出'}}
+  function exportChanges(){
+    var payload={version:2,exportedAt:new Date().toISOString(),videos:VIDEOS,concepts:window.CONCEPTS};
+    var blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='huanshan-changes.json';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+    if(doneEl)doneEl.textContent='已导出 · 请将文件交给主理人入库';
+  }
+  document.addEventListener('click',function(e){
+    if(e.target.closest('#btnAdmin')){e.preventDefault();openPwd();return}
+    if(e.target.closest('[data-ap-close]')){closePwd();return}
+    if(e.target.closest('[data-am-close]')){closeAdmin();return}
+  });
+  var pwdForm=document.getElementById('adminPwdForm');
+  if(pwdForm){
+    pwdForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      var input=document.getElementById('adminPwdInput');
+      var err=document.getElementById('adminPwdErr');
+      if(!input)return;
+      checkPwd(input.value).then(function(ok){
+        if(ok){closePwd();openAdmin()}
+        else{err.textContent='密印不符，请重试';input.select()}
+      });
+    });
+  }
+  var undoBtn=document.getElementById('amUndo');
+  if(undoBtn){
+    undoBtn.addEventListener('click',function(){
+      if(snapshot){window.VIDEOS.splice.apply(window.VIDEOS,[0,window.VIDEOS.length].concat(snapshot))}
+      window.renderFeatured();window.renderArchive();renderList();if(doneEl)doneEl.textContent='已撤销全部变更';
+    });
+  }
+  var expBtn=document.getElementById('amExport');
+  if(expBtn){expBtn.addEventListener('click',exportChanges)}
+  var closeBtn=document.getElementById('amClose');
+  if(closeBtn){closeBtn.addEventListener('click',closeAdmin)}
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}
+  else{init()}
+})();
+
 </script>
 
 <!-- ===== 制作人档案面板 ===== -->
@@ -1667,6 +1843,56 @@ const VIDEOS = [
     <a class="btn btn-primary sp-upload" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener">上呈作品
       <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
     </a>
+    <div class="am-row-actions"><button class="btn btn-primary am-btn" id="btnAdmin" type="button">管理卷宗
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+    </button></div>
+  </div>
+</div>
+
+
+<!-- ===== 管理卷宗：密码验证 ===== -->
+<div class="studio-panel" id="adminPwdPanel" role="dialog" aria-modal="true" aria-label="管理密码">
+  <div class="sp-backdrop" data-ap-close></div>
+  <div class="sp-card">
+    <button class="sp-close" data-ap-close aria-label="关闭">&times;</button>
+    <div class="sp-head">
+      <img class="sp-logo" src="assets/brand/logo-totem.png" alt="" draggable="false" oncontextmenu="return false">
+      <div>
+        <div class="sp-title">管理卷宗 · 验证</div>
+        <div class="sp-sub">HUAN SHAN FILM · 主理人通道</div>
+      </div>
+    </div>
+    <form class="am-pwd-form" id="adminPwdForm">
+      <input class="am-pwd-input" id="adminPwdInput" type="password" placeholder="输入管理密码" autocomplete="off">
+      <div class="am-pwd-err" id="adminPwdErr"></div>
+      <button class="btn btn-primary sp-upload" type="submit" style="width:100%">验明身份
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-11"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+<!-- ===== 管理卷宗：管理面板 ===== -->
+<div class="studio-panel" id="adminPanel" role="dialog" aria-modal="true" aria-label="管理卷宗">
+  <div class="sp-backdrop" data-am-close></div>
+  <div class="sp-card">
+    <button class="sp-close" data-am-close aria-label="关闭">&times;</button>
+    <div class="sp-head">
+      <img class="sp-logo" src="assets/brand/logo-totem.png" alt="" draggable="false" oncontextmenu="return false">
+      <div>
+        <div class="sp-title">管理卷宗</div>
+        <div class="sp-sub">删除 · 修改 · 移动 · 导出变更</div>
+      </div>
+    </div>
+    <div class="am-toolbar">
+      <span class="am-hint">操作即时预览 · 改动需「导出变更」后由主理人入库</span>
+      <button class="am-op" id="amUndo" type="button">撤销全部</button>
+    </div>
+    <ul class="am-list" id="amList"></ul>
+    <div class="am-foot">
+      <span class="am-done" id="amDone"></span>
+      <button class="am-op" id="amClose" type="button">关闭</button>
+      <button class="am-op active" id="amExport" type="button">导出变更</button>
+    </div>
   </div>
 </div>
 
