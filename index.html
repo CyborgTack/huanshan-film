@@ -1419,8 +1419,8 @@ const VIDEOS = [
       var list = rest.filter(function(v){ return v.pk === proj.k; });
       var isEmpty = !list.length;
       var isFirst = PROJECTS.indexOf(proj) === 0;
-      html += '<div class="vg-block' + (isFirst ? "" : " collapsed") + '" data-vgroup="' + proj.k + '">' +
-        '<div class="vg-head" role="button" aria-expanded="' + (isFirst ? "true" : "false") + '"><div><span class="vg-no">' + ("0" + (PROJECTS.indexOf(proj) + 1)).slice(-2) + '</span><h3>' + proj.n + '</h3></div>' +
+      html += '<div class="vg-block collapsed" data-vgroup="' + proj.k + '">' +
+        '<div class="vg-head" role="button" aria-expanded="false"><div><span class="vg-no">' + ("0" + (PROJECTS.indexOf(proj) + 1)).slice(-2) + '</span><h3>' + proj.n + '</h3></div>' +
         '<span class="vg-count">' + proj.d + ' · ' + (isEmpty ? "待归卷" : list.length + " 卷") + ' · ' + (isFirst ? "点此合卷" : "点此展卷") + '</span>' +
         '<svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div>' +
         '<div class="vg-grid">' + (isEmpty
