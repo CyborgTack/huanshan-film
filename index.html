@@ -1472,7 +1472,7 @@ const VIDEOS = [
         var sub = (v.m ? v.m + ' · ' : '') + (v.d || '');
         return '<button class="inbox-card" data-ii="' + oi + '" aria-label="查看新作 ' + pname + '">' +
           '<span class="inbox-poster"><img src="' + img + '" alt="' + pname + ' · ' + t + '" loading="lazy">' +
-          '<span class="inbox-new"'+(v.p==='旧作待处理'?' old':'')+'>'+(v.p==='旧作待处理'?'旧':'新')+'</span></span>' +
+          '<span class="inbox-new'+(v.p==='旧作待处理'?' old':'')+'">'+(v.p==='旧作待处理'?'旧':'新')+'</span></span>' +
           '<span class="inbox-meta"><h4>' + (t || pname) + '</h4><span>' + sub + '</span></span></button>';
       }).join('');
       return '<div class="inbox-group"><div class="inbox-gtitle">' + label + ' <span class="inbox-gcount">' + list.length + '</span></div>' +
