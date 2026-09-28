@@ -2012,6 +2012,29 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
   function unlockBody(){document.body.style.overflow=''}
   function openPwd(){if(pwdPanel)pwdPanel.classList.add('open');lockBody();var i=document.getElementById('adminPwdInput');if(i){i.value='';i.focus();}var e=document.getElementById('adminPwdErr');if(e)e.textContent=''}
   function closePwd(){if(pwdPanel)pwdPanel.classList.remove('open');unlockBody()}
+  function hsToast(msg,isErr){
+    var t=document.createElement('div');
+    t.style.cssText='position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:9999;background:'+(isErr?'rgba(120,30,30,.95)':'rgba(20,25,30,.95)')+';color:#e8d9b8;font-size:13px;letter-spacing:.08em;padding:10px 18px;border:1px solid rgba(212,175,55,.45);border-radius:4px;max-width:88vw;text-align:center;white-space:nowrap';
+    t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(function(){t.remove()},4200);
+  }
+  var carryBtn=document.getElementById('btnCarryNow');
+  if(carryBtn){
+    carryBtn.addEventListener('click',function(){
+      var pat=localStorage.getItem('hs_pat');
+      if(!pat){hsToast('请先在「管理卷宗 → 仓库授权」保存 GitHub 令牌',true);return}
+      carryBtn.disabled=true;
+      fetch('https://api.github.com/repos/CyborgTack/huanshan-film/actions/workflows/carry.yml/dispatches',{
+        method:'POST',
+        headers:{Authorization:'Bearer '+pat,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+        body:JSON.stringify({ref:'main'})
+      }).then(function(r){
+        if(r.status===204){hsToast('已启动云端搬运 · 约数分钟全站生效')}
+        else{return r.text().then(function(txt){hsToast('启动失败 HTTP '+r.status,true)})}
+      }).catch(function(e){hsToast('网络错误，无法启动',true)}).then(function(){carryBtn.disabled=false});
+    });
+  }
   function openAdmin(){
     if(!admPanel)return;
     if(snapshot===null){snapshot={videos:JSON.parse(JSON.stringify(window.VIDEOS)),producers:window.PRODUCERS.slice(),inbox:JSON.parse(JSON.stringify(window.INBOX))}}
@@ -2432,6 +2455,8 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     </a>
     <div class="am-row-actions"><button class="btn btn-primary am-btn" id="btnAdmin" type="button">管理卷宗
       <svg viewBox="0 0 24 24" fill="none"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+    </button><button class="btn btn-primary am-btn" id="btnCarryNow" type="button">立即搬运
+      <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
     </button></div>
   </div>
 </div>
