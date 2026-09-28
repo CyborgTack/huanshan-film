@@ -36,8 +36,20 @@ def fs(path, method="GET", data=None, token=None):
         headers["Content-Type"] = "application/json"
     return http_json(FS + path, method=method, data=(json.dumps(data).encode() if data is not None else None), headers=headers)
 
-def fs_download(path, token):
-    return http_json(FS + path, method="GET", headers={"Authorization": "Bearer " + token}, raw=True)
+def fs_download(ft, token):
+    """取附件真实下载地址（tmp_url 接口带 token）→ 下载。
+    注意：tmp_url 接口返回 data.tmp_download_urls[].tmp_download_url 才是真实地址。"""
+    req_url = ft.get("tmp_url") or ft.get("url")
+    if not req_url:
+        raise RuntimeError("附件无下载地址")
+    r = http_json(req_url, method="GET", headers={"Authorization": "Bearer " + token})
+    if isinstance(r, dict) and "_http" in r:
+        raise RuntimeError("取下载地址失败：HTTP {0} {1}".format(r["_http"], r["_body"]))
+    urls = (r.get("data", {}).get("tmp_download_urls") or [])
+    if not urls:
+        raise RuntimeError("下载地址为空：{0}".format(str(r)[:200]))
+    real = urls[0].get("tmp_download_url") or urls[0].get("tmp_url")
+    return http_json(real, method="GET", raw=True)
 
 def pick_text(v):
     """select/text 单元格取可读文本"""
@@ -119,12 +131,7 @@ def main():
                 name = ft.get("name", "file")
                 safe = "".join(c for c in name if c.isalnum() or c in "._-") or "file"
                 local = os.path.join(MEDIA_DIR, "carry_{0}_{1}".format(rid[-6:], safe))
-                raw = fs_download("/drive/v1/medias/{0}/download".format(ft["file_token"]), token)
-                if isinstance(raw, dict) and "_http" in raw:
-                    tmp = ft.get("tmp_url") or ft.get("url")
-                    if not tmp:
-                        raise RuntimeError("附件下载失败：HTTP {0}".format(raw["_http"]))
-                    raw = http_json(tmp, raw=True)
+                raw = fs_download(ft, token)
                 with open(local, "wb") as fh:
                     fh.write(raw if isinstance(raw, bytes) else b"")
                 if not os.path.getsize(local):
