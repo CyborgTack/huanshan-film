@@ -387,6 +387,26 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-inbox-list{list-style:none;margin:0;padding:0}
 .am-inbox-list .am-row{font-size:12px}
 .am-inbox-list select{max-width:130px}
+/* 管理面板：分组收纳 */
+.am-toolbar{flex-direction:column;align-items:stretch;justify-content:flex-start}
+.am-grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.am-grp + .am-grp{padding-top:8px;margin-top:8px;border-top:1px dashed rgba(212,175,55,.14)}
+.am-feat{margin-top:10px;border-top:1px solid rgba(212,175,55,.12);padding-top:8px}
+.am-feat h4{font-size:11px;color:var(--ink-gold);letter-spacing:.2em;margin:0 0 6px;font-weight:600}
+.am-feat-list{list-style:none;margin:0;padding:0}
+.am-feat-list .am-mini{font-size:11px;color:var(--text-muted);letter-spacing:.05em}
+.am-feat-list .am-row-actions{margin-top:0}
+/* 精选区 */
+#featured .feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-4)}
+.feat-card{position:relative;aspect-ratio:9/16;border-radius:var(--radius-md);overflow:hidden;background:#0b0b10;border:1px solid rgba(212,175,55,.25);cursor:pointer;text-align:left;transition:transform .3s,border-color .3s}
+.feat-card:hover{border-color:rgba(212,175,55,.55);transform:translateY(-2px)}
+.feat-card img{width:100%;height:100%;object-fit:cover;display:block}
+.feat-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.feat-play svg{width:56px;height:56px;fill:rgba(255,255,255,.06);stroke:var(--ink-gold);stroke-width:1}
+.feat-badge{position:absolute;top:8px;left:8px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.5);color:var(--ink-gold-bright);font-size:9px;letter-spacing:.2em;padding:2px 8px;border-radius:2px}
+.feat-meta{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 12px;background:linear-gradient(transparent,rgba(5,5,7,.92))}
+.feat-meta h4{font-size:14px;font-weight:500;margin:0 0 4px;letter-spacing:.05em;color:var(--text-bright)}
+.feat-meta span{display:block;font-size:11px;color:var(--text-muted);letter-spacing:.06em}
 
 
 .studio-panel{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
@@ -1099,6 +1119,18 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   </div>
 </section>
 
+<!-- ===== 藏卷四部 · 精选 ===== -->
+<section class="section" id="featured">
+  <div class="container">
+    <div class="sec-head" data-reveal>
+      <span class="sec-line" aria-hidden="true"></span>
+      <span class="sec-label">藏卷四部 · 精选</span>
+      <h2 class="sec-title" id="featCountTitle">四部之最 · 馆藏甄选</h2>
+    </div>
+    <div class="feat-grid" id="featuredGrid" data-reveal></div>
+  </div>
+</section>
+
 <!-- ===== 流程 ===== -->
 <section class="section" id="process">
   <div class="container">
@@ -1428,6 +1460,8 @@ const VIDEOS = [
   ];
   var PRODUCERS = ["史顺棋","李尚书","王奥","杨子琪","郭子键","廖棋稚"];
   var INBOX = [];
+  var FEATURED = [];
+  var FEATURED_QUEUE = [];
   function cardHTML(v, feat){
     var svg = '<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z"/></svg>';
     var i = VIDEOS.indexOf(v);
@@ -1570,6 +1604,28 @@ const VIDEOS = [
         '<figure><img src="' + c.img + '" alt="' + c.t + '" loading="lazy">' +
         '<figcaption><b>' + c.t + '</b><span>' + c.k + '</span></figcaption></figure></button>';
     }).join("");
+  /* 藏卷四部 · 精选渲染 */
+  var featGrid = document.getElementById("featuredGrid");
+  var featCountTitle = document.getElementById("featCountTitle");
+  function renderFeatured(){
+    if(!featGrid)return;
+    if(!window.FEATURED.length){
+      featGrid.innerHTML = '<div class="inbox-empty">四部之最 · 待主理人甄选上架</div>';
+      if(featCountTitle){ featCountTitle.textContent = '四部之最 · 馆藏甄选'; }
+      return;
+    }
+    var svgIco='<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z"/></svg>';
+    featGrid.innerHTML = window.FEATURED.map(function(v,i){
+      var isImg = !v.u;
+      return '<button class="feat-card" data-fi="' + i + '" aria-label="' + (isImg ? '查看' : '播放') + ' ' + v.p + ' ' + v.t + '">' +
+        '<img src="' + v.img + '" alt="' + v.p + ' · ' + v.t + '" loading="lazy">' +
+        (isImg ? '' : '<span class="feat-play">' + svgIco + '</span>') +
+        '<span class="feat-badge">' + (isImg ? '图' : '影') + '</span>' +
+        '<span class="feat-meta"><h4>' + v.t + '</h4><span>' + (v.m ? v.m + ' · ' : '') + v.p + '</span></span></button>';
+    }).join("");
+    if(featCountTitle){ featCountTitle.textContent = window.FEATURED.length + ' 件甄选 · 四部之最'; }
+  }
+  renderFeatured();
   }
   /* 点击委托：视频卡 / 概念卡 */
   var lbVideoWrap = document.getElementById("lbVideoWrap");
@@ -1588,6 +1644,15 @@ const VIDEOS = [
     if(cg){
       var ci = Number(cg.dataset.ci);
       if(!isNaN(ci) && CONCEPTS[ci]){ openConceptLightbox(ci); }
+      return;
+    }
+    var fc = e.target.closest(".feat-card");
+    if(fc){
+      var fi = Number(fc.dataset.fi);
+      if(!isNaN(fi) && window.FEATURED[fi]){
+        if(window.FEATURED[fi].u){ openVideoLightbox(window.FEATURED[fi]); }
+        else{ openArchiveImageLightbox(window.FEATURED[fi]); }
+      }
       return;
     }
     var ib = e.target.closest(".inbox-card");
@@ -1986,7 +2051,8 @@ const VIDEOS = [
     });
   }
 window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;window.INBOX=INBOX;
-  window.renderArchive=renderArchive;window.renderInbox=renderInbox;window.renderFilters=renderFilters;
+window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
+  window.renderArchive=renderArchive;window.renderInbox=renderInbox;window.renderFilters=renderFilters;window.renderFeatured=renderFeatured;
   function updateStaticCounts(){
     var av=document.getElementById('abVol');if(av&&window.PROJECTS)av.textContent=window.PROJECTS.length;
     var as=document.getElementById('abStaff');if(as&&window.PRODUCERS)as.textContent=window.PRODUCERS.length;
@@ -2125,7 +2191,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
   }
   function markDone(){if(doneEl){doneEl.textContent='已记录变更 · 记得同步入库'}}
   function exportChanges(){
-    var payload={version:3,exportedAt:new Date().toISOString(),producers:window.PRODUCERS,videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,inbox:window.INBOX};
+    var payload={version:3,exportedAt:new Date().toISOString(),producers:window.PRODUCERS,videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
     var blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
     var a=document.createElement('a');a.href=URL.createObjectURL(blob);
     a.download='huanshan-changes.json';document.body.appendChild(a);a.click();a.remove();
@@ -2208,13 +2274,15 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       if(Array.isArray(d.projects)){window.PROJECTS.splice.apply(window.PROJECTS,[0,window.PROJECTS.length].concat(d.projects))}
       if(Array.isArray(d.producers)){window.PRODUCERS.splice.apply(window.PRODUCERS,[0,window.PRODUCERS.length].concat(d.producers))}
       if(Array.isArray(d.inbox)){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(d.inbox))}
-      window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();updateStaticCounts();
+      if(Array.isArray(d.featured)){window.FEATURED.splice.apply(window.FEATURED,[0,window.FEATURED.length].concat(d.featured))}
+      if(Array.isArray(d.featuredQueue)){window.FEATURED_QUEUE.splice.apply(window.FEATURED_QUEUE,[0,window.FEATURED_QUEUE.length].concat(d.featuredQueue))}
+      window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();updateStaticCounts();window.renderFeatured();
     }catch(e){ if(window.console&&console.error){console.error('applyData failed',e)} }
   }
   function syncToRepo(){
     var pat=localStorage.getItem(PAT_KEY);
     if(!pat)return Promise.reject('nopat');
-    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,producers:window.PRODUCERS,inbox:window.INBOX};
+    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,producers:window.PRODUCERS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
     var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     return fetch(REMOTE,{headers:{Authorization:'Bearer '+pat}}).then(function(r){return r.json()}).then(function(meta){
       if(!meta.sha)return Promise.reject('meta:'+JSON.stringify(meta).slice(0,80));
@@ -2277,6 +2345,47 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
         '<button class="am-op danger" type="button" data-ib-del="'+i+'">移除</button>'+
         '</div></li>';
     }).join('');
+  }
+  var featListEl=document.getElementById('amFeatList');
+  var featUlEl=document.getElementById('amFeatUl');
+  var featReviewBtn=document.getElementById('amFeatReview');
+  function renderFeaturedQueueList(){
+    if(!featUlEl)return;
+    if(!window.FEATURED_QUEUE.length){featUlEl.innerHTML='<li class="am-mini" style="padding:8px 2px">暂无精选待审作品</li>';return}
+    featUlEl.innerHTML=window.FEATURED_QUEUE.map(function(v,i){
+      return '<li class="am-row"><span><b>《'+(v.t||'未命名')+'》</b> <em class="am-mini">'+(v.m||'佚名')+' · '+(v.p||'未归卷')+(v.u?' · 视频':' · 图')+'</em></span>'+
+        '<span class="am-row-actions">'+
+        '<button class="am-op active" type="button" data-feat-ok="'+i+'">通过上架</button>'+
+        '<button class="am-op danger" type="button" data-feat-no="'+i+'">驳回</button></span></li>';
+    }).join('');
+  }
+  if(featReviewBtn){
+    featReviewBtn.addEventListener('click',function(){
+      featListEl.hidden=!featListEl.hidden;
+      if(!featListEl.hidden){renderFeaturedQueueList()}
+    });
+  }
+  if(featUlEl){
+    featUlEl.addEventListener('click',function(e){
+      var ok=e.target.closest('[data-feat-ok]');
+      var no=e.target.closest('[data-feat-no]');
+      if(ok){
+        var fi=Number(ok.getAttribute('data-feat-ok'));
+        if(!isNaN(fi)&&window.FEATURED_QUEUE[fi]){
+          var it=window.FEATURED_QUEUE.splice(fi,1)[0];
+          window.FEATURED.push(it);
+          window.renderFeatured();renderFeaturedQueueList();markDone();
+        }
+        return;
+      }
+      if(no){
+        var nj=Number(no.getAttribute('data-feat-no'));
+        if(!isNaN(nj)&&window.FEATURED_QUEUE[nj]){
+          window.FEATURED_QUEUE.splice(nj,1);
+          window.renderFeatured();renderFeaturedQueueList();markDone();
+        }
+      }
+    });
   }
   function markInboxDone(){if(doneEl)doneEl.textContent='已记录变更 · 记得同步入库'}
   var inboxBtn=document.getElementById('amAddInbox');
@@ -2497,16 +2606,27 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     </div>
     <div class="am-toolbar">
       <span class="am-hint">操作即时预览 · 改动需「导出变更」后由主理人入库</span>
-      <a class="am-op" id="amUploadLink" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">上呈作品
-        <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor"/></svg>
-      </a>
-      <button class="am-op" id="btnCarryNow" type="button">立即搬运</button>
-      <button class="am-op" id="amAuth" type="button">仓库授权</button>
-      <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
-      <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
-      <button class="am-op" id="amAddProject" type="button">新增项目</button>
-      <button class="am-op" id="amProjectsBtn" type="button">卷宗一览</button>
-      <button class="am-op" id="amUndo" type="button">撤销全部</button>
+      <div class="am-grp">
+        <a class="am-op" id="amUploadLink" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">上呈作品
+          <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor"/></svg>
+        </a>
+        <button class="am-op active" id="btnCarryNow" type="button">立即搬运</button>
+      </div>
+      <div class="am-grp">
+        <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
+        <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
+        <button class="am-op" id="amAddProject" type="button">新增项目</button>
+        <button class="am-op" id="amProjectsBtn" type="button">卷宗一览</button>
+      </div>
+      <div class="am-grp">
+        <button class="am-op active" id="amFeatReview" type="button">精选审核</button>
+        <button class="am-op" id="amAuth" type="button">仓库授权</button>
+        <button class="am-op" id="amUndo" type="button">撤销全部</button>
+      </div>
+    </div>
+    <div class="am-feat" id="amFeatList" hidden>
+      <h4>精选待审 · 藏卷四部</h4>
+      <ul class="am-feat-list" id="amFeatUl"></ul>
     </div>
     <datalist id="amAuthorList"></datalist>
     <div class="am-proj-list" id="amProjList" hidden></div>

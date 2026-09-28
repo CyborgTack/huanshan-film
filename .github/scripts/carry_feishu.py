@@ -100,7 +100,7 @@ def main():
         return
     # 1) 查询待入库
     q = {"filter": {"conjunction": "and", "conditions": [{"field_name": "入库状态", "operator": "is", "value": ["待入库"]}]},
-         "field_names": ["作品标题", "作品文件", "备注", "入库状态", "作者", "所属卷", "封面图", "新增卷名称"]}
+         "field_names": ["作品标题", "作品文件", "备注", "入库状态", "作者", "所属卷", "封面图", "新增卷名称", "归卷板块"]}
     r = fs("/bitable/v1/apps/{0}/tables/{1}/records/search".format(BASE_TOKEN, TABLE_ID), method="POST", data=q, token=token)
     if "_http" in r:
         print("FAIL 查询待入库记录：HTTP {0} {1}".format(r["_http"], r["_body"]))
@@ -124,7 +124,8 @@ def main():
             newvol = pick_text(f.get("新增卷名称"))
             files = pick_files(f.get("作品文件"))
             covers = pick_files(f.get("封面图"))
-            is_video = any(x.get("name", "").lower().endswith((".mp4", ".mov", ".m4v", ".avi")) for x in files) or not files
+            is_video = bool(files) and any(x.get("name", "").lower().endswith((".mp4", ".mov", ".m4v", ".avi")) for x in files)
+            board = pick_text(f.get("归卷板块")) or "新作待归卷"
             # 2) 下载 + 压缩 + 放 media/
             urls = []
             for ft in (files + covers)[:2]:
@@ -150,39 +151,46 @@ def main():
             elif not is_video and urls:
                 img = urls[0]
             img = img or DEFAULT_IMG
-            # 3) 立卷
+            # 3) 归部与立卷
             is_new = vol == "新增卷"
             vol_name = norm_vol(newvol) if (is_new and newvol) else ("" if is_new else vol)
             if is_new and not vol_name:
                 vol_name = "其他"
             k = ""
-            if is_new:
-                target_name = "《{0}》".format(vol_name)
-                hit = next((p for p in d["projects"] if p.get("n") == target_name), None)
-                if hit:
-                    k = hit["k"]
-                    msg = "并入现有卷"
+            msg = "普通卷"
+            if board == "影像长卷":
+                if is_new:
+                    target_name = "《{0}》".format(vol_name)
+                    hit = next((p for p in d["projects"] if p.get("n") == target_name), None)
+                    if hit:
+                        k = hit["k"]; msg = "并入现有卷"
+                    else:
+                        k = "p" + str(int(time.time() * 1000))
+                        d["projects"].append({"k": k, "n": target_name, "d": "新卷 · 待编修归卷"})
+                        msg = "新建卷"
                 else:
-                    k = "p" + str(int(time.time() * 1000))
-                    d["projects"].append({"k": k, "n": target_name, "d": "新卷 · 待编修归卷"})
-                    msg = "新建卷"
-            else:
-                hit = next((p for p in d["projects"] if p.get("n") == "《{0}》".format(vol)), None)
-                k = hit["k"] if hit else ""
-                msg = "普通卷"
+                    hit = next((p for p in d["projects"] if p.get("n") == "《{0}》".format(vol)), None)
+                    k = hit["k"] if hit else ""
             entry = {"pk": k, "p": ("《{0}》".format(vol_name) if is_new else vol),
                      "m": author, "t": title, "img": img, "u": u}
-            if is_new:
-                d["videos"].append(entry)
+            if board == "影像长卷":
+                d["videos"].append(entry); where = "videos/影像长卷"
+            elif board == "幻境卷":
+                d.setdefault("concepts", []).append(
+                    {"img": img, "t": title,
+                     "k": ("《{0}》".format(vol_name) if is_new else vol)})
+                where = "concepts/幻境卷"
+            elif board == "藏卷四部 · 精选":
+                d.setdefault("featuredQueue", []).append(entry); where = "featuredQueue/精选待审"
             else:
-                d["inbox"].append(entry)
+                d.setdefault("inbox", []).append(entry); where = "inbox/新作待归卷"
             d["updatedAt"] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
             # 4) 更新入库状态
             up = fs("/bitable/v1/apps/{0}/tables/{1}/records/{2}".format(BASE_TOKEN, TABLE_ID, rid),
                     method="PUT", data={"fields": {"入库状态": "已入库"}}, token=token)
             if "_http" in up:
                 raise RuntimeError("状态更新失败：HTTP {0}".format(up["_http"]))
-            ok.append("《{0}》/{1}/卷={2}({3})/视频={4}".format(title, author, entry["p"], msg, "Y" if u else "N"))
+            ok.append("《{0}》/{1}/卷={2}({3})/归部={4}/视频={5}".format(title, author, entry["p"], msg, where, "Y" if u else "N"))
         except Exception as e:
             fail.append("{0}：{1}".format(rid, e))
             continue
