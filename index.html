@@ -903,9 +903,9 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 <!-- ===== 档案横条 ===== -->
 <div class="archive-bar" aria-label="馆藏数据">
   <div class="container archive-bar-inner">
-    <div class="ab-item"><span class="ab-val">120+</span><span class="ab-key">馆藏卷宗</span></div>
+    <div class="ab-item"><span class="ab-val" id="abVol">120+</span><span class="ab-key">馆藏卷宗</span></div>
     <div class="ab-item"><span class="ab-val">30+</span><span class="ab-key">合作品牌</span></div>
-    <div class="ab-item"><span class="ab-val">12</span><span class="ab-key">编修司员</span></div>
+    <div class="ab-item"><span class="ab-val" id="abStaff">12</span><span class="ab-key">编修司员</span></div>
     <div class="ab-item"><span class="ab-val">100%</span><span class="ab-key">全版权付梓</span></div>
   </div>
 </div>
@@ -918,7 +918,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
         <span class="sec-line" aria-hidden="true"></span>
         <span class="sec-label">影像长卷</span>
         <div style="display:flex;align-items:center;gap:12px">
-          <h2 class="sec-title">四十二卷 · 逐一可览</h2>
+          <h2 class="sec-title" id="vgCountTitle">四十二卷 · 逐一可览</h2>
           <svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </div>
       </div>
@@ -1195,7 +1195,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="brand"><img class="brand-logo" src="assets/brand/logo-totem.png" alt="" draggable="false" oncontextmenu="return false"><img class="brand-name-img" src="assets/brand/brand-name.png" alt="讙山图"><span class="brand-name">HUAN SHAN FILM</span></div>
+        <div class="brand" data-open-studio><img class="brand-logo" src="assets/brand/logo-totem.png" alt="" draggable="false" oncontextmenu="return false"><img class="brand-name-img" src="assets/brand/brand-name.png" alt="讙山图"><span class="brand-name">HUAN SHAN FILM</span></div>
         <p class="footer-tag">东方神怪志异 · 影像档案馆 · 让传说成为影像</p>
       </div>
       <div class="footer-col">
@@ -1213,7 +1213,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
     </div>
     <div class="footer-bottom">
       <span>© 2026 讙山图 HUAN SHAN FILM · 保留所有权利</span>
-      <span>本页为示例站，品牌与作品信息均为占位内容</span>
+      <span>以编修古籍的态度，认真对待每一帧影像</span>
       <button class="scroll-top" id="scrollTop" aria-label="回到卷首">归卷
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
       </button>
@@ -1241,7 +1241,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
       <span class="lb-meta" id="lbMeta"></span>
       <p class="lb-desc" id="lbDesc"></p>
       <span class="lb-counter" id="lbCounter">01 / 06</span>
-      <p class="lb-note">示例卷宗：用于版式演示，可替换为团队真实项目与数据。</p>
+      <p class="lb-note">本卷为 AI 创作 · 编修司收存 · 点击可全屏细览。</p>
     </div>
   </div>
   <div class="lb-strip" id="lbStrip" aria-label="卷宗胶片缩略">
@@ -1267,7 +1267,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
     function closeStudio(){panel.classList.remove('open');document.body.style.overflow=''}
     document.addEventListener('click',function(e){
       if(e.target.closest('[data-sp-close]')){closeStudio();return}
-      if(e.target.closest('.brand')){e.preventDefault();openStudio();return}
+      if(e.target.closest('[data-open-studio]')){e.preventDefault();openStudio();return}
     });
     document.addEventListener('keydown',function(e){if(e.key==='Escape')closeStudio()});
   }
@@ -1360,48 +1360,48 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 
   /* ===== 影像长卷 · 视频数据 ===== */
 const VIDEOS = [
-  {p:"他过分野",pk:"taguofenye",m:"李尚书",t:"第3集",d:"1:32",img:"assets/covers/poster-taguofenye-ep03.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473721239562.mp4?sign=1793090857-1de5e2fc92-b4e4eca797dd4dd181619d1d26398113-7d5eff23c118eb34c6351b5168d88119"},
-  {p:"他过分野",pk:"taguofenye",m:"王奥",t:"第1-3集",d:"4:04",img:"assets/covers/cover-taguofenye.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473600867354.mp4?sign=1793090852-2a5e1c8c28-b4e4eca797dd4dd181619d1d26398113-3d4901919b24ce147546704acddecac7"},
-  {p:"工厂宣传",pk:"gongchang",m:"史顺棋",t:"广告",d:"0:27",img:"assets/covers/cover-gongchang.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473772913673.mp4?sign=1793090857-efb25ee720-b4e4eca797dd4dd181619d1d26398113-7b67e1dc11250cb59a35c314bb1cba46"},
-  {p:"工厂宣传",pk:"gongchang",m:"廖棋稚",t:"工厂短片",d:"0:39",img:"assets/covers/cover-gongchang.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473730902185.mp4?sign=1793090858-79818c810b-b4e4eca797dd4dd181619d1d26398113-a86744fb7afe0e4fdacbe8330d545e0c"},
-  {p:"工厂宣传",pk:"gongchang",m:"李尚书",t:"第2集",d:"0:30",img:"assets/covers/poster-gongchang-ep02.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473776007172.mp4?sign=1793090859-1f4199d1ed-b4e4eca797dd4dd181619d1d26398113-7c82628ba5b33f429803712e0b4bd157"},
-  {p:"工厂宣传",pk:"gongchang",m:"李尚书",t:"第3集",d:"1:03",img:"assets/covers/cover-gongchang.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473721240602.mp4?sign=1793090859-d673d5afee-b4e4eca797dd4dd181619d1d26398113-0126862398cbbf1e8ec01a7152023e9a"},
-  {p:"工厂宣传",pk:"gongchang",m:"杨子琪",t:"9月3日",d:"0:23",img:"assets/covers/cover-gongchang.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473776007204.mp4?sign=1793090860-661206f4a3-b4e4eca797dd4dd181619d1d26398113-09c675beea960859374ce2efc7a9ad1f"},
-  {p:"工厂宣传",pk:"gongchang",m:"王奥",t:"第9集",d:"0:33",img:"assets/covers/cover-gongchang.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473772915785.mp4?sign=1793090861-6fbcfc2fcc-b4e4eca797dd4dd181619d1d26398113-8765d1c9d4de6d40dda944759b480fcf"},
-  {p:"工厂宣传",pk:"gongchang",m:"郭子键",t:"第8集",d:"0:27",img:"assets/covers/cover-gongchang.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473730903177.mp4?sign=1793090861-3ef36a7558-b4e4eca797dd4dd181619d1d26398113-d7d269a26b4748dee923beb36b2a7ed2"},
-  {p:"武林",pk:"wulin",m:"史顺棋",t:"第一集",d:"1:22",img:"assets/covers/cover-wulin.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473772736708.mp4?sign=1793090862-4fad9f6220-b4e4eca797dd4dd181619d1d26398113-eb547f1823e8e1f7c9b810946f24d190"},
-  {p:"武林",pk:"wulin",m:"王奥",t:"第三集",d:"1:10",img:"assets/covers/cover-wulin.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473772736724.mp4?sign=1793090863-e18f025e7c-b4e4eca797dd4dd181619d1d26398113-23a70af9276ad39f93aa57eb233b17ad"},
-  {p:"武林",pk:"wulin",m:"郭子键",t:"第二集",d:"1:38",img:"assets/covers/cover-wulin.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473632297211.mp4?sign=1793090853-1a2991ffaf-b4e4eca797dd4dd181619d1d26398113-408a78d6a7e5db771e3724b11a545b0a"},
-  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第16集",d:"1:02",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473768836121.mp4?sign=1793090863-aa4bac4638-b4e4eca797dd4dd181619d1d26398113-8a2e9f2e9094c448c79374f43a075381"},
-  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第27集",d:"0:57",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473774346243.mp4?sign=1793090864-bb4ba3aeaf-b4e4eca797dd4dd181619d1d26398113-fcf0c0aace3ffce3e293f26263f18b00"},
-  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第36集",d:"0:45",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473776007220.mp4?sign=1793090865-666a5f1889-b4e4eca797dd4dd181619d1d26398113-f015336fd9c5cada04c64433d433e4f5"},
-  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第6集",d:"1:35",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473682450521.mp4?sign=1793090854-42564cb2c2-b4e4eca797dd4dd181619d1d26398113-560209e86feaeb6781d27dc305a98fd0"},
-  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月15日",d:"0:44",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473802769465.mp4?sign=1793090865-03732ff905-b4e4eca797dd4dd181619d1d26398113-a9874f283243cbe9dde86b6c2319b448"},
-  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月18日",d:"0:56",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473768838297.mp4?sign=1793090866-8c41194692-b4e4eca797dd4dd181619d1d26398113-55ebe12f4d4e483705d13556df3809c8"},
-  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月20日",d:"0:58",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473774080027.mp4?sign=1793090867-3f0e034e64-b4e4eca797dd4dd181619d1d26398113-2e3fe34e475a959c4fde9a4e056bc59d"},
-  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月8日",d:"1:37",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473772735684.mp4?sign=1793090854-95d8f5ed28-b4e4eca797dd4dd181619d1d26398113-76d96726a317c8a9e0bf8fb17f934dfd"},
-  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"24集",d:"1:44",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473673890954.mp4?sign=1793090855-f2c370bd78-b4e4eca797dd4dd181619d1d26398113-8f4b0c458fd27774897ed6b0b2a7a719"},
-  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"39集",d:"1:39",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473776008196.mp4?sign=1793090867-bb0533a709-b4e4eca797dd4dd181619d1d26398113-ca0710b5fb416d2a88bb990c3675fdbb"},
-  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"第14集",d:"1:45",img:"assets/covers/poster-chaoxi-ep14.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473808728074.mp4?sign=1793090868-3bd95b1623-b4e4eca797dd4dd181619d1d26398113-7e5008ff2e405087ce1db6b6e30d5f41"},
-  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"第4集",d:"1:19",img:"assets/covers/poster-chaoxi-ep04.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473776008212.mp4?sign=1793090868-a98ff53b47-b4e4eca797dd4dd181619d1d26398113-ec259ba73a7541cd77fc8b7c66c6e9a2"},
-  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第19集",d:"0:55",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473782406297.mp4?sign=1793090869-3394959114-b4e4eca797dd4dd181619d1d26398113-51b64477b6577ad27eff786dd7218406"},
-  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第30集",d:"1:17",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473808729162.mp4?sign=1793090870-86181a782f-b4e4eca797dd4dd181619d1d26398113-6c0ac757ac172c5f972dc2cddbb74c5d"},
-  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第31集",d:"1:50",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473721237530.mp4?sign=1793090856-b93bb1f56c-b4e4eca797dd4dd181619d1d26398113-dd43e7bcc9cd75d6343410759e7941b0"},
-  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第9集",d:"0:39",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473830884570.mp4?sign=1793090870-40deb5600f-b4e4eca797dd4dd181619d1d26398113-231de8e9c50fce7ee255c4bef999a66e"},
-  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"20集",d:"1:29",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473879090185.mp4?sign=1793090871-287b43b841-b4e4eca797dd4dd181619d1d26398113-2b7098830dc417968977d8314dfac209"},
-  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"29集",d:"0:41",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473782406313.mp4?sign=1793090872-792beed466-b4e4eca797dd4dd181619d1d26398113-c501928463800c2506417ee8b30dee27"},
-  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"32集",d:"1:13",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473853385867.mp4?sign=1793090872-04636b25ff-b4e4eca797dd4dd181619d1d26398113-21b95842c65b8d3ae191a62211d80076"},
-  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"第10集",d:"1:13",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473879092361.mp4?sign=1793090873-aed0aa6434-b4e4eca797dd4dd181619d1d26398113-3e3d53abed4be2a903d75eeee7b66273"},
-  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"17集",d:"1:12",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473853387835.mp4?sign=1793090874-a9438fa6fd-b4e4eca797dd4dd181619d1d26398113-632c85f023b2dec787ac15688c069fb3"},
-  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"28集",d:"1:07",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473774351412.mp4?sign=1793090874-ab38aaaa1b-b4e4eca797dd4dd181619d1d26398113-6c6d12dfc0fa694fddf8330e5e019392"},
-  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"37集",d:"1:24",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473955022906.mp4?sign=1793090875-581ba79348-b4e4eca797dd4dd181619d1d26398113-7f6a2d59ad649a6b8c1e7edb38639f2c"},
-  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"7集",d:"0:52",img:"assets/covers/cover-chaoxi.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473776008244.mp4?sign=1793090876-9dc4a2246e-b4e4eca797dd4dd181619d1d26398113-f98642b957c64c1ba2ac0034857c66ae"},
-  {p:"眼镜店宣传",pk:"yanjing",m:"史顺棋",t:"广告第3集",d:"1:18",img:"assets/covers/cover-yanjing.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473776009220.mp4?sign=1793090876-8034f659e6-b4e4eca797dd4dd181619d1d26398113-55a8ff1e918499532ffebb700cd6347f"},
-  {p:"眼镜店宣传",pk:"yanjing",m:"廖棋稚",t:"视频节点3",d:"0:12",img:"assets/covers/cover-yanjing.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473924074538.mp4?sign=1793090877-6ee68f1b9e-b4e4eca797dd4dd181619d1d26398113-3c4327861819c5788089d6094893b13e"},
-  {p:"眼镜店宣传",pk:"yanjing",m:"杨子琪",t:"9月21日",d:"2:01",img:"assets/covers/cover-yanjing.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473600867386.mp4?sign=1793090852-2c85d34c64-b4e4eca797dd4dd181619d1d26398113-587dec2c52cf145a42740cc21c6bb82b"},
-  {p:"眼镜店宣传",pk:"yanjing",m:"王奥",t:"眼镜店广告",d:"0:43",img:"assets/covers/cover-yanjing.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877472340514884.mp4?sign=1793090850-9f6ce91ff0-b4e4eca797dd4dd181619d1d26398113-674658fa63c7e009f1cfa44922d9016a"},
-  {p:"眼镜店宣传",pk:"yanjing",m:"郭子键",t:"广告2",d:"1:01",img:"assets/covers/cover-yanjing.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877472430536777.mp4?sign=1793090851-7dbcd82523-b4e4eca797dd4dd181619d1d26398113-b6e4c2c1bfa0cb40bca2379e2fe22b99"},
-  {p:"房产 TVC",pk:"tvc",m:"史顺棋",t:"房产 TVC",d:"1:15",img:"assets/covers/cover-tvc.jpg",u:"https://dataloom-gbuxytqk.feishucdn.com/4852819394/bucket_aadkxc5qwvado/1877473673891866.mp4?sign=1793090856-57ec2c4ad5-b4e4eca797dd4dd181619d1d26398113-0cc1f82d97acdb372be7eb5042752656"},
+  {p:"他过分野",pk:"taguofenye",m:"李尚书",t:"第3集",d:"1:32",img:"assets/covers/poster-taguofenye-ep03.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_01.mp4"},
+  {p:"他过分野",pk:"taguofenye",m:"王奥",t:"第1-3集",d:"4:04",img:"assets/covers/cover-taguofenye.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_02.mp4"},
+  {p:"工厂宣传",pk:"gongchang",m:"史顺棋",t:"广告",d:"0:27",img:"assets/covers/cover-gongchang.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_03.mp4"},
+  {p:"工厂宣传",pk:"gongchang",m:"廖棋稚",t:"工厂短片",d:"0:39",img:"assets/covers/cover-gongchang.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_04.mp4"},
+  {p:"工厂宣传",pk:"gongchang",m:"李尚书",t:"第2集",d:"0:30",img:"assets/covers/poster-gongchang-ep02.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_05.mp4"},
+  {p:"工厂宣传",pk:"gongchang",m:"李尚书",t:"第3集",d:"1:03",img:"assets/covers/cover-gongchang.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_06.mp4"},
+  {p:"工厂宣传",pk:"gongchang",m:"杨子琪",t:"9月3日",d:"0:23",img:"assets/covers/cover-gongchang.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_07.mp4"},
+  {p:"工厂宣传",pk:"gongchang",m:"王奥",t:"第9集",d:"0:33",img:"assets/covers/cover-gongchang.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_08.mp4"},
+  {p:"工厂宣传",pk:"gongchang",m:"郭子键",t:"第8集",d:"0:27",img:"assets/covers/cover-gongchang.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_09.mp4"},
+  {p:"武林",pk:"wulin",m:"史顺棋",t:"第一集",d:"1:22",img:"assets/covers/cover-wulin.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_10.mp4"},
+  {p:"武林",pk:"wulin",m:"王奥",t:"第三集",d:"1:10",img:"assets/covers/cover-wulin.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_11.mp4"},
+  {p:"武林",pk:"wulin",m:"郭子键",t:"第二集",d:"1:38",img:"assets/covers/cover-wulin.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_12.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第16集",d:"1:02",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_13.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第27集",d:"0:57",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_14.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第36集",d:"0:45",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_15.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"史顺棋",t:"第6集",d:"1:35",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_16.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月15日",d:"0:44",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_17.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月18日",d:"0:56",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_18.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月20日",d:"0:58",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_19.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"廖棋稚",t:"9月8日",d:"1:37",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_20.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"24集",d:"1:44",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_21.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"39集",d:"1:39",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_22.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"第14集",d:"1:45",img:"assets/covers/poster-chaoxi-ep14.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_23.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"李尚书",t:"第4集",d:"1:19",img:"assets/covers/poster-chaoxi-ep04.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_24.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第19集",d:"0:55",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_25.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第30集",d:"1:17",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_26.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第31集",d:"1:50",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_27.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"杨子琪",t:"第9集",d:"0:39",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_28.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"20集",d:"1:29",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_29.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"29集",d:"0:41",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_30.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"32集",d:"1:13",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_31.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"王奥",t:"第10集",d:"1:13",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_32.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"17集",d:"1:12",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_33.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"28集",d:"1:07",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_34.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"37集",d:"1:24",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_35.mp4"},
+  {p:"潮汐",pk:"chaoxi",m:"郭子键",t:"7集",d:"0:52",img:"assets/covers/cover-chaoxi.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_36.mp4"},
+  {p:"眼镜店宣传",pk:"yanjing",m:"史顺棋",t:"广告第3集",d:"1:18",img:"assets/covers/cover-yanjing.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_37.mp4"},
+  {p:"眼镜店宣传",pk:"yanjing",m:"廖棋稚",t:"视频节点3",d:"0:12",img:"assets/covers/cover-yanjing.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_38.mp4"},
+  {p:"眼镜店宣传",pk:"yanjing",m:"杨子琪",t:"9月21日",d:"2:01",img:"assets/covers/cover-yanjing.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_39.mp4"},
+  {p:"眼镜店宣传",pk:"yanjing",m:"王奥",t:"眼镜店广告",d:"0:43",img:"assets/covers/cover-yanjing.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_40.mp4"},
+  {p:"眼镜店宣传",pk:"yanjing",m:"郭子键",t:"广告2",d:"1:01",img:"assets/covers/cover-yanjing.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_41.mp4"},
+  {p:"房产 TVC",pk:"tvc",m:"史顺棋",t:"房产 TVC",d:"1:15",img:"assets/covers/cover-tvc.jpg",u:"https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_42.mp4"},
   {p:"《讙山灵物》",pk:"ip",m:"",t:"讙山神兽 · 三视图",d:"IP 设定",img:"assets/ip/ip-beast.jpg",u:""},
   {p:"《讙山灵物》",pk:"ip",m:"",t:"讙山灵猫 · 三视图",d:"IP 设定",img:"assets/ip/ip-cat.jpg",u:""},
 ];
@@ -1440,7 +1440,6 @@ const VIDEOS = [
   }
   var vgArchive = document.getElementById("vgArchive");
   var rest = VIDEOS;
-  function renderFeatured(){}
   function renderArchive(){
     var html = '<div class="vg-head"><div><span class="vg-no">VOL. 01</span><h3>全卷收录</h3></div><span class="vg-count">' + rest.length + ' 卷 · 按项目编目</span></div>';
     PROJECTS.forEach(function(proj){
@@ -1502,7 +1501,7 @@ const VIDEOS = [
       if(e.key === "Enter" || e.key === " "){ e.preventDefault(); inboxHeadEl.click(); }
     });
   }
-  renderFeatured(); renderArchive(); renderInbox();
+  renderArchive(); renderInbox(); updateStaticCounts();
   /* 项目筛选（动态渲染：新增项目自动加标签） */
   function renderFilters(){
     var fw = document.getElementById("vFilters");
@@ -1987,7 +1986,13 @@ const VIDEOS = [
     });
   }
 window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;window.INBOX=INBOX;
-  window.renderFeatured=renderFeatured;window.renderArchive=renderArchive;window.renderInbox=renderInbox;window.renderFilters=renderFilters;
+  window.renderArchive=renderArchive;window.renderInbox=renderInbox;window.renderFilters=renderFilters;
+  function updateStaticCounts(){
+    var av=document.getElementById('abVol');if(av&&window.PROJECTS)av.textContent=window.PROJECTS.length;
+    var as=document.getElementById('abStaff');if(as&&window.PRODUCERS)as.textContent=window.PRODUCERS.length;
+    var vt=document.getElementById('vgCountTitle');if(vt&&window.VIDEOS)vt.textContent=window.VIDEOS.length+'卷 · 逐一可览';
+  }
+  window.updateStaticCounts=updateStaticCounts;
 })();
 
 /* ===== 管理卷宗 ===== */
@@ -2078,7 +2083,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       if(!v)return;
       if(!window.confirm('删除「'+v.p+' · '+v.t+'」？可在底部「撤销全部」恢复。'))return;
       window.VIDEOS.splice(idx,1);
-      window.renderFeatured();window.renderArchive();renderList();markDone();
+      window.renderArchive();renderList();markDone();
     }else if(t.dataset.amEdit!==undefined){
       var idx2=+t.dataset.amEdit;var v2=VIDEOS[idx2];if(!v2)return;
       editRow(t,v2);
@@ -2090,7 +2095,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       var idx2=+t.dataset.amMove;var v2=VIDEOS[idx2];if(!v2)return;
       var pk=t.value;var proj=projOf(pk);
       if(proj){v2.p=proj.n;v2.pk=proj.k}
-      window.renderFeatured();window.renderArchive();renderList();markDone();
+      window.renderArchive();renderList();markDone();
     }
   });
   function editRow(btn,v){
@@ -2112,7 +2117,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
         v.t=form.querySelector('[data-f="t"]').value||v.t;
         v.m=form.querySelector('[data-f="m"]').value||'';
         v.d=form.querySelector('[data-f="d"]').value||v.d;
-        window.renderFeatured();window.renderArchive();renderList();markDone();
+        window.renderArchive();renderList();markDone();
       }else if(ev.target.dataset.cancel!==undefined){
         renderList();
       }
@@ -2203,7 +2208,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       if(Array.isArray(d.projects)){window.PROJECTS.splice.apply(window.PROJECTS,[0,window.PROJECTS.length].concat(d.projects))}
       if(Array.isArray(d.producers)){window.PRODUCERS.splice.apply(window.PRODUCERS,[0,window.PRODUCERS.length].concat(d.producers))}
       if(Array.isArray(d.inbox)){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(d.inbox))}
-      window.renderFeatured();window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();
+      window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();updateStaticCounts();
     }catch(e){ if(window.console&&console.error){console.error('applyData failed',e)} }
   }
   function syncToRepo(){
@@ -2321,7 +2326,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
         if(proj){copy.p=proj.n;copy.pk=proj.k}
         window.VIDEOS.push(copy);
         window.INBOX.splice(i,1);
-        window.renderFeatured();window.renderArchive();window.renderInbox();renderInboxList();markInboxDone();
+        window.renderArchive();window.renderInbox();renderInboxList();markInboxDone();
       }else if(t.dataset.ibDel!==undefined){
         var i2=+t.dataset.ibDel;var v2=window.INBOX[i2];if(!v2)return;
         if(!window.confirm('移除「'+(v2.p||'未命名')+'」？'))return;
@@ -2407,7 +2412,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       if(!window.confirm('删除卷「'+pr.n+'」？其中 '+items.length+' 件作品将自动转入「新作待归卷」并标记旧作，可在底部「撤销全部」恢复。'))return;
       window.PROJECTS=window.PROJECTS.filter(function(p){return p.k!==k});
       items.forEach(function(v){delete v.pk;v.p='旧作待处理';window.INBOX.push(v)});
-      window.renderFeatured();window.renderArchive();window.renderInbox();renderList();renderInboxList();renderProjList();markDone();
+      window.renderArchive();window.renderInbox();renderList();renderInboxList();renderProjList();markDone();
     });
   }
   var undoBtn=document.getElementById('amUndo');
@@ -2420,7 +2425,7 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
         renderMembers();
       if(snapshot.inbox){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(snapshot.inbox))}
       }
-      renderFeatured();renderArchive();window.renderInbox();renderList();renderInboxList();if(doneEl)doneEl.textContent='已撤销全部变更';
+      renderArchive();window.renderInbox();renderList();renderInboxList();if(doneEl)doneEl.textContent='已撤销全部变更';
     });
   }
   var expBtn=document.getElementById('amExport');
