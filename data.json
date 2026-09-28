@@ -1,6 +1,6 @@
 {
  "version": 3,
- "updatedAt": "2026-09-28T13:13:23.000Z",
+ "updatedAt": "2026-09-28T13:21:40.000Z",
  "videos": [
   {
    "p": "他过分野",
@@ -9,7 +9,7 @@
    "t": "第3集",
    "d": "1:32",
    "img": "assets/covers/poster-taguofenye-ep03.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_01.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_01.mp4"
   },
   {
    "p": "他过分野",
@@ -18,7 +18,7 @@
    "t": "第1-3集",
    "d": "4:04",
    "img": "assets/covers/cover-taguofenye.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_02.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_02.mp4"
   },
   {
    "p": "工厂宣传",
@@ -27,7 +27,7 @@
    "t": "广告",
    "d": "0:27",
    "img": "assets/covers/cover-gongchang.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_03.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_03.mp4"
   },
   {
    "p": "工厂宣传",
@@ -36,7 +36,7 @@
    "t": "工厂短片",
    "d": "0:39",
    "img": "assets/covers/cover-gongchang.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_04.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_04.mp4"
   },
   {
    "p": "工厂宣传",
@@ -45,7 +45,7 @@
    "t": "第2集",
    "d": "0:30",
    "img": "assets/covers/poster-gongchang-ep02.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_05.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_05.mp4"
   },
   {
    "p": "工厂宣传",
@@ -54,7 +54,7 @@
    "t": "第3集",
    "d": "1:03",
    "img": "assets/covers/cover-gongchang.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_06.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_06.mp4"
   },
   {
    "p": "工厂宣传",
@@ -63,7 +63,7 @@
    "t": "9月3日",
    "d": "0:23",
    "img": "assets/covers/cover-gongchang.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_07.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_07.mp4"
   },
   {
    "p": "工厂宣传",
@@ -72,7 +72,7 @@
    "t": "第9集",
    "d": "0:33",
    "img": "assets/covers/cover-gongchang.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_08.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_08.mp4"
   },
   {
    "p": "工厂宣传",
@@ -81,7 +81,7 @@
    "t": "第8集",
    "d": "0:27",
    "img": "assets/covers/cover-gongchang.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_09.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_09.mp4"
   },
   {
    "p": "武林",
@@ -90,7 +90,7 @@
    "t": "第一集",
    "d": "1:22",
    "img": "assets/covers/cover-wulin.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_10.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_10.mp4"
   },
   {
    "p": "武林",
@@ -99,7 +99,7 @@
    "t": "第三集",
    "d": "1:10",
    "img": "assets/covers/cover-wulin.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_11.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_11.mp4"
   },
   {
    "p": "武林",
@@ -108,7 +108,7 @@
    "t": "第二集",
    "d": "1:38",
    "img": "assets/covers/cover-wulin.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_12.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_12.mp4"
   },
   {
    "p": "潮汐",
@@ -117,7 +117,7 @@
    "t": "第16集",
    "d": "1:02",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_13.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_13.mp4"
   },
   {
    "p": "潮汐",
@@ -126,7 +126,7 @@
    "t": "第27集",
    "d": "0:57",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_14.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_14.mp4"
   },
   {
    "p": "潮汐",
@@ -135,7 +135,7 @@
    "t": "第36集",
    "d": "0:45",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_15.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_15.mp4"
   },
   {
    "p": "潮汐",
@@ -144,7 +144,7 @@
    "t": "第6集",
    "d": "1:35",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_16.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_16.mp4"
   },
   {
    "p": "潮汐",
@@ -153,7 +153,7 @@
    "t": "9月15日",
    "d": "0:44",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_17.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_17.mp4"
   },
   {
    "p": "潮汐",
@@ -162,7 +162,7 @@
    "t": "9月18日",
    "d": "0:56",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_18.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_18.mp4"
   },
   {
    "p": "潮汐",
@@ -171,7 +171,7 @@
    "t": "9月20日",
    "d": "0:58",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_19.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_19.mp4"
   },
   {
    "p": "潮汐",
@@ -180,7 +180,7 @@
    "t": "9月8日",
    "d": "1:37",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_20.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_20.mp4"
   },
   {
    "p": "潮汐",
@@ -189,7 +189,7 @@
    "t": "24集",
    "d": "1:44",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_21.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_21.mp4"
   },
   {
    "p": "潮汐",
@@ -198,7 +198,7 @@
    "t": "39集",
    "d": "1:39",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_22.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_22.mp4"
   },
   {
    "p": "潮汐",
@@ -207,7 +207,7 @@
    "t": "第14集",
    "d": "1:45",
    "img": "assets/covers/poster-chaoxi-ep14.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_23.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_23.mp4"
   },
   {
    "p": "潮汐",
@@ -216,7 +216,7 @@
    "t": "第4集",
    "d": "1:19",
    "img": "assets/covers/poster-chaoxi-ep04.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_24.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_24.mp4"
   },
   {
    "p": "潮汐",
@@ -225,7 +225,7 @@
    "t": "第19集",
    "d": "0:55",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_25.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_25.mp4"
   },
   {
    "p": "潮汐",
@@ -234,7 +234,7 @@
    "t": "第30集",
    "d": "1:17",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_26.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_26.mp4"
   },
   {
    "p": "潮汐",
@@ -243,7 +243,7 @@
    "t": "第31集",
    "d": "1:50",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_27.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_27.mp4"
   },
   {
    "p": "潮汐",
@@ -252,7 +252,7 @@
    "t": "第9集",
    "d": "0:39",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_28.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_28.mp4"
   },
   {
    "p": "潮汐",
@@ -261,7 +261,7 @@
    "t": "20集",
    "d": "1:29",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_29.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_29.mp4"
   },
   {
    "p": "潮汐",
@@ -270,7 +270,7 @@
    "t": "29集",
    "d": "0:41",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_30.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_30.mp4"
   },
   {
    "p": "潮汐",
@@ -279,7 +279,7 @@
    "t": "32集",
    "d": "1:13",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_31.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_31.mp4"
   },
   {
    "p": "潮汐",
@@ -288,7 +288,7 @@
    "t": "第10集",
    "d": "1:13",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_32.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_32.mp4"
   },
   {
    "p": "潮汐",
@@ -297,7 +297,7 @@
    "t": "17集",
    "d": "1:12",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_33.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_33.mp4"
   },
   {
    "p": "潮汐",
@@ -306,7 +306,7 @@
    "t": "28集",
    "d": "1:07",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_34.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_34.mp4"
   },
   {
    "p": "潮汐",
@@ -315,7 +315,7 @@
    "t": "37集",
    "d": "1:24",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_35.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_35.mp4"
   },
   {
    "p": "潮汐",
@@ -324,7 +324,7 @@
    "t": "7集",
    "d": "0:52",
    "img": "assets/covers/cover-chaoxi.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_36.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_36.mp4"
   },
   {
    "p": "眼镜店宣传",
@@ -333,7 +333,7 @@
    "t": "广告第3集",
    "d": "1:18",
    "img": "assets/covers/cover-yanjing.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_37.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_37.mp4"
   },
   {
    "p": "眼镜店宣传",
@@ -342,7 +342,7 @@
    "t": "视频节点3",
    "d": "0:12",
    "img": "assets/covers/cover-yanjing.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_38.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_38.mp4"
   },
   {
    "p": "眼镜店宣传",
@@ -351,7 +351,7 @@
    "t": "9月21日",
    "d": "2:01",
    "img": "assets/covers/cover-yanjing.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_39.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_39.mp4"
   },
   {
    "p": "眼镜店宣传",
@@ -360,7 +360,7 @@
    "t": "眼镜店广告",
    "d": "0:43",
    "img": "assets/covers/cover-yanjing.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_40.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_40.mp4"
   },
   {
    "p": "眼镜店宣传",
@@ -369,7 +369,7 @@
    "t": "广告2",
    "d": "1:01",
    "img": "assets/covers/cover-yanjing.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_41.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_41.mp4"
   },
   {
    "p": "房产 TVC",
@@ -378,7 +378,7 @@
    "t": "房产 TVC",
    "d": "1:15",
    "img": "assets/covers/cover-tvc.jpg",
-   "u": "https://cyborgtack.github.io/huanshan-film/media/video_42.mp4"
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_42.mp4"
   },
   {
    "p": "《讙山灵物》",
@@ -501,49 +501,49 @@
    "p": "其他",
    "m": "李尚书",
    "t": "弓箭手",
-   "img": "https://cyborgtack.github.io/huanshan-film/media/img_01.jpg",
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_01.jpg",
    "u": ""
   },
   {
    "p": "其他",
    "m": "测试",
    "t": "测试",
-   "img": "https://cyborgtack.github.io/huanshan-film/media/img_02.png",
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_02.png",
    "u": ""
   },
   {
    "p": "其他",
    "m": "杨子琪",
    "t": "图片 01",
-   "img": "https://cyborgtack.github.io/huanshan-film/media/img_03.png",
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_03.png",
    "u": ""
   },
   {
    "p": "其他",
    "m": "杨子琪",
    "t": "图片 02",
-   "img": "https://cyborgtack.github.io/huanshan-film/media/img_04.png",
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_04.png",
    "u": ""
   },
   {
    "p": "其他",
    "m": "杨子琪",
    "t": "图片 03",
-   "img": "https://cyborgtack.github.io/huanshan-film/media/img_05.png",
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_05.png",
    "u": ""
   },
   {
    "p": "其他",
    "m": "杨子琪",
    "t": "图片 04",
-   "img": "https://cyborgtack.github.io/huanshan-film/media/img_06.png",
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_06.png",
    "u": ""
   },
   {
    "p": "其他",
    "m": "杨子琪",
    "t": "图片 05",
-   "img": "https://cyborgtack.github.io/huanshan-film/media/img_07.png",
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_07.png",
    "u": ""
   }
  ]
