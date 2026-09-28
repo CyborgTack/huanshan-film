@@ -327,6 +327,32 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-sync-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:12px;padding:8px 12px;outline:none;letter-spacing:.06em}
 .am-sync-row input:focus{border-color:rgba(212,175,55,.55)}
 .am-sync-hint{font-size:11px;color:var(--text-muted);letter-spacing:.06em;margin:0 4px 8px}
+/* 新作待归卷（底部合集仓） */
+.inbox{position:relative;z-index:1;padding:var(--space-10) 0 var(--space-8);border-top:1px solid var(--border);overflow:hidden}
+.inbox::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 90% at 50% 110%,rgba(212,175,55,.05),transparent 70%)}
+.inbox-inner{position:relative}
+.inbox-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:var(--space-6);flex-wrap:wrap;gap:var(--space-3)}
+.inbox-head .vg-no{color:var(--ink-gold);font-size:11px;letter-spacing:.3em;font-weight:600}
+.inbox-head h3{font-size:var(--font-title);color:var(--text-bright);letter-spacing:.12em;margin:6px 0 0;font-weight:500}
+.inbox-head .vg-count{font-size:12px;color:var(--text-muted);letter-spacing:.14em}
+.inbox-strip{display:flex;gap:var(--space-4);overflow-x:auto;padding:4px 2px var(--space-4);scrollbar-width:thin;scrollbar-color:rgba(212,175,55,.25) transparent}
+.inbox-card{flex:0 0 180px;width:180px;text-align:left;background:rgba(255,255,255,.02);border:1px dashed rgba(212,175,55,.18);border-radius:var(--radius-md);overflow:hidden;position:relative;transition:border-color .3s,transform .3s;cursor:pointer}
+.inbox-card:hover{border-color:rgba(212,175,55,.45);transform:translateY(-2px)}
+.inbox-poster{position:relative;aspect-ratio:9/16;background:#0b0b10;filter:grayscale(.5) brightness(.78);transition:filter .3s}
+.inbox-card:hover .inbox-poster{filter:grayscale(.15) brightness(.95)}
+.inbox-poster img{width:100%;height:100%;object-fit:cover;display:block}
+.inbox-new{position:absolute;top:8px;right:8px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.5);color:var(--ink-gold-bright);font-size:9px;letter-spacing:.2em;padding:2px 7px;border-radius:2px;backdrop-filter:blur(4px)}
+.inbox-meta{padding:10px 12px 12px}
+.inbox-meta h4{font-size:13px;color:var(--text-bright);font-weight:500;margin:0 0 4px;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inbox-meta span{display:block;font-size:11px;color:var(--text-muted);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inbox-empty{color:var(--text-muted);font-size:12px;letter-spacing:.1em;padding:var(--space-6) 0;border:1px dashed rgba(212,175,55,.14);border-radius:var(--radius-md);text-align:center}
+/* 管理面板：待归卷 */
+.am-inbox{margin-top:10px;border-top:1px solid rgba(212,175,55,.12);padding-top:8px}
+.am-inbox h4{font-size:11px;color:var(--ink-gold);letter-spacing:.2em;margin:0 0 6px;font-weight:600}
+.am-inbox-list{list-style:none;margin:0;padding:0}
+.am-inbox-list .am-row{font-size:12px}
+.am-inbox-list select{max-width:130px}
+
 
 .studio-panel{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
 .studio-panel.open{display:flex}
@@ -1108,6 +1134,17 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   </div>
 </section>
 
+<!-- ===== 新作待归卷（合集仓） ===== -->
+<section class="inbox" id="inbox">
+  <div class="container inbox-inner">
+    <div class="inbox-head">
+      <div><span class="vg-no">VOL. 00</span><h3>新作待归卷</h3></div>
+      <span class="vg-count" id="inboxCount">0 件新作 · 待编修归卷</span>
+    </div>
+    <div class="inbox-strip" id="inboxStrip"></div>
+  </div>
+</section>
+
 <!-- ===== 页脚 ===== -->
 <footer class="footer">
   <div class="container">
@@ -1325,6 +1362,7 @@ const VIDEOS = [
     {k:"tvc", n:"《房产 TVC》", d:"商业广告 · 房产宣传"}
   ];
   var PRODUCERS = ["史顺棋","李尚书","王奥","杨子琪","郭子键","廖棋稚"];
+  var INBOX = [];
   function cardHTML(v, feat){
     var svg = '<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z"/></svg>';
     var i = VIDEOS.indexOf(v);
@@ -1355,7 +1393,28 @@ const VIDEOS = [
     });
     vgArchive.innerHTML = html;
   }
-  renderFeatured(); renderArchive();
+  var vgInbox = document.getElementById("inboxStrip");
+  var inboxCount = document.getElementById("inboxCount");
+  function renderInbox(){
+    if(!vgInbox)return;
+    if(!INBOX.length){
+      vgInbox.innerHTML = '<div class="inbox-empty">新作将在此等候归卷 · 管理卷宗中「上呈合集」可收录新作</div>';
+      if(inboxCount)inboxCount.textContent = '0 件新作 · 待编修归卷';
+      return;
+    }
+    if(inboxCount)inboxCount.textContent = INBOX.length + ' 件新作 · 待编修归卷';
+    vgInbox.innerHTML = INBOX.map(function(v,i){
+      var img = v.img || 'assets/brand/logo-totem.png';
+      var pname = v.p || '未命名';
+      var t = v.t || '';
+      var sub = (v.m ? v.m + ' · ' : '') + (v.d || '');
+      return '<button class="inbox-card" data-ii="' + i + '" aria-label="查看新作 ' + pname + '">' +
+        '<span class="inbox-poster"><img src="' + img + '" alt="' + pname + ' · ' + t + '" loading="lazy">' +
+        '<span class="inbox-new">新</span></span>' +
+        '<span class="inbox-meta"><h4>' + (t || pname) + '</h4><span>' + sub + '</span></span></button>';
+    }).join('');
+  }
+  renderFeatured(); renderArchive(); renderInbox();
   /* 项目筛选 */
   var vfilters = Array.prototype.slice.call(document.querySelectorAll(".vfilter"));
   vfilters.forEach(function(btn){
@@ -1391,6 +1450,14 @@ const VIDEOS = [
     if(cg){
       var ci = Number(cg.dataset.ci);
       if(!isNaN(ci) && CONCEPTS[ci]){ openConceptLightbox(ci); }
+      return;
+    }
+    var ib = e.target.closest(".inbox-card");
+    if(ib){
+      var ii = Number(ib.dataset.ii);
+      if(!isNaN(ii) && INBOX[ii]){
+        if(INBOX[ii].u){ openVideoLightbox(INBOX[ii]); }
+      }
     }
   });
   function openVideoLightbox(v){
@@ -1682,8 +1749,8 @@ const VIDEOS = [
       else if(!reduceMotion){ emberOn = true; requestAnimationFrame(loopEmbers); }
     });
   }
-window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;
-  window.renderFeatured=renderFeatured;window.renderArchive=renderArchive;
+window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;window.INBOX=INBOX;
+  window.renderFeatured=renderFeatured;window.renderArchive=renderArchive;window.renderInbox=renderInbox;
 })();
 
 /* ===== 管理卷宗 ===== */
@@ -1710,8 +1777,8 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
   function closePwd(){if(pwdPanel)pwdPanel.classList.remove('open');unlockBody()}
   function openAdmin(){
     if(!admPanel)return;
-    if(snapshot===null){snapshot={videos:JSON.parse(JSON.stringify(window.VIDEOS)),producers:window.PRODUCERS.slice()}}
-    admPanel.classList.add('open');lockBody();renderList();doneEl.textContent='';
+    if(snapshot===null){snapshot={videos:JSON.parse(JSON.stringify(window.VIDEOS)),producers:window.PRODUCERS.slice(),inbox:JSON.parse(JSON.stringify(window.INBOX))}}
+    admPanel.classList.add('open');lockBody();renderList();renderInboxList();doneEl.textContent='';
   }
   function closeAdmin(){if(admPanel)admPanel.classList.remove('open');unlockBody()}
   function projOf(pk){
@@ -1840,13 +1907,14 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       if(Array.isArray(d.concepts)){window.CONCEPTS.splice.apply(window.CONCEPTS,[0,window.CONCEPTS.length].concat(d.concepts))}
       if(Array.isArray(d.projects)){window.PROJECTS.splice.apply(window.PROJECTS,[0,window.PROJECTS.length].concat(d.projects))}
       if(Array.isArray(d.producers)){window.PRODUCERS.splice.apply(window.PRODUCERS,[0,window.PRODUCERS.length].concat(d.producers))}
-      window.renderFeatured();window.renderArchive();renderMembers();
+      if(Array.isArray(d.inbox)){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(d.inbox))}
+      window.renderFeatured();window.renderArchive();window.renderInbox();renderMembers();
     }catch(e){}
   }
   function syncToRepo(){
     var pat=localStorage.getItem(PAT_KEY);
     if(!pat)return Promise.reject('nopat');
-    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,producers:window.PRODUCERS};
+    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,producers:window.PRODUCERS,inbox:window.INBOX};
     var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     return fetch(REMOTE,{headers:{Authorization:'Bearer '+pat}}).then(function(r){return r.json()}).then(function(meta){
       if(!meta.sha)return Promise.reject('meta:'+JSON.stringify(meta).slice(0,80));
@@ -1895,6 +1963,82 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
       });
     });
   }
+  var inboxListEl=document.getElementById('amInboxList');
+  function renderInboxList(){
+    if(!inboxListEl)return;
+    if(!window.INBOX.length){inboxListEl.innerHTML='';return}
+    inboxListEl.innerHTML=window.INBOX.map(function(v,i){
+      var opts=window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('');
+      return '<li class="am-row"><div class="am-main"><b>'+((v.p||'未命名')+' · '+(v.t||''))+'</b>'+
+        '<span>'+(v.m||'佚名')+(v.d?' · '+v.d:'')+'</span></div>'+
+        '<div class="am-ops">'+
+        '<select class="am-op" data-ib-into="'+i+'"><option value="">归入卷…</option>'+opts+'<option value="__feat">主创展陈（精品）</option></select>'+
+        '<button class="am-op active" type="button" data-ib-move="'+i+'">归卷</button>'+
+        '<button class="am-op danger" type="button" data-ib-del="'+i+'">移除</button>'+
+        '</div></li>';
+    }).join('');
+  }
+  function markInboxDone(){if(doneEl)doneEl.textContent='已记录变更 · 记得同步入库'}
+  var inboxBtn=document.getElementById('amAddInbox');
+  if(inboxBtn){
+    inboxBtn.addEventListener('click',function(){
+      var old=document.getElementById('amInboxRow');
+      if(old){old.remove();return}
+      var row=document.createElement('div');
+      row.className='am-add-row';
+      row.id='amInboxRow';
+      row.style.flexWrap='wrap';
+      row.innerHTML='<input id="ibP" placeholder="作品名（卷名）" maxlength="20">'+
+        '<input id="ibT" placeholder="标题 / 集数" maxlength="30">'+
+        '<input id="ibM" list="amAuthorList" placeholder="作者" maxlength="12">'+
+        '<input id="ibD" placeholder="时长" maxlength="10" style="width:70px">'+
+        '<input id="ibImg" placeholder="封面路径（assets/…）" maxlength="120" style="flex-basis:100%">'+
+        '<input id="ibU" placeholder="视频直链 URL（可暂留空）" maxlength="400" style="flex-basis:100%">'+
+        '<button class="am-op active" type="button" data-ib-save>收进合集</button>'+
+        '<button class="am-op" type="button" data-ib-cancel>取消</button>';
+      listEl.parentNode.insertBefore(row,listEl);
+      var first=row.querySelector('#ibP');first.focus();
+      row.addEventListener('click',function(e){
+        if(e.target.dataset.ibSave!==undefined){
+          var pv=row.querySelector('#ibP').value.trim();
+          if(!pv){row.querySelector('#ibP').focus();return}
+          var item={p:pv,pk:'',m:row.querySelector('#ibM').value.trim(),t:row.querySelector('#ibT').value.trim(),
+            d:row.querySelector('#ibD').value.trim(),img:row.querySelector('#ibImg').value.trim(),u:row.querySelector('#ibU').value.trim()};
+          window.INBOX.push(item);
+          window.renderInbox();renderInboxList();markInboxDone();row.remove();
+        }else if(e.target.dataset.ibCancel!==undefined){row.remove()}
+      });
+    });
+  }
+  if(inboxListEl){
+    inboxListEl.addEventListener('click',function(e){
+      var t=e.target;
+      if(t.dataset.ibMove!==undefined){
+        var i=+t.dataset.ibMove;var v=window.INBOX[i];if(!v)return;
+        var sel=document.querySelector('[data-ib-into="'+i+'"]');
+        var target=sel?sel.value:'';
+        if(!target){
+          if(doneEl)doneEl.textContent='请先选择归入的卷';
+          return;
+        }
+        var copy=JSON.parse(JSON.stringify(v));
+        if(target==='__feat'){
+          copy._prevM=copy.m;copy.m='李尚书';
+        }else{
+          var proj=projOf(target);
+          if(proj){copy.p=proj.n;copy.pk=proj.k}
+        }
+        window.VIDEOS.push(copy);
+        window.INBOX.splice(i,1);
+        window.renderFeatured();window.renderArchive();window.renderInbox();renderInboxList();markInboxDone();
+      }else if(t.dataset.ibDel!==undefined){
+        var i2=+t.dataset.ibDel;var v2=window.INBOX[i2];if(!v2)return;
+        if(!window.confirm('移除「'+(v2.p||'未命名')+'」？'))return;
+        window.INBOX.splice(i2,1);
+        window.renderInbox();renderInboxList();markInboxDone();
+      }
+    });
+  }
   var addBtn=document.getElementById('amAddProducer');
   if(addBtn){
     addBtn.addEventListener('click',function(){
@@ -1927,8 +2071,9 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
         window.PRODUCERS.splice(0,window.PRODUCERS.length);
         snapshot.producers.forEach(function(n){window.PRODUCERS.push(n)});
         renderMembers();
+      if(snapshot.inbox){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(snapshot.inbox))}
       }
-      renderFeatured();renderArchive();renderList();if(doneEl)doneEl.textContent='已撤销全部变更';
+      renderFeatured();renderArchive();window.renderInbox();renderList();renderInboxList();if(doneEl)doneEl.textContent='已撤销全部变更';
     });
   }
   var expBtn=document.getElementById('amExport');
@@ -2004,11 +2149,16 @@ window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PR
     <div class="am-toolbar">
       <span class="am-hint">操作即时预览 · 改动需「导出变更」后由主理人入库</span>
       <button class="am-op" id="amAuth" type="button">仓库授权</button>
+      <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
       <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
       <button class="am-op" id="amUndo" type="button">撤销全部</button>
     </div>
     <datalist id="amAuthorList"></datalist>
     <ul class="am-list" id="amList"></ul>
+    <div class="am-inbox">
+      <h4>待归卷 · 上呈合集的新作</h4>
+      <ul class="am-inbox-list" id="amInboxList"></ul>
+    </div>
     <div class="am-foot">
       <span class="am-done" id="amDone"></span>
       <button class="am-op" id="amClose" type="button">关闭</button>
