@@ -438,6 +438,11 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 #videosHead .vg-toggle{width:22px;height:22px;flex-shrink:0;transition:transform .3s var(--ease)}
 #videos.collapsed .filters,#videos.collapsed #vgArchive,#videos.collapsed .work-srcs{display:none}
 #videos.collapsed #videosHead .vg-toggle{transform:rotate(-90deg)}
+#worksHead{cursor:pointer;user-select:none;transition:opacity .25s}
+#worksHead:hover{opacity:.82}
+#worksHead .vg-toggle{width:22px;height:22px;flex-shrink:0;transition:transform .3s var(--ease)}
+#works.collapsed .filters,#works.collapsed .catalog,#works.collapsed .work-srcs{display:none}
+#works.collapsed #worksHead .vg-toggle{transform:rotate(-90deg)}
 .filters{display:flex;gap:var(--space-3);flex-wrap:wrap}
 .filter{
   font-size:13px;letter-spacing:.14em;color:var(--text-secondary);
@@ -947,13 +952,16 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 </section>
 
 <!-- ===== 作品精选 ===== -->
-<section class="section" id="works">
+<section class="section collapsed" id="works">
   <div class="container">
-    <div class="works-head" data-reveal>
+    <div class="works-head" id="worksHead" role="button" tabindex="0" aria-expanded="false" aria-controls="worksCatalog" data-reveal>
       <div>
         <span class="sec-line" aria-hidden="true"></span>
         <span class="sec-label">馆藏卷宗</span>
-        <h2 class="sec-title">近岁入藏之卷</h2>
+        <div style="display:flex;align-items:center;gap:12px">
+          <h2 class="sec-title">近岁入藏之卷</h2>
+          <svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
       </div>
       <div class="filters" role="tablist" aria-label="卷宗分类筛选">
         <button class="filter active" data-filter="all" role="tab" aria-selected="true">全部</button>
@@ -963,7 +971,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
         <button class="filter" data-filter="3d" role="tab" aria-selected="false">造物卷</button>
       </div>
     </div>
-    <div class="catalog" data-reveal>
+    <div class="catalog" id="worksCatalog" data-reveal>
       <aside class="catalog-index" aria-label="卷宗目录">
         <div class="catalog-index-inner" id="catalogIndex">
           <button class="idx-item active" data-index="0" data-key="film" role="button" aria-label="查看作品《雨夜行》详情">
@@ -1541,6 +1549,18 @@ const VIDEOS = [
     });
     videosHeadEl.addEventListener("keydown", function(e){
       if(e.key === "Enter" || e.key === " "){ e.preventDefault(); videosHeadEl.click(); }
+    });
+  }
+  var worksSec = document.getElementById("works");
+  var worksHeadEl = document.getElementById("worksHead");
+  if(worksSec && worksHeadEl){
+    worksHeadEl.addEventListener("click", function(e){
+      if(e.target.closest(".filter")){ return; }
+      var c = worksSec.classList.toggle("collapsed");
+      worksHeadEl.setAttribute("aria-expanded", c ? "false" : "true");
+    });
+    worksHeadEl.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); worksHeadEl.click(); }
     });
   }
   /* 概念画廊渲染 */
