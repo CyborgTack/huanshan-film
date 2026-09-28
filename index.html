@@ -1604,6 +1604,7 @@ const VIDEOS = [
         '<figure><img src="' + c.img + '" alt="' + c.t + '" loading="lazy">' +
         '<figcaption><b>' + c.t + '</b><span>' + c.k + '</span></figcaption></figure></button>';
     }).join("");
+  }
   /* 藏卷四部 · 精选渲染 */
   var featGrid = document.getElementById("featuredGrid");
   var featCountTitle = document.getElementById("featCountTitle");
@@ -1626,7 +1627,6 @@ const VIDEOS = [
     if(featCountTitle){ featCountTitle.textContent = FEATURED.length + ' 件甄选 · 四部之最'; }
   }
   renderFeatured();
-  }
   /* 点击委托：视频卡 / 概念卡 */
   var lbVideoWrap = document.getElementById("lbVideoWrap");
   var lbVideo = document.getElementById("lbVideo");
