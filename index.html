@@ -346,6 +346,15 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .inbox-meta h4{font-size:13px;color:var(--text-bright);font-weight:500;margin:0 0 4px;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inbox-meta span{display:block;font-size:11px;color:var(--text-muted);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inbox-empty{color:var(--text-muted);font-size:12px;letter-spacing:.1em;padding:var(--space-6) 0;border:1px dashed rgba(212,175,55,.14);border-radius:var(--radius-md);text-align:center}
+.inbox-head{cursor:pointer;user-select:none;transition:opacity .25s}
+.inbox-head:hover{opacity:.82}
+.inbox.collapsed .inbox-group{display:none}
+.inbox.collapsed .vg-toggle{transform:rotate(-90deg)}
+.inbox-group{margin-bottom:var(--space-6)}
+.inbox-group:last-child{margin-bottom:0}
+.inbox-gtitle{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-gold);letter-spacing:.24em;margin-bottom:var(--space-3);font-weight:600}
+.inbox-gcount{font-size:10px;color:var(--text-muted);border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:1px 8px;letter-spacing:.1em}
+.inbox-empty.small{padding:var(--space-4) 0;font-size:11px}
 /* 项目卷：展开/收起 */
 .vg-block.collapsed .vg-grid{display:none}
 .vg-block .vg-head{cursor:pointer;user-select:none;transition:opacity .25s}
@@ -1144,11 +1153,12 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 <!-- ===== 新作待归卷（合集仓） ===== -->
 <section class="inbox" id="inbox">
   <div class="container inbox-inner">
-    <div class="inbox-head">
+    <div class="inbox-head" id="inboxHead" role="button" tabindex="0" aria-expanded="true" aria-controls="inboxStrip">
       <div><span class="vg-no">VOL. 00</span><h3>新作待归卷</h3></div>
       <span class="vg-count" id="inboxCount">0 件新作 · 待编修归卷</span>
+      <svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
     </div>
-    <div class="inbox-strip" id="inboxStrip"></div>
+    <div id="inboxStrip"></div>
   </div>
 </section>
 
@@ -1406,17 +1416,41 @@ const VIDEOS = [
       if(inboxCount)inboxCount.textContent = '0 件新作 · 待编修归卷';
       return;
     }
+    var withIdx = INBOX.map(function(v,i){ return {v:v,i:i}; });
+    var vids = withIdx.filter(function(x){ return x.v.u; });
+    var imgs = withIdx.filter(function(x){ return !x.v.u; });
+    function group(list, label, empty){
+      if(!list.length){
+        return '<div class="inbox-group"><div class="inbox-gtitle">' + label + ' <span class="inbox-gcount">0</span></div>' +
+          '<div class="inbox-empty small">' + empty + '</div></div>';
+      }
+      var cards = list.map(function(x){
+        var v = x.v; var oi = x.i;
+        var img = v.img || 'assets/brand/logo-totem.png';
+        var pname = v.p || '未命名';
+        var t = v.t || '';
+        var sub = (v.m ? v.m + ' · ' : '') + (v.d || '');
+        return '<button class="inbox-card" data-ii="' + oi + '" aria-label="查看新作 ' + pname + '">' +
+          '<span class="inbox-poster"><img src="' + img + '" alt="' + pname + ' · ' + t + '" loading="lazy">' +
+          '<span class="inbox-new">新</span></span>' +
+          '<span class="inbox-meta"><h4>' + (t || pname) + '</h4><span>' + sub + '</span></span></button>';
+      }).join('');
+      return '<div class="inbox-group"><div class="inbox-gtitle">' + label + ' <span class="inbox-gcount">' + list.length + '</span></div>' +
+        '<div class="inbox-strip">' + cards + '</div></div>';
+    }
     if(inboxCount)inboxCount.textContent = INBOX.length + ' 件新作 · 待编修归卷';
-    vgInbox.innerHTML = INBOX.map(function(v,i){
-      var img = v.img || 'assets/brand/logo-totem.png';
-      var pname = v.p || '未命名';
-      var t = v.t || '';
-      var sub = (v.m ? v.m + ' · ' : '') + (v.d || '');
-      return '<button class="inbox-card" data-ii="' + i + '" aria-label="查看新作 ' + pname + '">' +
-        '<span class="inbox-poster"><img src="' + img + '" alt="' + pname + ' · ' + t + '" loading="lazy">' +
-        '<span class="inbox-new">新</span></span>' +
-        '<span class="inbox-meta"><h4>' + (t || pname) + '</h4><span>' + sub + '</span></span></button>';
-    }).join('');
+    vgInbox.innerHTML = group(vids, '视频栏', '暂无视频新作') + group(imgs, '图片栏', '暂无图片新作');
+  }
+  var inboxSec = document.getElementById("inbox");
+  var inboxHeadEl = document.getElementById("inboxHead");
+  if(inboxHeadEl && inboxSec){
+    inboxHeadEl.addEventListener("click", function(){
+      var collapsed = inboxSec.classList.toggle("collapsed");
+      inboxHeadEl.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    });
+    inboxHeadEl.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); inboxHeadEl.click(); }
+    });
   }
   renderFeatured(); renderArchive(); renderInbox();
   /* 项目筛选 */
@@ -1475,6 +1509,7 @@ const VIDEOS = [
       var ii = Number(ib.dataset.ii);
       if(!isNaN(ii) && INBOX[ii]){
         if(INBOX[ii].u){ openVideoLightbox(INBOX[ii]); }
+        else if(INBOX[ii].img){ openInboxImageLightbox(INBOX[ii]); }
       }
       return;
     }
@@ -1546,6 +1581,23 @@ const VIDEOS = [
     lbCat.textContent = "幻境卷 · 概念造物";
     lbMeta.textContent = c.k;
     lbDesc.textContent = "AI 概念原画 · 编修司收存，点击图片可全屏细览。";
+    lightbox.classList.remove("video-mode");
+    lightbox.classList.add("open");
+    document.body.style.overflow = "hidden";
+    var lbCloseBtn = document.getElementById("lbClose");
+    if(lbCloseBtn){ lbCloseBtn.focus(); }
+  }
+  function openInboxImageLightbox(v){
+    var img = document.createElement("img");
+    img.src = v.img; img.alt = v.t;
+    lbFigure.innerHTML = ""; lbFigure.appendChild(img);
+    lbFigure.style.display = "";
+    if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
+    lbVideoWrap.hidden = true;
+    lbTitle.textContent = v.t;
+    lbCat.textContent = v.p;
+    lbMeta.textContent = (v.m ? v.m + " · " : "") + v.d;
+    lbDesc.textContent = "AI 新作 · 待归卷收存，点击图片可全屏细览。";
     lightbox.classList.remove("video-mode");
     lightbox.classList.add("open");
     document.body.style.overflow = "hidden";
