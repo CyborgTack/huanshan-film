@@ -392,6 +392,28 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-inbox h4{cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
 .am-inbox h4::after{content:"▾";font-size:10px;color:var(--gold-dim);transition:.2s}
 .am-inbox.collapsed h4::after{transform:rotate(-90deg)}
+/* 管理面板：三层钻取（制作人 → 上传日期 → 作品） */
+.am-l1,.am-l2{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid rgba(212,175,55,.07);cursor:pointer;user-select:none;font-size:13px;color:var(--text-bright);letter-spacing:.06em;transition:background .2s}
+.am-l1:hover,.am-l2:hover{background:rgba(212,175,55,.06)}
+.am-l1>.am-tri,.am-l2>.am-tri{font-size:10px;color:var(--gold-dim);width:14px;flex:none;display:inline-block;transition:transform .2s}
+.am-l1.open>.am-tri,.am-l2.open>.am-tri{transform:rotate(90deg)}
+.am-l1 .am-lcount,.am-l2 .am-lcount{font-size:10px;color:var(--text-muted);border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:1px 8px;letter-spacing:.1em}
+.am-sub{list-style:none;margin:0;padding:0}
+.am-l2wrap{padding-left:16px;border-left:1px dashed rgba(212,175,55,.12)}
+.am-l3wrap{padding-left:6px}
+.am-l3wrap .am-row{background:rgba(212,175,55,.025)}
+/* 管理面板：待归卷 按上传时间分组 + 批量 */
+.ib-ghead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 4px;margin-top:8px;border-bottom:1px solid rgba(212,175,55,.14);background:rgba(212,175,55,.035)}
+.ib-ghead b{font-size:12px;color:var(--ink-gold);letter-spacing:.1em}
+.ib-ghead .am-lcount{font-size:10px;color:var(--text-muted);border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:1px 8px;letter-spacing:.1em}
+.ib-ghead select{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:11px;padding:5px 7px;outline:none;max-width:120px}
+.ib-bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 4px;background:rgba(212,175,55,.06);border:1px dashed rgba(212,175,55,.3);border-radius:8px;margin-bottom:8px}
+.ib-bulk[hidden]{display:none}
+.ib-bulk b{color:var(--ink-gold);font-size:12px}
+.ib-bulk select{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:11px;padding:5px 7px;outline:none;max-width:140px}
+.ib-check{display:flex;align-items:center;gap:8px;flex:none}
+.ib-check input{width:16px;height:16px;accent-color:rgba(212,175,55,.9);cursor:pointer;flex:none}
+.am-inbox-list .am-row{padding:8px 4px}
 /* 管理面板：分组收纳 */
 .am-toolbar{flex-direction:column;align-items:stretch;justify-content:flex-start}
 .am-grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -419,7 +441,7 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .sp-backdrop{position:absolute;inset:0;background:rgba(5,5,7,.82);backdrop-filter:blur(6px)}
 .sp-card{position:relative;width:min(440px,92vw);background:linear-gradient(160deg,#15130e,#0d0c0a);border:1px solid rgba(212,175,55,.32);border-radius:14px;padding:34px 32px 30px;box-shadow:0 24px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(212,175,55,.16);animation:spIn .38s var(--ease) both}
 @keyframes spIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
-.sp-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border:1px solid rgba(212,175,55,.25);border-radius:50%;background:transparent;color:var(--ink-gold);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.sp-close{position:absolute;top:14px;right:16px;z-index:30;width:32px;height:32px;border:1px solid rgba(212,175,55,.25);border-radius:50%;background:rgba(18,16,12,.92);color:var(--ink-gold);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;box-shadow:0 2px 10px rgba(0,0,0,.45)}
 .sp-close:hover{background:rgba(212,175,55,.12)}
 .sp-head{display:flex;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid rgba(212,175,55,.18);margin-bottom:18px}
 .sp-logo{width:52px;height:52px;border-radius:50%;flex:none;-webkit-user-drag:none;user-drag:none}
@@ -1491,7 +1513,7 @@ const VIDEOS = [
       var list = rest.filter(function(v){ return v.pk === proj.k; });
       var isEmpty = !list.length;
       var isFirst = PROJECTS.indexOf(proj) === 0;
-      html += '<div class="vg-block collapsed" data-vgroup="' + proj.k + '">' +
+      html += '<div class="vg-block" data-vgroup="' + proj.k + '">' +
         '<div class="vg-head" role="button" aria-expanded="false"><div><span class="vg-no">' + ("0" + (PROJECTS.indexOf(proj) + 1)).slice(-2) + '</span><h3>' + proj.n + '</h3></div>' +
         '<span class="vg-count">' + proj.d + ' · ' + (isEmpty ? "待归卷" : list.length + " 卷") + ' · ' + (isFirst ? "点此合卷" : "点此展卷") + '</span>' +
         '<svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div>' +
@@ -2092,7 +2114,8 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   var snapshot=null;
   function lockBody(){document.body.style.overflow='hidden'}
   function unlockBody(){document.body.style.overflow=''}
-  function openPwd(){if(pwdPanel)pwdPanel.classList.add('open');lockBody();var i=document.getElementById('adminPwdInput');if(i){i.value='';i.focus();}var e=document.getElementById('adminPwdErr');if(e)e.textContent=''}
+  var ADMIN_OK_KEY='hs_admin_ok';
+  function openPwd(){if(sessionStorage.getItem(ADMIN_OK_KEY)==='1'){openAdmin();return}if(pwdPanel)pwdPanel.classList.add('open');lockBody();var i=document.getElementById('adminPwdInput');if(i){i.value='';i.focus();}var e=document.getElementById('adminPwdErr');if(e)e.textContent=''}
   function closePwd(){if(pwdPanel)pwdPanel.classList.remove('open');unlockBody()}
   function hsToast(msg,isErr){
     var t=document.createElement('div');
@@ -2122,7 +2145,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     if(snapshot===null){snapshot={videos:JSON.parse(JSON.stringify(window.VIDEOS)),producers:window.PRODUCERS.slice(),inbox:JSON.parse(JSON.stringify(window.INBOX))}}
     admPanel.classList.add('open');lockBody();renderList();renderInboxList();doneEl.textContent='';
     var ibx=document.querySelector('#adminPanel .am-inbox');
-    if(ibx){ibx.classList.add('collapsed');
+    if(ibx){
       var ibt=document.getElementById('amInboxTitle');
       if(ibt&&!ibt._bound){ibt._bound=true;ibt.addEventListener('click',function(){ibx.classList.toggle('collapsed')});}
     }
@@ -2143,9 +2166,55 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       dl.innerHTML=all.map(function(n){return '<option value="'+n.replace(/"/g,'&quot;')+'">'}).join('');
     }
   }
+  function dayOf(v){
+    if(v&&v.ts){
+      try{
+        var dt=new Date(v.ts);
+        if(!isNaN(dt))return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2);
+      }catch(_e){}
+    }
+    return '未标注';
+  }
   function renderList(){
     if(!listEl)return;
-    listEl.innerHTML=window.VIDEOS.map(function(v,idx){
+    if(!window.VIDEOS.length){listEl.innerHTML='<li class="am-hint" style="padding:12px 4px">暂无作品</li>';return}
+    var byM={},order=[];
+    window.VIDEOS.forEach(function(v,idx){
+      var m=v.m||'佚名';
+      if(!byM[m]){byM[m]=[];order.push(m)}
+      byM[m].push(idx);
+    });
+    order.sort(function(a,b){return byM[b].length-byM[a].length||(a<b?-1:a>b?1:0)});
+    listEl.innerHTML=order.map(function(m,pi){
+      return '<li class="am-l1" data-l1="'+pi+'" role="button" aria-expanded="false">'+
+        '<span class="am-tri">▸</span><b>'+m+'</b><span class="am-lcount">'+byM[m].length+' 件</span></li>'+
+        '<li class="am-l2wrap" data-l2wrap="'+pi+'" data-m="'+m.replace(/"/g,'&quot;')+'" hidden></li>';
+    }).join('');
+  }
+  function renderL2(wrap){
+    var m=wrap.getAttribute('data-m');
+    var idxList=window.VIDEOS.map(function(v,i){return i}).filter(function(i){return (window.VIDEOS[i].m||'佚名')===m});
+    var byD={},order=[];
+    idxList.forEach(function(idx){
+      var d=dayOf(window.VIDEOS[idx]);
+      if(!byD[d]){byD[d]=[];order.push(d)}
+      byD[d].push(idx);
+    });
+    order.sort(function(a,b){return (a==='未标注'?1:b==='未标注'?-1:0)||(b<a?-1:b>a?1:0)});
+    wrap.innerHTML='<ul class="am-sub">'+order.map(function(d,di){
+      return '<li class="am-l2" data-l2="'+di+'" role="button" aria-expanded="false">'+
+        '<span class="am-tri">▸</span><b>'+d+'</b><span class="am-lcount">'+byD[d].length+' 件</span></li>'+
+        '<li class="am-l3wrap" data-l3wrap="'+di+'" hidden></li>';
+    }).join('')+'</ul>';
+  }
+  function renderL3(l3wrap){
+    var wrap=l3wrap.closest('.am-l2wrap');
+    var m=wrap?wrap.getAttribute('data-m'):'';
+    var prev=l3wrap.previousElementSibling;
+    var date=prev?prev.querySelector('b').textContent:'';
+    var idxList=window.VIDEOS.map(function(v,i){return i}).filter(function(i){var v=window.VIDEOS[i];return v&&(v.m||'佚名')===m&&dayOf(v)===date});
+    l3wrap.innerHTML='<ul class="am-sub">'+idxList.map(function(idx){
+      var v=window.VIDEOS[idx];if(!v)return '';
       var proj=projOf(v.pk);
       var projName=proj?proj.n:v.p;
       return '<li class="am-row"><span class="am-idx">'+('0'+(idx+1)).slice(-2)+'</span>'+
@@ -2156,10 +2225,33 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
         '<button class="am-op" type="button" data-am-edit="'+idx+'">修改</button>'+
         '<button class="am-op danger" type="button" data-am-del="'+idx+'">删除</button>'+
         '</div></li>';
-    }).join('');
+    }).join('')+'</ul>';
   }
   listEl.addEventListener('click',function(e){
     var t=e.target;
+    var l1=t.closest('.am-l1');
+    if(l1){
+      var pi=l1.getAttribute('data-l1');
+      var wrap=listEl.querySelector('[data-l2wrap="'+pi+'"]');
+      if(!wrap)return;
+      var open=!l1.classList.contains('open');
+      l1.classList.toggle('open',open);
+      l1.setAttribute('aria-expanded',open?'true':'false');
+      if(open){if(!wrap.dataset.rendered){renderL2(wrap);wrap.dataset.rendered='1'}wrap.hidden=false}
+      else{wrap.hidden=true}
+      return;
+    }
+    var l2=t.closest('.am-l2');
+    if(l2){
+      var l3=l2.nextElementSibling;
+      if(!l3||!l3.classList.contains('am-l3wrap'))return;
+      var open2=!l2.classList.contains('open');
+      l2.classList.toggle('open',open2);
+      l2.setAttribute('aria-expanded',open2?'true':'false');
+      if(open2){if(!l3.dataset.rendered){renderL3(l3);l3.dataset.rendered='1'}l3.hidden=false}
+      else{l3.hidden=true}
+      return;
+    }
     if(t.dataset.amDel!==undefined){
       var idx=+t.dataset.amDel;var v=window.VIDEOS[idx];
       if(!v)return;
@@ -2227,7 +2319,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       var err=document.getElementById('adminPwdErr');
       if(!input)return;
       checkPwd(input.value).then(function(ok){
-        if(ok){closePwd();openAdmin()}
+        if(ok){try{sessionStorage.setItem(ADMIN_OK_KEY,'1')}catch(_e){}closePwd();openAdmin()}
         else{err.textContent='密印不符，请重试';input.select()}
       });
     });
@@ -2249,6 +2341,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       return r.json();
     });
   }
+  var lastApplied='';var introFired=false;
   function loadRemote(){
     var sources=[
       {u:'https://cyborgtack.github.io/huanshan-film/data.json',k:'pages'},
@@ -2267,11 +2360,17 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           if(!best||newer||(same&&d.videos.length>best.videos.length)){best=d;}
         }
       });
-      if(best){applyData(best)}
+      if(best){
+        var nu=best.updatedAt||'';
+        if(nu&&nu===lastApplied){introDone();return}
+        lastApplied=nu;
+        applyData(best);
+      }
       else{showDataErr()}
-      if(window.__hsIntroDataReady){ window.__hsIntroDataReady(); }
-    }).catch(function(e){ showDataErr(); if(window.__hsIntroDataReady){ window.__hsIntroDataReady(); } });
+      introDone();
+    }).catch(function(e){ showDataErr(); introDone(); });
   }
+  function introDone(){ if(!introFired&&window.__hsIntroDataReady){introFired=true;window.__hsIntroDataReady()} }
   function showDataErr(){
     var el=document.getElementById('hsDataErr');
     if(!el){
@@ -2348,19 +2447,67 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     });
   }
   var inboxListEl=document.getElementById('amInboxList');
+  var inboxBulkEl=document.getElementById('amInboxBulk');
+  var bulkTargetEl=document.getElementById('ibBulkTarget');
+  var selCountEl=document.getElementById('ibSelCount');
+  var checkedSet=new Set();
+  function renderBulkBar(){
+    if(!inboxBulkEl||!selCountEl)return;
+    if(!window.INBOX.length){inboxBulkEl.hidden=true;return}
+    var n=0;checkedSet.forEach(function(v){if(window.INBOX.indexOf(v)>-1)n++});
+    selCountEl.textContent=n;
+    inboxBulkEl.hidden=(n===0);
+  }
   function renderInboxList(){
     if(!inboxListEl)return;
-    if(!window.INBOX.length){inboxListEl.innerHTML='';return}
-    inboxListEl.innerHTML=window.INBOX.map(function(v,i){
-      var opts=window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('');
-      return '<li class="am-row"><div class="am-main"><b>'+((v.p||'未命名')+' · '+(v.t||''))+'</b>'+
-        '<span>'+(v.m||'佚名')+(v.d?' · '+v.d:'')+'</span></div>'+
-        '<div class="am-ops">'+
-        '<select class="am-op" data-ib-into="'+i+'"><option value="">归入卷…</option>'+opts+'</select>'+
-        '<button class="am-op active" type="button" data-ib-move="'+i+'">归卷</button>'+
-        '<button class="am-op danger" type="button" data-ib-del="'+i+'">移除</button>'+
-        '</div></li>';
-    }).join('');
+    if(bulkTargetEl&&!bulkTargetEl.dataset.rendered){
+      bulkTargetEl.innerHTML='<option value="">批量归入卷…</option>'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('');
+      bulkTargetEl.dataset.rendered='1';
+    }
+    if(!window.INBOX.length){inboxListEl.innerHTML='';renderBulkBar();return}
+    var byD={},order=[];
+    window.INBOX.forEach(function(v,i){
+      var d=dayOf(v);
+      if(!byD[d]){byD[d]=[];order.push(d)}
+      byD[d].push(i);
+    });
+    order.sort(function(a,b){return (a==='未标注'?1:b==='未标注'?-1:0)||(b<a?-1:b>a?1:0)});
+    var html='';
+    order.forEach(function(d){
+      var items=byD[d];
+      var q=d.replace(/"/g,'&quot;');
+      html+='<li class="ib-ghead"><b>'+d+'</b><span class="am-lcount">'+items.length+' 件</span>'+
+        '<button class="am-op" type="button" data-ib-gcheck="'+q+'">全选本组</button>'+
+        '<select data-ib-gtarget="'+q+'"><option value="">归入卷…</option>'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('')+'</select>'+
+        '<button class="am-op active" type="button" data-ib-gmove="'+q+'">整组归卷</button></li>';
+      items.forEach(function(i){
+        var v=window.INBOX[i];
+        var opts=window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('');
+        var checked=checkedSet.has(v)?' checked':'';
+        html+='<li class="am-row"><label class="ib-check"><input type="checkbox" data-ib-check="'+i+'"'+checked+'></label>'+
+          '<div class="am-main"><b>'+((v.p||'未命名')+' · '+(v.t||''))+'</b>'+
+          '<span>'+(v.m||'佚名')+(v.d?' · '+v.d:'')+'</span></div>'+
+          '<div class="am-ops">'+
+          '<select class="am-op" data-ib-into="'+i+'"><option value="">归入卷…</option>'+opts+'</select>'+
+          '<button class="am-op active" type="button" data-ib-move="'+i+'">归卷</button>'+
+          '<button class="am-op danger" type="button" data-ib-del="'+i+'">移除</button>'+
+          '</div></li>';
+      });
+    });
+    inboxListEl.innerHTML=html;
+    renderBulkBar();
+  }
+  function moveInbox(items,pk){
+    var proj=pk?projOf(pk):null;
+    items.forEach(function(v){
+      if(window.INBOX.indexOf(v)<0)return;
+      var copy=JSON.parse(JSON.stringify(v));
+      if(proj){copy.p=proj.n;copy.pk=proj.k}
+      window.VIDEOS.push(copy);
+      window.INBOX.splice(window.INBOX.indexOf(v),1);
+      checkedSet.delete(v);
+    });
+    window.renderArchive();window.renderInbox();renderInboxList();markInboxDone();
   }
   var featListEl=document.getElementById('amFeatList');
   var featUlEl=document.getElementById('amFeatUl');
@@ -2438,6 +2585,23 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   if(inboxListEl){
     inboxListEl.addEventListener('click',function(e){
       var t=e.target;
+      if(t.dataset.ibGcheck!==undefined){
+        var d=t.getAttribute('data-ib-gcheck');
+        window.INBOX.forEach(function(v){if(dayOf(v)===d)checkedSet.add(v)});
+        renderInboxList();
+        return;
+      }
+      if(t.dataset.ibGmove!==undefined){
+        var d2=t.getAttribute('data-ib-gmove');
+        var gsel=inboxListEl.querySelector('[data-ib-gtarget="'+d2.replace(/"/g,'&quot;')+'"]');
+        var target=gsel?gsel.value:'';
+        if(!target){if(doneEl)doneEl.textContent='请先选择整组归入的卷';return}
+        var items=window.INBOX.filter(function(v){return dayOf(v)===d2});
+        if(!items.length)return;
+        if(!window.confirm('将 '+items.length+' 件作品整组归入所选卷？'))return;
+        moveInbox(items,target);
+        return;
+      }
       if(t.dataset.ibMove!==undefined){
         var i=+t.dataset.ibMove;var v=window.INBOX[i];if(!v)return;
         var sel=document.querySelector('[data-ib-into="'+i+'"]');
@@ -2446,18 +2610,35 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           if(doneEl)doneEl.textContent='请先选择归入的卷';
           return;
         }
-        var copy=JSON.parse(JSON.stringify(v));
-        var proj=projOf(target);
-        if(proj){copy.p=proj.n;copy.pk=proj.k}
-        window.VIDEOS.push(copy);
-        window.INBOX.splice(i,1);
-        window.renderArchive();window.renderInbox();renderInboxList();markInboxDone();
+        moveInbox([v],target);
       }else if(t.dataset.ibDel!==undefined){
         var i2=+t.dataset.ibDel;var v2=window.INBOX[i2];if(!v2)return;
         if(!window.confirm('移除「'+(v2.p||'未命名')+'」？'))return;
         window.INBOX.splice(i2,1);
+        checkedSet.delete(v2);
         window.renderInbox();renderInboxList();markInboxDone();
       }
+    });
+    inboxListEl.addEventListener('change',function(e){
+      var t=e.target;
+      if(t.dataset.ibCheck!==undefined){
+        var i=+t.dataset.ibCheck;var v=window.INBOX[i];if(!v)return;
+        if(t.checked)checkedSet.add(v);else checkedSet.delete(v);
+        renderBulkBar();
+      }
+    });
+  }
+  if(inboxBulkEl){
+    inboxBulkEl.addEventListener('click',function(e){
+      var t=e.target;
+      if(t.dataset.ibBulk!==undefined){
+        var bt=bulkTargetEl?bulkTargetEl.value:'';
+        if(!bt){if(doneEl)doneEl.textContent='请先选择批量归入的卷';return}
+        var items=window.INBOX.filter(function(v){return checkedSet.has(v)});
+        if(!items.length){renderBulkBar();return}
+        if(!window.confirm('将选中的 '+items.length+' 件作品批量归入所选卷？'))return;
+        moveInbox(items,bt);
+      }else if(t.dataset.ibClear!==undefined){checkedSet.clear();renderInboxList()}
     });
   }
   var addBtn=document.getElementById('amAddProducer');
@@ -2558,6 +2739,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   var closeBtn=document.getElementById('amClose');
   if(closeBtn){closeBtn.addEventListener('click',closeAdmin)}
   loadRemote();
+  setInterval(function(){loadRemote()},30000);
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}
   else{init()}
@@ -2649,6 +2831,12 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     <ul class="am-list" id="amList"></ul>
     <div class="am-inbox">
       <h4 id="amInboxTitle">待归卷 · 上呈合集的新作</h4>
+      <div class="ib-bulk" id="amInboxBulk" hidden>
+        <span>已选 <b id="ibSelCount">0</b> 件</span>
+        <select id="ibBulkTarget"><option value="">批量归入卷…</option></select>
+        <button class="am-op active" type="button" data-ib-bulk>批量归卷</button>
+        <button class="am-op" type="button" data-ib-clear>清空选择</button>
+      </div>
       <ul class="am-inbox-list" id="amInboxList"></ul>
     </div>
     <div class="am-foot">
