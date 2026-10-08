@@ -628,6 +628,15 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .lb-desc{color:var(--text-secondary);font-size:14.5px;line-height:1.9}
 .lb-counter{font-family:var(--font-latin);font-size:11px;letter-spacing:.3em;color:var(--ink-gold);border-top:1px solid var(--border);padding-top:var(--space-4);margin-top:auto}
 .lb-note{font-size:12px;color:var(--text-muted);padding-top:var(--space-4)}
+/* 防随手下载 */
+img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
+.lb-figure::after, .lb-video-wrap::after{
+  content:"讙山图 · 编修司收存";
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-18deg);
+  font-family:var(--font-display);font-size:22px;letter-spacing:.4em;color:rgba(234,227,210,.07);
+  pointer-events:none;white-space:nowrap;z-index:3;
+}
+.lb-video-wrap{position:relative}
 /* 灯箱胶片缩略条 */
 .lb-strip{
   position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;
@@ -2137,7 +2146,27 @@ const VIDEOS = [
     if(e.key === "ArrowRight"){ stepLightbox(1); }
   });
 
-  /* ===== 卡片 hover 预加载视频首帧（点开秒开） ===== */
+  /* ===== 防随手下载（非管理员） ===== */
+(function(){
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  document.addEventListener('dragstart', function(e){ e.preventDefault(); });
+  document.addEventListener('selectstart', function(e){
+    if(!e.target.closest('input,textarea,[contenteditable]')) e.preventDefault();
+  });
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    // F12
+    if(k==='F12'){ e.preventDefault(); return; }
+    // Ctrl+Shift+I/J/C/K (devtools)
+    if(e.ctrlKey && e.shiftKey && ['I','J','C','K'].includes(k.toUpperCase())){ e.preventDefault(); return; }
+    // Ctrl+U 查看源码
+    if(e.ctrlKey && k.toUpperCase()==='U'){ e.preventDefault(); return; }
+    // Ctrl+S 另存
+    if(e.ctrlKey && k.toUpperCase()==='S'){ e.preventDefault(); return; }
+  });
+})();
+
+/* ===== 卡片 hover 预加载视频首帧（点开秒开） ===== */
   (function(){
     var preloadVideo = null, preloadSrc = "";
     function ensurePreloader(){
