@@ -1,6 +1,6 @@
 {
  "version": 3,
- "updatedAt": "2026-10-08T10:55:00.000Z",
+ "updatedAt": "2026-10-08T11:05:00.000Z",
  "videos": [
   {
    "p": "他过分野",
@@ -511,6 +511,25 @@
    "m": "李尚书",
    "p": "其他",
    "ts": "2026-10-08 10:54:23 +0800"
+  },
+  {
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_10.png",
+   "t": "国风MV",
+   "k": "其他",
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_45.mp4",
+   "m": "李尚书",
+   "p": "其他",
+   "ts": "2026-10-08 10:58:44 +0800"
+  },
+  {
+   "img": "assets/brand/logo-totem.png",
+   "t": "写真MV",
+   "k": "其他",
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_46.mp4",
+   "u2": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_47.mp4",
+   "m": "李尚书",
+   "p": "其他",
+   "ts": "2026-10-08 11:00:15 +0800"
   }
  ],
  "projects": [
