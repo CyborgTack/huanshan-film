@@ -340,6 +340,18 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-proj-sec{font-size:10.5px;letter-spacing:.28em;color:var(--ink-gold);opacity:.7;margin:10px 0 4px;padding-top:6px;border-top:1px solid rgba(212,175,55,.18)}
 .am-proj-sec:first-child{margin-top:0;padding-top:0;border-top:0}
 .am-proj-tag{font-size:9.5px;letter-spacing:.14em;color:var(--ink-gold);border:1px solid rgba(212,175,55,.35);border-radius:2px;padding:1px 6px;opacity:.85}
+.am-proj-toggle{cursor:pointer;user-select:none}
+.am-proj-toggle:hover .am-proj-name{color:#e8c96a}
+.am-proj-arrow{display:inline-block;width:10px;color:var(--text-muted);transition:transform .15s;font-size:10px}
+.am-proj-row.open .am-proj-arrow{transform:rotate(90deg)}
+.am-proj-items{display:none;padding:4px 0 6px 18px;border-bottom:1px solid rgba(212,175,55,.06)}
+.am-proj-row.open + .am-proj-items{display:block}
+.am-item-row{display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 2px;border-bottom:1px dashed rgba(212,175,55,.08)}
+.am-item-row:last-child{border-bottom:0}
+.am-item-thumb{width:34px;height:22px;object-fit:cover;border-radius:2px;background:rgba(212,175,55,.08);flex:none}
+.am-item-title{flex:1;color:var(--text-bright);letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.am-item-meta{color:var(--text-muted);font-size:10px}
+.am-op.danger{font-size:10px;padding:2px 8px}
 .am-add-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:13px;padding:8px 12px;outline:none;letter-spacing:.12em}
 .am-add-row input:focus{border-color:rgba(212,175,55,.55)}
 .am-sync-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
@@ -2831,24 +2843,59 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   function renderProjList(){
     if(!projListEl)return;
     var html='';
+    function itemRow(arr, idx, src, key){
+      var it=arr[idx]; if(!it)return '';
+      var thumb = it.img ? '<img class="am-item-thumb" src="'+it.img+'" loading="lazy" onerror="this.style.display=\'none\'">' : '';
+      var meta = it.m ? (it.m+' · ') : '';
+      meta += (it.u ? '影' : '图');
+      return '<div class="am-item-row">'+thumb+
+        '<span class="am-item-title">'+(it.t||'(无标题)')+'</span>'+
+        '<span class="am-item-meta">'+meta+'</span>'+
+        '<button class="am-op danger" type="button" data-itm-del="'+src+'|'+idx+'">删条</button></div>';
+    }
+    function itemsBlock(arr, src){
+      if(!arr || !arr.length)return '';
+      return '<div class="am-proj-items">'+arr.map(function(_,i){return itemRow(arr,i,src)}).join('')+'</div>';
+    }
+    /* 影像长卷 */
     if(window.PROJECTS.length){
       html+='<div class="am-proj-sec">影像长卷 · 馆藏卷宗</div>';
       html+=window.PROJECTS.map(function(pr){
-        var n=window.VIDEOS.filter(function(v){return v.pk===pr.k}).length;
-        return '<div class="am-proj-row"><span class="am-proj-name">'+pr.n+'</span><span class="am-proj-count">'+n+' 件</span>'+
-          '<button class="am-op danger" type="button" data-pj-del="'+pr.k+'">删卷</button></div>';
+        var items=window.VIDEOS.filter(function(v){return v.pk===pr.k});
+        return '<div class="am-proj-row am-proj-toggle" data-row="vid|'+pr.k+'"><span class="am-proj-arrow">▸</span>'+
+          '<span class="am-proj-name">'+pr.n+'</span>'+
+          '<span class="am-proj-count">'+items.length+' 件</span>'+
+          '<button class="am-op danger" type="button" data-pj-del="'+pr.k+'">删卷</button></div>'+
+          itemsBlock(items,'vid');
       }).join('');
     }
+    /* 幻境卷 · 视频作品 */
     if(window.CONCEPTS && window.CONCEPTS.length){
       var grp={};
       window.CONCEPTS.forEach(function(c){var k=c.k||'(未分类)';(grp[k]=grp[k]||[]).push(c)});
-      html+='<div class="am-proj-sec">幻境卷 · 概念造物</div>';
+      html+='<div class="am-proj-sec">幻境卷 · 影像作品</div>';
       Object.keys(grp).forEach(function(k){
         var items=grp[k];
-        html+='<div class="am-proj-row"><span class="am-proj-name">'+k+'</span>'+
+        html+='<div class="am-proj-row am-proj-toggle" data-row="cpt|'+k+'"><span class="am-proj-arrow">▸</span>'+
+          '<span class="am-proj-name">'+k+'</span>'+
           '<span class="am-proj-tag">幻境</span>'+
           '<span class="am-proj-count">'+items.length+' 件</span>'+
-          '<button class="am-op danger" type="button" data-cj-del="'+k+'">删卷</button></div>';
+          '<button class="am-op danger" type="button" data-cj-del="'+k+'">删卷</button></div>'+
+          itemsBlock(items,'cpt');
+      });
+    }
+    /* 图藏卷 · 图谱 */
+    if(window.GALLERY && window.GALLERY.length){
+      var ggrp={};
+      window.GALLERY.forEach(function(g){var k=g.k||'(未分类)';(ggrp[k]=ggrp[k]||[]).push(g)});
+      html+='<div class="am-proj-sec">图藏卷 · 图谱典藏</div>';
+      Object.keys(ggrp).forEach(function(k){
+        var items=ggrp[k];
+        html+='<div class="am-proj-row am-proj-toggle" data-row="gal|'+k+'"><span class="am-proj-arrow">▸</span>'+
+          '<span class="am-proj-name">'+k+'</span>'+
+          '<span class="am-proj-tag" style="color:var(--ink-gold)">图藏</span>'+
+          '<span class="am-proj-count">'+items.length+' 件</span></div>'+
+          itemsBlock(items,'gal');
       });
     }
     projListEl.innerHTML = html || '<div class="am-hint">暂无卷宗</div>';
@@ -2860,6 +2907,29 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       renderProjList();
     });
     projListEl.addEventListener('click',function(e){
+      /* 单条删除 */
+      var itm=e.target.dataset.itmDel;
+      if(itm){
+        var parts=itm.split('|');
+        var src=parts[0], idx=Number(parts[1]);
+        var arr = src==='vid' ? window.VIDEOS : (src==='cpt' ? window.CONCEPTS : window.GALLERY);
+        if(!arr || !arr[idx])return;
+        var t=arr[idx].t||'(无标题)';
+        if(!window.confirm('删除「'+t+'」？此操作将从本站移除该条作品（媒体文件保留在仓库）。'))return;
+        arr.splice(idx,1);
+        window.renderArchive();window.renderInbox();renderList();renderInboxList();
+        if(window.renderConcepts)window.renderConcepts();
+        if(window.renderGallery)window.renderGallery();
+        if(window.renderFeatured)window.renderFeatured();
+        renderProjList();markDone();
+        return;
+      }
+      /* 展开/折叠卷 */
+      var row=e.target.closest('.am-proj-row.am-proj-toggle');
+      if(row && !e.target.dataset.pjDel && !e.target.dataset.cjDel){
+        row.classList.toggle('open');
+        return;
+      }
       var k=e.target.dataset.pjDel;
       if(k){
         var pr=projOf(k);if(!pr)return;
