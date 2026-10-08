@@ -682,6 +682,9 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .cg-card figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:26px 18px 14px;background:linear-gradient(180deg,transparent,rgba(10,10,12,.9))}
 .cg-card figcaption b{font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:.08em}
 .cg-card figcaption span{font-size:10.5px;letter-spacing:.26em;color:var(--ink-gold)}
+.cg-play{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.cg-play svg{width:52px;height:52px;fill:rgba(255,255,255,.06);stroke:var(--ink-gold);stroke-width:1;transition:transform .4s var(--ease)}
+.cg-card:hover .cg-play svg{transform:scale(1.08)}
 
 /* ============ 视频灯箱 ============ */
 .lb-video-wrap{flex:1;min-width:0;height:100%;max-height:84vh;display:flex;align-items:center;justify-content:center}
@@ -1635,8 +1638,10 @@ const VIDEOS = [
     if(!conceptGrid)return;
     conceptGrid.innerHTML = CONCEPTS.map(function(c, i){
       var imgSrc=(c.img||'assets/brand/logo-totem.png');
-      return '<button class="cg-card" data-ci="' + i + '" aria-label="查看概念图 ' + (c.t||'') + '">' +
+      var isImg = !c.u;
+      return '<button class="cg-card" data-ci="' + i + '" aria-label="' + (isImg ? '查看' : '播放') + '概念 ' + (c.t||'') + '">' +
         '<figure><img src="' + imgSrc + '" alt="' + (c.t||'') + '" loading="lazy">' +
+        (isImg ? '' : '<span class="cg-play"><svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7z"/></svg></span>') +
         '<figcaption><b>' + (c.t||'') + '</b><span>' + (c.k||'') + '</span></figcaption></figure></button>';
     }).join("");
   }
@@ -1758,21 +1763,34 @@ const VIDEOS = [
   }
   function openConceptLightbox(i){
     var c = CONCEPTS[i];
-    var img = document.createElement("img");
-    img.src = c.img; img.alt = c.t;
-    lbFigure.innerHTML = ""; lbFigure.appendChild(img);
-    lbFigure.style.display = "";
-    if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
-    lbVideoWrap.hidden = true;
-    lbTitle.textContent = c.t;
-    lbCat.textContent = "幻境卷 · 概念造物";
-    lbMeta.textContent = c.k;
-    lbDesc.textContent = "AI 概念原画 · 编修司收存，点击图片可全屏细览。";
-    lightbox.classList.remove("video-mode");
+    if(c.u){
+      if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
+      lbVideo.src = c.u; lbVideo.poster = c.img;
+      lbTitle.textContent = c.t;
+      lbCat.textContent = "幻境卷 · 概念造物";
+      lbMeta.textContent = (c.m ? c.m + " · " : "") + c.k;
+      lbDesc.textContent = "幻境卷影像 · 编修司收存，点击播放，全屏可览全貌。";
+      lbFigure.style.display = "none";
+      lbVideoWrap.hidden = false;
+      lightbox.classList.add("video-mode");
+    }else{
+      var img = document.createElement("img");
+      img.src = c.img; img.alt = c.t;
+      lbFigure.innerHTML = ""; lbFigure.appendChild(img);
+      lbFigure.style.display = "";
+      if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
+      lbVideoWrap.hidden = true;
+      lbTitle.textContent = c.t;
+      lbCat.textContent = "幻境卷 · 概念造物";
+      lbMeta.textContent = c.k;
+      lbDesc.textContent = "AI 概念原画 · 编修司收存，点击图片可全屏细览。";
+      lightbox.classList.remove("video-mode");
+    }
     lightbox.classList.add("open");
     document.body.style.overflow = "hidden";
     var lbCloseBtn = document.getElementById("lbClose");
     if(lbCloseBtn){ lbCloseBtn.focus(); }
+    if(lbVideo && c.u){ lbVideo.play().catch(function(){}); }
   }
   function openArchiveImageLightbox(v){
     var img = document.createElement("img");
