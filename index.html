@@ -970,6 +970,18 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 </div>
 
 <!-- ===== 影像长卷 · 视频展陈 ===== -->
+<!-- ===== 藏卷四部 · 精选 ===== -->
+<section class="section" id="featured">
+  <div class="container">
+    <div class="sec-head" data-reveal>
+      <span class="sec-line" aria-hidden="true"></span>
+      <span class="sec-label">藏卷四部 · 精选</span>
+      <h2 class="sec-title" id="featCountTitle">四部之最 · 馆藏甄选</h2>
+    </div>
+    <div class="feat-grid" id="featuredGrid" data-reveal></div>
+  </div>
+</section>
+
 <section class="section" id="videos">
   <div class="container">
     <div class="works-head" id="videosHead" role="button" tabindex="0" aria-expanded="true" aria-controls="vgArchive" data-reveal>
@@ -1117,6 +1129,20 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   </div>
 </section>
 
+<!-- ===== 图藏卷 · 图谱典藏 ===== -->
+<section class="section" id="gallery">
+  <div class="container">
+    <div class="works-head" data-reveal>
+      <div>
+        <span class="sec-line" aria-hidden="true"></span>
+        <span class="sec-label">图藏卷 · 图谱典藏</span>
+        <h2 class="sec-title">图谱百帧 · 卷中藏真</h2>
+      </div>
+    </div>
+    <div class="cg-grid" id="galleryGrid" data-reveal></div>
+  </div>
+</section>
+
 <!-- ===== 能力 ===== -->
 <section class="section" id="capabilities">
   <div class="container">
@@ -1155,18 +1181,6 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
         <div class="cap-tags"><span>场景</span><span>角色</span><span>空间漫游</span></div>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ===== 藏卷四部 · 精选 ===== -->
-<section class="section" id="featured">
-  <div class="container">
-    <div class="sec-head" data-reveal>
-      <span class="sec-line" aria-hidden="true"></span>
-      <span class="sec-label">藏卷四部 · 精选</span>
-      <h2 class="sec-title" id="featCountTitle">四部之最 · 馆藏甄选</h2>
-    </div>
-    <div class="feat-grid" id="featuredGrid" data-reveal></div>
   </div>
 </section>
 
@@ -1476,6 +1490,7 @@ const VIDEOS = [
   {p:"《讙山灵物》",pk:"ip",m:"",t:"讙山神兽 · 三视图",d:"IP 设定",img:"assets/ip/ip-beast.jpg",u:""},
   {p:"《讙山灵物》",pk:"ip",m:"",t:"讙山灵猫 · 三视图",d:"IP 设定",img:"assets/ip/ip-cat.jpg",u:""},
 ];
+  var GALLERY = [];
   var CONCEPTS = [
     {img:"assets/concepts/concept-01.jpg", t:"《玄圃》", k:"浮空古木 · 造物卷"},
     {img:"assets/concepts/concept-02.jpg", t:"《浮屠城》", k:"浮空都市 · 造物卷"},
@@ -1649,6 +1664,22 @@ const VIDEOS = [
     }).join("");
   }
   renderConcepts();
+  /* 图藏卷 · 图谱渲染（纯图） */
+  var galleryGrid = document.getElementById("galleryGrid");
+  function renderGallery(){
+    if(!galleryGrid)return;
+    if(!GALLERY.length){
+      galleryGrid.innerHTML = '<div class="inbox-empty">图藏卷 · 待编修入藏</div>';
+      return;
+    }
+    galleryGrid.innerHTML = GALLERY.map(function(c, i){
+      var imgSrc=(c.img||'assets/brand/logo-totem.png');
+      return '<button class="cg-card gl-card" data-gi="' + i + '" aria-label="查看图谱 ' + (c.t||'') + '">' +
+        '<figure><img src="' + imgSrc + '" alt="' + (c.t||'') + '" loading="lazy">' +
+        '<figcaption><b>' + (c.t||'') + '</b><span>' + (c.k||'') + '</span></figcaption></figure></button>';
+    }).join("");
+  }
+  renderGallery();
   /* 藏卷四部 · 精选渲染 */
   var featGrid = document.getElementById("featuredGrid");
   var featCountTitle = document.getElementById("featCountTitle");
@@ -1686,6 +1717,11 @@ const VIDEOS = [
     }
     var cg = e.target.closest(".cg-card");
     if(cg){
+      if(cg.classList.contains("gl-card")){
+        var gi = Number(cg.dataset.gi);
+        if(!isNaN(gi) && GALLERY[gi]){ openGalleryLightbox(gi); }
+        return;
+      }
       var ci = Number(cg.dataset.ci);
       if(!isNaN(ci) && CONCEPTS[ci]){ openConceptLightbox(ci); }
       return;
@@ -1794,6 +1830,24 @@ const VIDEOS = [
     var lbCloseBtn = document.getElementById("lbClose");
     if(lbCloseBtn){ lbCloseBtn.focus(); }
     if(lbVideo && c.u){ lbVideo.play().catch(function(){}); }
+  }
+  function openGalleryLightbox(i){
+    var c = GALLERY[i];
+    var img = document.createElement("img");
+    img.src = c.img; img.alt = c.t;
+    lbFigure.innerHTML = ""; lbFigure.appendChild(img);
+    lbFigure.style.display = "";
+    if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
+    lbVideoWrap.hidden = true;
+    lbTitle.textContent = c.t;
+    lbCat.textContent = "图藏卷 · 图谱典藏";
+    lbMeta.textContent = (c.m ? c.m + " · " : "") + (c.k || "");
+    lbDesc.textContent = "图谱原画 · 编修司收存，点击图片可全屏细览。";
+    lightbox.classList.remove("video-mode");
+    lightbox.classList.add("open");
+    document.body.style.overflow = "hidden";
+    var lbCloseBtn = document.getElementById("lbClose");
+    if(lbCloseBtn){ lbCloseBtn.focus(); }
   }
   function openArchiveImageLightbox(v){
     var img = document.createElement("img");
@@ -2140,7 +2194,7 @@ const VIDEOS = [
       else if(!reduceMotion){ emberOn = true; requestAnimationFrame(loopEmbers); }
     });
   }
-window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;window.INBOX=INBOX;window.WORKS=WORKS;window.renderWorks=renderWorks;window.renderConcepts=renderConcepts;
+window.VIDEOS=VIDEOS;window.CONCEPTS=CONCEPTS;window.GALLERY=GALLERY;window.renderGallery=renderGallery;window.PROJECTS=PROJECTS;window.PRODUCERS=PRODUCERS;window.INBOX=INBOX;window.WORKS=WORKS;window.renderWorks=renderWorks;window.renderConcepts=renderConcepts;
 window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   window.renderArchive=renderArchive;window.renderInbox=renderInbox;window.renderFilters=renderFilters;window.renderFeatured=renderFeatured;
   function updateStaticCounts(){
@@ -2443,19 +2497,20 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     try{
       window.VIDEOS.splice.apply(window.VIDEOS,[0,window.VIDEOS.length].concat(d.videos));
       if(Array.isArray(d.concepts)){window.CONCEPTS.splice.apply(window.CONCEPTS,[0,window.CONCEPTS.length].concat(d.concepts))}
+      if(Array.isArray(d.gallery)){window.GALLERY.splice.apply(window.GALLERY,[0,window.GALLERY.length].concat(d.gallery))}
       if(Array.isArray(d.projects)){window.PROJECTS.splice.apply(window.PROJECTS,[0,window.PROJECTS.length].concat(d.projects))}
       if(Array.isArray(d.producers)){window.PRODUCERS.splice.apply(window.PRODUCERS,[0,window.PRODUCERS.length].concat(d.producers))}
       if(Array.isArray(d.inbox)){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(d.inbox))}
       if(Array.isArray(d.featured)){window.FEATURED.splice.apply(window.FEATURED,[0,window.FEATURED.length].concat(d.featured))}
       if(Array.isArray(d.featuredQueue)){window.FEATURED_QUEUE.splice.apply(window.FEATURED_QUEUE,[0,window.FEATURED_QUEUE.length].concat(d.featuredQueue))}
       if(Array.isArray(d.works)){window.WORKS.splice.apply(window.WORKS,[0,window.WORKS.length].concat(d.works));window.renderWorks();}
-      window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();updateStaticCounts();window.renderFeatured();window.renderConcepts();
+      window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();updateStaticCounts();window.renderFeatured();window.renderConcepts();if(window.renderGallery)window.renderGallery();
     }catch(e){ if(window.console&&console.error){console.error('applyData failed',e)} }
   }
   function syncToRepo(){
     var pat=localStorage.getItem(PAT_KEY);
     if(!pat)return Promise.reject('nopat');
-    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,works:window.WORKS,producers:window.PRODUCERS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
+    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,gallery:window.GALLERY,projects:window.PROJECTS,works:window.WORKS,producers:window.PRODUCERS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
     var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     return fetch(REMOTE,{headers:{Authorization:'Bearer '+pat}}).then(function(r){return r.json()}).then(function(meta){
       if(!meta.sha)return Promise.reject('meta:'+JSON.stringify(meta).slice(0,80));

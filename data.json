@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "updatedAt": "2026-10-08T11:41:00.538842Z",
+  "updatedAt": "2026-10-08T11:45:55.840644Z",
   "videos": [
     {
       "p": "他过分野",
@@ -454,56 +454,6 @@
   ],
   "concepts": [
     {
-      "img": "assets/concepts/concept-01.jpg",
-      "t": "《玄圃》",
-      "k": "浮空古木 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-02.jpg",
-      "t": "《浮屠城》",
-      "k": "浮空都市 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-03.jpg",
-      "t": "《冰城声谶》",
-      "k": "寒域声场 · 咒音卷"
-    },
-    {
-      "img": "assets/concepts/concept-04.jpg",
-      "t": "《悬圃仙山》",
-      "k": "仙山悬圃 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-05.jpg",
-      "t": "《星屿》",
-      "k": "星海孤屿 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-06.jpg",
-      "t": "《荒星》",
-      "k": "荒漠行星 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-07.jpg",
-      "t": "《列屿》",
-      "k": "磁浮之城 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-08.jpg",
-      "t": "《云轨》",
-      "k": "云海轨道 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-09.jpg",
-      "t": "《盘天》",
-      "k": "天线之城 · 造物卷"
-    },
-    {
-      "img": "assets/concepts/concept-10.jpg",
-      "t": "《灵根》",
-      "k": "古木灵光 · 造物卷"
-    },
-    {
       "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_09.jpg",
       "t": "情感类短片",
       "k": "其他",
@@ -539,11 +489,6 @@
       "m": "李尚书",
       "p": "其他",
       "ts": "2026-10-08 11:06:08 +0800"
-    },
-    {
-      "img": "",
-      "t": "《李尚书》",
-      "k": "独创作品"
     },
     {
       "img": "assets/brand/logo-totem.png",
@@ -729,5 +674,62 @@
     }
   ],
   "featured": [],
-  "featuredQueue": []
+  "featuredQueue": [],
+  "gallery": [
+    {
+      "img": "assets/concepts/concept-01.jpg",
+      "t": "《玄圃》",
+      "k": "浮空古木 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-02.jpg",
+      "t": "《浮屠城》",
+      "k": "浮空都市 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-03.jpg",
+      "t": "《冰城声谶》",
+      "k": "寒域声场 · 咒音卷"
+    },
+    {
+      "img": "assets/concepts/concept-04.jpg",
+      "t": "《悬圃仙山》",
+      "k": "仙山悬圃 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-05.jpg",
+      "t": "《星屿》",
+      "k": "星海孤屿 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-06.jpg",
+      "t": "《荒星》",
+      "k": "荒漠行星 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-07.jpg",
+      "t": "《列屿》",
+      "k": "磁浮之城 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-08.jpg",
+      "t": "《云轨》",
+      "k": "云海轨道 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-09.jpg",
+      "t": "《盘天》",
+      "k": "天线之城 · 造物卷"
+    },
+    {
+      "img": "assets/concepts/concept-10.jpg",
+      "t": "《灵根》",
+      "k": "古木灵光 · 造物卷"
+    },
+    {
+      "img": "",
+      "t": "《李尚书》",
+      "k": "独创作品"
+    }
+  ]
 }
