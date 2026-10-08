@@ -2422,14 +2422,6 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     });
   }
   function markDone(){autoSync();}
-  function exportChanges(){
-    var payload={version:3,exportedAt:new Date().toISOString(),producers:window.PRODUCERS,videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,works:window.WORKS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
-    var blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
-    a.download='huanshan-changes.json';document.body.appendChild(a);a.click();a.remove();
-    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
-    if(doneEl)doneEl.textContent='已导出 · 请将文件交给主理人入库';
-  }
   document.addEventListener('click',function(e){
     if(e.target.closest('#btnAdmin')){e.preventDefault();openPwd();return}
     if(e.target.closest('[data-ap-close]')){closePwd();return}
@@ -3031,8 +3023,6 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       renderArchive();window.renderInbox();renderList();renderInboxList();if(doneEl)doneEl.textContent='已撤销全部变更';
     });
   }
-  var expBtn=document.getElementById('amExport');
-  if(expBtn){expBtn.addEventListener('click',exportChanges)}
   var closeBtn=document.getElementById('amClose');
   if(closeBtn){closeBtn.addEventListener('click',closeAdmin)}
   loadRemote();
@@ -3096,11 +3086,11 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       <img class="sp-logo" src="assets/brand/logo-totem.png" alt="" draggable="false" oncontextmenu="return false">
       <div>
         <div class="sp-title">管理卷宗</div>
-        <div class="sp-sub">删除 · 修改 · 移动 · 导出变更</div>
+        <div class="sp-sub">删除 · 修改 · 移动</div>
       </div>
     </div>
     <div class="am-toolbar">
-      <span class="am-hint">操作即时预览 · 改动需「导出变更」后由主理人入库</span>
+      <span class="am-hint">操作即时预览 · 3 秒后自动入库</span>
       <div class="am-grp">
         <a class="am-op" id="amUploadLink" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">上呈作品
           <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor"/></svg>
@@ -3139,7 +3129,6 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     <div class="am-foot">
       <span class="am-done" id="amDone"></span>
       <button class="am-op" id="amClose" type="button">关闭</button>
-      <button class="am-op active" id="amExport" type="button">导出变更</button>
     </div>
   </div>
 </div>
