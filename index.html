@@ -337,6 +337,9 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .am-proj-row:last-child{border-bottom:0}
 .am-proj-name{flex:1;color:var(--text-bright);letter-spacing:.06em}
 .am-proj-count{color:var(--text-muted);font-size:11px}
+.am-proj-sec{font-size:10.5px;letter-spacing:.28em;color:var(--ink-gold);opacity:.7;margin:10px 0 4px;padding-top:6px;border-top:1px solid rgba(212,175,55,.18)}
+.am-proj-sec:first-child{margin-top:0;padding-top:0;border-top:0}
+.am-proj-tag{font-size:9.5px;letter-spacing:.14em;color:var(--ink-gold);border:1px solid rgba(212,175,55,.35);border-radius:2px;padding:1px 6px;opacity:.85}
 .am-add-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.22);border-radius:8px;color:var(--ink-gold);font-size:13px;padding:8px 12px;outline:none;letter-spacing:.12em}
 .am-add-row input:focus{border-color:rgba(212,175,55,.55)}
 .am-sync-row{display:flex;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:8px}
@@ -2772,12 +2775,28 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   var projListEl=document.getElementById('amProjList');
   function renderProjList(){
     if(!projListEl)return;
-    if(!window.PROJECTS.length){projListEl.innerHTML='<div class="am-hint">暂无卷宗</div>';return}
-    projListEl.innerHTML=window.PROJECTS.map(function(pr){
-      var n=window.VIDEOS.filter(function(v){return v.pk===pr.k}).length;
-      return '<div class="am-proj-row"><span class="am-proj-name">'+pr.n+'</span><span class="am-proj-count">'+n+' 件</span>'+
-        '<button class="am-op danger" type="button" data-pj-del="'+pr.k+'">删卷</button></div>';
-    }).join('');
+    var html='';
+    if(window.PROJECTS.length){
+      html+='<div class="am-proj-sec">影像长卷 · 馆藏卷宗</div>';
+      html+=window.PROJECTS.map(function(pr){
+        var n=window.VIDEOS.filter(function(v){return v.pk===pr.k}).length;
+        return '<div class="am-proj-row"><span class="am-proj-name">'+pr.n+'</span><span class="am-proj-count">'+n+' 件</span>'+
+          '<button class="am-op danger" type="button" data-pj-del="'+pr.k+'">删卷</button></div>';
+      }).join('');
+    }
+    if(window.CONCEPTS && window.CONCEPTS.length){
+      var grp={};
+      window.CONCEPTS.forEach(function(c){var k=c.k||'(未分类)';(grp[k]=grp[k]||[]).push(c)});
+      html+='<div class="am-proj-sec">幻境卷 · 概念造物</div>';
+      Object.keys(grp).forEach(function(k){
+        var items=grp[k];
+        html+='<div class="am-proj-row"><span class="am-proj-name">'+k+'</span>'+
+          '<span class="am-proj-tag">幻境</span>'+
+          '<span class="am-proj-count">'+items.length+' 件</span>'+
+          '<button class="am-op danger" type="button" data-cj-del="'+k+'">删卷</button></div>';
+      });
+    }
+    projListEl.innerHTML = html || '<div class="am-hint">暂无卷宗</div>';
   }
   if(projListBtn&&projListEl){
     projListBtn.addEventListener('click',function(){
@@ -2787,13 +2806,26 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     });
     projListEl.addEventListener('click',function(e){
       var k=e.target.dataset.pjDel;
-      if(!k)return;
-      var pr=projOf(k);if(!pr)return;
-      var items=window.VIDEOS.filter(function(v){return v.pk===k});
-      if(!window.confirm('删除卷「'+pr.n+'」？其中 '+items.length+' 件作品将自动转入「新作待归卷」并标记旧作，可在底部「撤销全部」恢复。'))return;
-      window.PROJECTS=window.PROJECTS.filter(function(p){return p.k!==k});
-      items.forEach(function(v){delete v.pk;v.p='旧作待处理';window.INBOX.push(v)});
-      window.renderArchive();window.renderInbox();renderList();renderInboxList();renderProjList();markDone();
+      if(k){
+        var pr=projOf(k);if(!pr)return;
+        var items=window.VIDEOS.filter(function(v){return v.pk===k});
+        if(!window.confirm('删除卷「'+pr.n+'」？其中 '+items.length+' 件作品将自动转入「新作待归卷」并标记旧作，可在底部「撤销全部」恢复。'))return;
+        window.PROJECTS=window.PROJECTS.filter(function(p){return p.k!==k});
+        items.forEach(function(v){delete v.pk;v.p='旧作待处理';window.INBOX.push(v)});
+        window.renderArchive();window.renderInbox();renderList();renderInboxList();renderProjList();markDone();
+        return;
+      }
+      var cj=e.target.dataset.cjDel;
+      if(cj!==undefined && cj!==''){
+        var cjItems=window.CONCEPTS.filter(function(c){return (c.k||'')===cj});
+        if(!cjItems.length)return;
+        if(!window.confirm('删除幻境卷「'+cj+'」？其中 '+cjItems.length+' 条概念作品将一并移除，可在底部「撤销全部」恢复。'))return;
+        for(var i=window.CONCEPTS.length-1;i>=0;i--){
+          if((window.CONCEPTS[i].k||'')===cj){window.CONCEPTS.splice(i,1);}
+        }
+        window.renderConcepts();
+        renderProjList();markDone();
+      }
     });
   }
   var undoBtn=document.getElementById('amUndo');
