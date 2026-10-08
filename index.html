@@ -2852,6 +2852,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       return '<div class="am-item-row">'+thumb+
         '<span class="am-item-title">'+(it.t||'(无标题)')+'</span>'+
         '<span class="am-item-meta">'+meta+'</span>'+
+        '<button class="am-op" type="button" data-itm-edit="'+src+'|'+idx+'">✎编辑</button>'+
         '<button class="am-op danger" type="button" data-itm-del="'+src+'|'+idx+'">删条</button></div>';
     }
     function itemsBlock(arr, src){
@@ -2866,6 +2867,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
         return '<div class="am-proj-row am-proj-toggle" data-row="vid|'+pr.k+'"><span class="am-proj-arrow">▸</span>'+
           '<span class="am-proj-name">'+pr.n+'</span>'+
           '<span class="am-proj-count">'+items.length+' 件</span>'+
+          '<button class="am-op" type="button" data-pj-rename="'+pr.k+'">✎改名</button>'+
           '<button class="am-op danger" type="button" data-pj-del="'+pr.k+'">删卷</button></div>'+
           itemsBlock(items,'vid');
       }).join('');
@@ -2881,6 +2883,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           '<span class="am-proj-name">'+k+'</span>'+
           '<span class="am-proj-tag">幻境</span>'+
           '<span class="am-proj-count">'+items.length+' 件</span>'+
+          '<button class="am-op" type="button" data-cj-rename="'+k+'">✎改名</button>'+
           '<button class="am-op danger" type="button" data-cj-del="'+k+'">删卷</button></div>'+
           itemsBlock(items,'cpt');
       });
@@ -2895,7 +2898,8 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
         html+='<div class="am-proj-row am-proj-toggle" data-row="gal|'+k+'"><span class="am-proj-arrow">▸</span>'+
           '<span class="am-proj-name">'+k+'</span>'+
           '<span class="am-proj-tag" style="color:var(--ink-gold)">图藏</span>'+
-          '<span class="am-proj-count">'+items.length+' 件</span></div>'+
+          '<span class="am-proj-count">'+items.length+' 件</span>'+
+          '<button class="am-op" type="button" data-gal-rename="'+k+'">✎改名</button></div>'+
           itemsBlock(items,'gal');
       });
     }
@@ -2908,6 +2912,54 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       renderProjList();
     });
     projListEl.addEventListener('click',function(e){
+      /* 单条编辑 */
+      var itmEdit=e.target.dataset.itmEdit;
+      if(itmEdit){
+        var parts=itmEdit.split('|');
+        var src=parts[0], idx=Number(parts[1]);
+        var arr = src==='vid' ? window.VIDEOS : (src==='cpt' ? window.CONCEPTS : window.GALLERY);
+        if(!arr || !arr[idx])return;
+        var it=arr[idx];
+        var nt=window.prompt('作品标题：', it.t||'');
+        if(nt===null)return;
+        var nm=window.prompt('作者：', it.m||'');
+        if(nm===null)return;
+        it.t=nt; it.m=nm;
+        window.renderArchive();window.renderInbox();renderList();renderInboxList();
+        if(window.renderConcepts)window.renderConcepts();
+        if(window.renderGallery)window.renderGallery();
+        if(window.renderFeatured)window.renderFeatured();
+        renderProjList();markDone();
+        return;
+      }
+      /* 影像长卷·改名 */
+      var pjR=e.target.dataset.pjRename;
+      if(pjR){
+        var pr=projOf(pjR);if(!pr)return;
+        var nn=window.prompt('新卷名：', pr.n);
+        if(nn===null||!nn.trim())return;
+        pr.n=nn.trim();
+        window.renderArchive();renderList();renderProjList();markDone();
+        return;
+      }
+      /* 幻境卷·改名 */
+      var cjR=e.target.dataset.cjRename;
+      if(cjR!==undefined && cjR!==''){
+        var nn2=window.prompt('新卷名：', cjR);
+        if(nn2===null||!nn2.trim())return;
+        window.CONCEPTS.forEach(function(c){ if((c.k||'')===cjR){ c.k=nn2.trim(); } });
+        window.renderConcepts();renderProjList();markDone();
+        return;
+      }
+      /* 图藏卷·改名 */
+      var galR=e.target.dataset.galRename;
+      if(galR!==undefined && galR!==''){
+        var nn3=window.prompt('新卷名：', galR);
+        if(nn3===null||!nn3.trim())return;
+        window.GALLERY.forEach(function(g){ if((g.k||'')===galR){ g.k=nn3.trim(); } });
+        window.renderGallery();renderProjList();markDone();
+        return;
+      }
       /* 单条删除 */
       var itm=e.target.dataset.itmDel;
       if(itm){
