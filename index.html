@@ -2527,12 +2527,12 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     if(doneEl)doneEl.textContent='已记录变更 · 3 秒后自动入库…';
     _autoSyncTimer=setTimeout(function(){
       var pat=localStorage.getItem(PAT_KEY);
-      if(!pat){ if(doneEl)doneEl.textContent='有变更待入库 · 请先「仓库授权」填令牌，再手动点一次同步入库'; return; }
+      if(!pat){ if(doneEl)doneEl.textContent='有变更待入库 · 请先「仓库授权」填令牌，下次写操作时会自动重试'; return; }
       if(doneEl)doneEl.textContent='正在自动写入仓库…';
       syncToRepo().then(function(){
         if(doneEl)doneEl.textContent='已自动入库 · 刷新后全站生效（CDN 约数分钟）';
       }).catch(function(e){
-        if(doneEl)doneEl.textContent='自动入库失败：'+String(e)+'（可点「同步入库」重试）';
+        if(doneEl)doneEl.textContent='自动入库失败：'+String(e)+'（再做一次操作自动重试）';
       });
     },3000);
   }
@@ -2570,21 +2570,10 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           var v=inp.value.trim();
           if(!v){inp.focus();return}
           localStorage.setItem(PAT_KEY,v);
-          row.remove();if(doneEl)doneEl.textContent='令牌已保存 · 可点「同步入库」';
+          row.remove();if(doneEl)doneEl.textContent='令牌已保存 · 后续写操作将自动入库';
         }else if(e.target.dataset.clear!==undefined){
           localStorage.removeItem(PAT_KEY);row.remove();if(doneEl)doneEl.textContent='令牌已清除';
         }else if(e.target.dataset.cancel!==undefined){row.remove()}
-      });
-    });
-  }
-  var syncBtn=document.getElementById('amSync');
-  if(syncBtn){
-    syncBtn.addEventListener('click',function(){
-      if(doneEl)doneEl.textContent='正在写入仓库…';
-      syncToRepo().then(function(){
-        if(doneEl)doneEl.textContent='已入库 · 刷新后全站生效（CDN 约数分钟内同步）';
-      }).catch(function(e){
-        if(doneEl)doneEl.textContent=(e==='nopat')?'请先「仓库授权」填写令牌':('入库失败：'+String(e));
       });
     });
   }
@@ -3150,7 +3139,6 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     <div class="am-foot">
       <span class="am-done" id="amDone"></span>
       <button class="am-op" id="amClose" type="button">关闭</button>
-      <button class="am-op active" id="amSync" type="button">同步入库</button>
       <button class="am-op active" id="amExport" type="button">导出变更</button>
     </div>
   </div>
