@@ -1,6 +1,6 @@
 {
  "version": 3,
- "updatedAt": "2026-10-08T11:05:00.000Z",
+ "updatedAt": "2026-10-08T11:10:00.000Z",
  "videos": [
   {
    "p": "他过分野",
@@ -530,6 +530,15 @@
    "m": "李尚书",
    "p": "其他",
    "ts": "2026-10-08 11:00:15 +0800"
+  },
+  {
+   "img": "assets/brand/logo-totem.png",
+   "t": "一路同行",
+   "k": "其他",
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_48.mp4",
+   "m": "李尚书",
+   "p": "其他",
+   "ts": "2026-10-08 11:06:08 +0800"
   }
  ],
  "projects": [
