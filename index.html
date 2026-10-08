@@ -2844,20 +2844,27 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   function renderProjList(){
     if(!projListEl)return;
     var html='';
-    function itemRow(arr, idx, src, key){
-      var it=arr[idx]; if(!it)return '';
+    function itemRow(it, realIdx, src){
+      if(!it)return '';
       var thumb = it.img ? '<img class="am-item-thumb" src="'+it.img+'" loading="lazy" onerror="this.style.display=\'none\'">' : '';
       var meta = it.m ? (it.m+' · ') : '';
       meta += (it.u ? '影' : '图');
       return '<div class="am-item-row">'+thumb+
         '<span class="am-item-title">'+(it.t||'(无标题)')+'</span>'+
         '<span class="am-item-meta">'+meta+'</span>'+
-        '<button class="am-op" type="button" data-itm-edit="'+src+'|'+idx+'">✎编辑</button>'+
-        '<button class="am-op danger" type="button" data-itm-del="'+src+'|'+idx+'">删条</button></div>';
+        '<button class="am-op" type="button" data-itm-edit="'+src+'|'+realIdx+'">✎编辑</button>'+
+        '<button class="am-op danger" type="button" data-itm-del="'+src+'|'+realIdx+'">删条</button></div>';
     }
-    function itemsBlock(arr, src){
-      if(!arr || !arr.length)return '';
-      return '<div class="am-proj-items">'+arr.map(function(_,i){return itemRow(arr,i,src)}).join('')+'</div>';
+    function itemsBlock(src, k){
+      var all = src==='vid' ? window.VIDEOS : (src==='cpt' ? window.CONCEPTS : window.GALLERY);
+      if(!all || !all.length)return '';
+      var rows=[];
+      all.forEach(function(it, i){
+        if(src==='vid'){ if(it.pk !== k) return; }
+        else { if((it.k||'') !== k) return; }
+        rows.push(itemRow(it, i, src));
+      });
+      return '<div class="am-proj-items">'+rows.join('')+'</div>';
     }
     /* 影像长卷 */
     if(window.PROJECTS.length){
@@ -2869,7 +2876,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           '<span class="am-proj-count">'+items.length+' 件</span>'+
           '<button class="am-op" type="button" data-pj-rename="'+pr.k+'">✎改名</button>'+
           '<button class="am-op danger" type="button" data-pj-del="'+pr.k+'">删卷</button></div>'+
-          itemsBlock(items,'vid');
+          itemsBlock('vid',pr.k);
       }).join('');
     }
     /* 幻境卷 · 视频作品 */
@@ -2885,7 +2892,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           '<span class="am-proj-count">'+items.length+' 件</span>'+
           '<button class="am-op" type="button" data-cj-rename="'+k+'">✎改名</button>'+
           '<button class="am-op danger" type="button" data-cj-del="'+k+'">删卷</button></div>'+
-          itemsBlock(items,'cpt');
+          itemsBlock('cpt',k);
       });
     }
     /* 图藏卷 · 图谱 */
@@ -2900,7 +2907,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           '<span class="am-proj-tag" style="color:var(--ink-gold)">图藏</span>'+
           '<span class="am-proj-count">'+items.length+' 件</span>'+
           '<button class="am-op" type="button" data-gal-rename="'+k+'">✎改名</button></div>'+
-          itemsBlock(items,'gal');
+          itemsBlock('gal',k);
       });
     }
     projListEl.innerHTML = html || '<div class="am-hint">暂无卷宗</div>';
