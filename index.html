@@ -2421,7 +2421,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       }
     });
   }
-  function markDone(){if(doneEl){doneEl.textContent='已记录变更 · 记得同步入库'}}
+  function markDone(){autoSync();}
   function exportChanges(){
     var payload={version:3,exportedAt:new Date().toISOString(),producers:window.PRODUCERS,videos:window.VIDEOS,concepts:window.CONCEPTS,projects:window.PROJECTS,works:window.WORKS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
     var blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
@@ -2519,6 +2519,22 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       if(Array.isArray(d.works)){window.WORKS.splice.apply(window.WORKS,[0,window.WORKS.length].concat(d.works));window.renderWorks();}
       window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();updateStaticCounts();window.renderFeatured();window.renderConcepts();if(window.renderGallery)window.renderGallery();
     }catch(e){ if(window.console&&console.error){console.error('applyData failed',e)} }
+  }
+
+  var _autoSyncTimer=null;
+  function autoSync(){
+    if(_autoSyncTimer)clearTimeout(_autoSyncTimer);
+    if(doneEl)doneEl.textContent='已记录变更 · 3 秒后自动入库…';
+    _autoSyncTimer=setTimeout(function(){
+      var pat=localStorage.getItem(PAT_KEY);
+      if(!pat){ if(doneEl)doneEl.textContent='有变更待入库 · 请先「仓库授权」填令牌，再手动点一次同步入库'; return; }
+      if(doneEl)doneEl.textContent='正在自动写入仓库…';
+      syncToRepo().then(function(){
+        if(doneEl)doneEl.textContent='已自动入库 · 刷新后全站生效（CDN 约数分钟）';
+      }).catch(function(e){
+        if(doneEl)doneEl.textContent='自动入库失败：'+String(e)+'（可点「同步入库」重试）';
+      });
+    },3000);
   }
   function syncToRepo(){
     var pat=localStorage.getItem(PAT_KEY);
@@ -2676,7 +2692,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       }
     });
   }
-  function markInboxDone(){if(doneEl)doneEl.textContent='已记录变更 · 记得同步入库'}
+  function markInboxDone(){autoSync();}
   var inboxBtn=document.getElementById('amAddInbox');
   if(inboxBtn){
     inboxBtn.addEventListener('click',function(){
