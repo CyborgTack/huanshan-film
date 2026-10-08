@@ -1,6 +1,6 @@
 {
  "version": 3,
- "updatedAt": "2026-09-29T09:20:50.000Z",
+ "updatedAt": "2026-10-08T10:55:00.000Z",
  "videos": [
   {
    "p": "他过分野",
@@ -502,6 +502,15 @@
    "img": "assets/concepts/concept-10.jpg",
    "t": "《灵根》",
    "k": "古木灵光 · 造物卷"
+  },
+  {
+   "img": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/img_09.jpg",
+   "t": "情感类短片",
+   "k": "其他",
+   "u": "https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/video_44.mp4",
+   "m": "李尚书",
+   "p": "其他",
+   "ts": "2026-10-08 10:54:23 +0800"
   }
  ],
  "projects": [
