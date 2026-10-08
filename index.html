@@ -2137,6 +2137,43 @@ const VIDEOS = [
     if(e.key === "ArrowRight"){ stepLightbox(1); }
   });
 
+  /* ===== 卡片 hover 预加载视频首帧（点开秒开） ===== */
+  (function(){
+    var preloadVideo = null, preloadSrc = "";
+    function ensurePreloader(){
+      if(!preloadVideo){
+        preloadVideo = document.createElement("video");
+        preloadVideo.preload = "auto";
+        preloadVideo.muted = true;
+        preloadVideo.playsInline = true;
+        preloadVideo.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:2px;height:2px;opacity:0;pointer-events:none;";
+        document.body.appendChild(preloadVideo);
+      }
+    }
+    function arm(src){
+      if(!src || src === preloadSrc) return;
+      ensurePreloader();
+      preloadSrc = src;
+      preloadVideo.src = src;
+      preloadVideo.load();
+    }
+    function disarm(){ preloadSrc=""; if(preloadVideo){ preloadVideo.removeAttribute("src"); try{preloadVideo.load();}catch(e){} } }
+    document.addEventListener("mouseover", function(e){
+      var card = e.target.closest(".vg-card,.cg-card");
+      if(!card) return;
+      var idx = card.getAttribute("data-vg") || card.getAttribute("data-cg");
+      if(idx == null) return;
+      var arr = card.classList.contains("cg-card") ? (typeof CONCEPTS!=="undefined"&&CONCEPTS) : (typeof VIDEOS!=="undefined"&&VIDEOS);
+      if(!arr) return;
+      var item = arr[+idx];
+      if(item && item.u){ arm(item.u); }
+    });
+    document.addEventListener("mouseout", function(e){
+      var card = e.target.closest(".vg-card,.cg-card");
+      if(card && !card.contains(e.relatedTarget)){ disarm(); }
+    });
+  })();
+
   /* ===== 归卷：回到页首 ===== */
   var scrollTopBtn = document.getElementById("scrollTop");
   if(scrollTopBtn){
