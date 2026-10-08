@@ -995,6 +995,20 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
   </div>
 </section>
 
+<!-- ===== 幻境卷 · 概念画廊 ===== -->
+<section class="section" id="concepts">
+  <div class="container">
+    <div class="works-head" data-reveal>
+      <div>
+        <span class="sec-line" aria-hidden="true"></span>
+        <span class="sec-label">幻境卷 · 造物</span>
+        <h2 class="sec-title">造境十幅 · 皆可入梦</h2>
+      </div>
+    </div>
+    <div class="cg-grid" id="conceptGrid" data-reveal></div>
+  </div>
+</section>
+
 <section class="section" id="videos">
   <div class="container">
     <div class="works-head" id="videosHead" role="button" tabindex="0" aria-expanded="true" aria-controls="vgArchive" data-reveal>
@@ -1032,113 +1046,6 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
       <img src="assets/concepts/concept-10.jpg" alt="" loading="lazy">
     </div>
 
-  </div>
-</section>
-
-<!-- ===== 作品精选 ===== -->
-<section class="section collapsed" id="works">
-  <div class="container">
-    <div class="works-head" id="worksHead" role="button" tabindex="0" aria-expanded="false" aria-controls="worksCatalog" data-reveal>
-      <div>
-        <span class="sec-line" aria-hidden="true"></span>
-        <span class="sec-label">馆藏卷宗</span>
-        <div style="display:flex;align-items:center;gap:12px">
-          <h2 class="sec-title" id="worksCountTitle">近岁入藏之卷</h2>
-          <svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-        </div>
-      </div>
-      <div class="filters" role="tablist" aria-label="卷宗分类筛选">
-        <button class="filter active" data-filter="all" role="tab" aria-selected="true">全部</button>
-        <button class="filter" data-filter="film" role="tab" aria-selected="false">影像卷</button>
-        <button class="filter" data-filter="visual" role="tab" aria-selected="false">图谱卷</button>
-        <button class="filter" data-filter="music" role="tab" aria-selected="false">咒音卷</button>
-        <button class="filter" data-filter="3d" role="tab" aria-selected="false">造物卷</button>
-      </div>
-    </div>
-    <div class="catalog" id="worksCatalog" data-reveal>
-      <aside class="catalog-index" aria-label="卷宗目录">
-        <div class="catalog-index-inner" id="catalogIndex">
-          <button class="idx-item active" data-index="0" data-key="film" role="button" aria-label="查看作品《雨夜行》详情">
-            <span class="idx-marker"></span>
-            <span class="idx-no">卷·甲寅</span>
-            <span class="idx-title">《雨夜行》</span>
-            <span class="idx-cat">影像卷 · 志怪短片</span>
-          </button>
-          <button class="idx-item" data-index="1" data-key="visual" role="button" aria-label="查看作品《巨灵》详情">
-            <span class="idx-marker"></span>
-            <span class="idx-no">卷·丙辰</span>
-            <span class="idx-title">《巨灵》</span>
-            <span class="idx-cat">图谱卷 · 概念主视觉</span>
-          </button>
-          <button class="idx-item" data-index="2" data-key="music" role="button" aria-label="查看作品《谶声》详情">
-            <span class="idx-marker"></span>
-            <span class="idx-no">卷·丁巳</span>
-            <span class="idx-title">《谶声》</span>
-            <span class="idx-cat">咒音卷 · 专辑视觉</span>
-          </button>
-          <button class="idx-item" data-index="3" data-key="3d" role="button" aria-label="查看作品《云上城》详情">
-            <span class="idx-marker"></span>
-            <span class="idx-no">卷·戊午</span>
-            <span class="idx-title">《云上城》</span>
-            <span class="idx-cat">造物卷 · 幻境造景</span>
-          </button>
-          <button class="idx-item" data-index="4" data-key="film" role="button" aria-label="查看作品《凝光》详情">
-            <span class="idx-marker"></span>
-            <span class="idx-no">卷·己未</span>
-            <span class="idx-title">《凝光》</span>
-            <span class="idx-cat">影像卷 · 器物志</span>
-          </button>
-          <button class="idx-item" data-index="5" data-key="visual" role="button" aria-label="查看作品《萤夜》详情">
-            <span class="idx-marker"></span>
-            <span class="idx-no">卷·庚申</span>
-            <span class="idx-title">《萤夜》</span>
-            <span class="idx-cat">图谱卷 · 草木志</span>
-          </button>
-        </div>
-      </aside>
-      <div class="catalog-stage">
-        <figure class="stage-frame" id="stageFrame" data-key="film" tabindex="0" role="button" aria-label="点击放大查看当前作品">
-          <i class="fx fx-tl" aria-hidden="true"></i><i class="fx fx-tr" aria-hidden="true"></i>
-          <i class="fx fx-bl" aria-hidden="true"></i><i class="fx fx-br" aria-hidden="true"></i>
-          <div class="stage-plane">
-            <img id="stageImg" src="assets/work-01.jpg" alt="《雨夜行》剧照：雨夜街巷中身穿风衣的旅人背影，霓虹光晕">
-          </div>
-          <div class="stage-shade" aria-hidden="true"></div>
-          <span class="stage-cat" id="stageCat">影像卷 · 志怪短片</span>
-          <span class="stage-no" id="stageNo">卷·甲寅</span>
-          <div class="stage-info">
-            <h3 class="stage-title" id="stageTitle">《雨夜行》</h3>
-            <div class="stage-meta" id="stageMeta"></div>
-            <p class="stage-desc" id="stageDesc"></p>
-            <span class="stage-hint">启卷查看 · 点击放大
-              <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </span>
-          </div>
-        </figure>
-      </div>
-    </div>
-    <div class="work-srcs" aria-hidden="true">
-      <img src="assets/work-01.jpg" alt="" loading="lazy">
-      <img src="assets/work-02.jpg" alt="" loading="lazy">
-      <img src="assets/work-03.jpg" alt="" loading="lazy">
-      <img src="assets/work-04.jpg" alt="" loading="lazy">
-      <img src="assets/work-05.jpg" alt="" loading="lazy">
-      <img src="assets/work-06.jpg" alt="" loading="lazy">
-    </div>
-  </div>
-</section>
-
-<!-- ===== 幻境卷 · 概念画廊 ===== -->
-<section class="section" id="concepts">
-  <div class="container">
-    <div class="works-head" data-reveal>
-      <div>
-        <span class="sec-line" aria-hidden="true"></span>
-        <span class="sec-label">幻境卷 · 造物</span>
-        <h2 class="sec-title">造境十幅 · 皆可入梦</h2>
-      </div>
-    </div>
-    <div class="cg-grid" id="conceptGrid" data-reveal></div>
   </div>
 </section>
 
@@ -1272,6 +1179,99 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
         <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
       <a class="btn btn-ghost" href="mailto:hello@huanshan.example?subject=预约叙谈">预约叙谈</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 作品精选 ===== -->
+<section class="section collapsed" id="works">
+  <div class="container">
+    <div class="works-head" id="worksHead" role="button" tabindex="0" aria-expanded="false" aria-controls="worksCatalog" data-reveal>
+      <div>
+        <span class="sec-line" aria-hidden="true"></span>
+        <span class="sec-label">馆藏卷宗</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <h2 class="sec-title" id="worksCountTitle">近岁入藏之卷</h2>
+          <svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="filters" role="tablist" aria-label="卷宗分类筛选">
+        <button class="filter active" data-filter="all" role="tab" aria-selected="true">全部</button>
+        <button class="filter" data-filter="film" role="tab" aria-selected="false">影像卷</button>
+        <button class="filter" data-filter="visual" role="tab" aria-selected="false">图谱卷</button>
+        <button class="filter" data-filter="music" role="tab" aria-selected="false">咒音卷</button>
+        <button class="filter" data-filter="3d" role="tab" aria-selected="false">造物卷</button>
+      </div>
+    </div>
+    <div class="catalog" id="worksCatalog" data-reveal>
+      <aside class="catalog-index" aria-label="卷宗目录">
+        <div class="catalog-index-inner" id="catalogIndex">
+          <button class="idx-item active" data-index="0" data-key="film" role="button" aria-label="查看作品《雨夜行》详情">
+            <span class="idx-marker"></span>
+            <span class="idx-no">卷·甲寅</span>
+            <span class="idx-title">《雨夜行》</span>
+            <span class="idx-cat">影像卷 · 志怪短片</span>
+          </button>
+          <button class="idx-item" data-index="1" data-key="visual" role="button" aria-label="查看作品《巨灵》详情">
+            <span class="idx-marker"></span>
+            <span class="idx-no">卷·丙辰</span>
+            <span class="idx-title">《巨灵》</span>
+            <span class="idx-cat">图谱卷 · 概念主视觉</span>
+          </button>
+          <button class="idx-item" data-index="2" data-key="music" role="button" aria-label="查看作品《谶声》详情">
+            <span class="idx-marker"></span>
+            <span class="idx-no">卷·丁巳</span>
+            <span class="idx-title">《谶声》</span>
+            <span class="idx-cat">咒音卷 · 专辑视觉</span>
+          </button>
+          <button class="idx-item" data-index="3" data-key="3d" role="button" aria-label="查看作品《云上城》详情">
+            <span class="idx-marker"></span>
+            <span class="idx-no">卷·戊午</span>
+            <span class="idx-title">《云上城》</span>
+            <span class="idx-cat">造物卷 · 幻境造景</span>
+          </button>
+          <button class="idx-item" data-index="4" data-key="film" role="button" aria-label="查看作品《凝光》详情">
+            <span class="idx-marker"></span>
+            <span class="idx-no">卷·己未</span>
+            <span class="idx-title">《凝光》</span>
+            <span class="idx-cat">影像卷 · 器物志</span>
+          </button>
+          <button class="idx-item" data-index="5" data-key="visual" role="button" aria-label="查看作品《萤夜》详情">
+            <span class="idx-marker"></span>
+            <span class="idx-no">卷·庚申</span>
+            <span class="idx-title">《萤夜》</span>
+            <span class="idx-cat">图谱卷 · 草木志</span>
+          </button>
+        </div>
+      </aside>
+      <div class="catalog-stage">
+        <figure class="stage-frame" id="stageFrame" data-key="film" tabindex="0" role="button" aria-label="点击放大查看当前作品">
+          <i class="fx fx-tl" aria-hidden="true"></i><i class="fx fx-tr" aria-hidden="true"></i>
+          <i class="fx fx-bl" aria-hidden="true"></i><i class="fx fx-br" aria-hidden="true"></i>
+          <div class="stage-plane">
+            <img id="stageImg" src="assets/work-01.jpg" alt="《雨夜行》剧照：雨夜街巷中身穿风衣的旅人背影，霓虹光晕">
+          </div>
+          <div class="stage-shade" aria-hidden="true"></div>
+          <span class="stage-cat" id="stageCat">影像卷 · 志怪短片</span>
+          <span class="stage-no" id="stageNo">卷·甲寅</span>
+          <div class="stage-info">
+            <h3 class="stage-title" id="stageTitle">《雨夜行》</h3>
+            <div class="stage-meta" id="stageMeta"></div>
+            <p class="stage-desc" id="stageDesc"></p>
+            <span class="stage-hint">启卷查看 · 点击放大
+              <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </div>
+        </figure>
+      </div>
+    </div>
+    <div class="work-srcs" aria-hidden="true">
+      <img src="assets/work-01.jpg" alt="" loading="lazy">
+      <img src="assets/work-02.jpg" alt="" loading="lazy">
+      <img src="assets/work-03.jpg" alt="" loading="lazy">
+      <img src="assets/work-04.jpg" alt="" loading="lazy">
+      <img src="assets/work-05.jpg" alt="" loading="lazy">
+      <img src="assets/work-06.jpg" alt="" loading="lazy">
     </div>
   </div>
 </section>
