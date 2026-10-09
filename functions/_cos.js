@@ -13,7 +13,7 @@ async function cosSign(env, method, keyPath, contentType) {
   const now = Math.floor(Date.now() / 1000);
   const keyTime = `${now};${now + 7200}`;
   const signKey = await hmacSha1(env.COS_KEY, keyTime);
-  const httpString = `${method.toLowerCase()}\n${keyPath}\n\n`;
+  const httpString = `${method.toLowerCase()}\n${keyPath}\n\n\n`;
   const stringToSign = `sha1\n${keyTime}\n${await hmacSha1(signKey, httpString)}\n`;
   const signature = await hmacSha1(signKey, stringToSign);
   return `q-sign-algorithm=sha1&q-ak=${env.COS_ID}&q-sign-time=${keyTime}&q-key-time=${keyTime}&q-header-list=&q-url-param-list=&q-signature=${signature}`;
