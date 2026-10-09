@@ -3273,7 +3273,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     .catch(function(){ return tryFetch('https://huanshan-film.pages.dev/data.json'); })
     .then(function(d){
       if(d&&Array.isArray(d.videos)&&d.videos.length){
-        var nu=d.updatedAt||';
+        var nu=d.updatedAt||'';
         if(nu&&nu===lastApplied){introDone();return}
         lastApplied=nu;
         applyData(d);
