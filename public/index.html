@@ -2078,13 +2078,7 @@ const VIDEOS = [
     "k": "p1790673650687",
     "n": "《猫窝TVC》",
     "d": "新卷 · 待编修归卷"
-  },
-  {
-    "k": "other",
-    "n": "《其他》",
-    "d": "未归卷 · 杂项收纳"
-  }
-];
+  },];
   var PRODUCERS = [
   "史顺棋",
   "李尚书",
@@ -3364,7 +3358,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   function renderInboxList(){
     if(!inboxListEl)return;
     if(bulkTargetEl&&!bulkTargetEl.dataset.rendered){
-      bulkTargetEl.innerHTML='<option value="">批量归入卷…</option>'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('');
+      bulkTargetEl.innerHTML='<option value="">批量归入卷…</option>'+volumeOpts();
       bulkTargetEl.dataset.rendered='1';
     }
     if(!window.INBOX.length){inboxListEl.innerHTML='';renderBulkBar();return}
@@ -3381,11 +3375,11 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       var q=d.replace(/"/g,'&quot;');
       html+='<li class="ib-ghead"><b>'+d+'</b><span class="am-lcount">'+items.length+' 件</span>'+
         '<button class="am-op" type="button" data-ib-gcheck="'+q+'">全选本组</button>'+
-        '<select data-ib-gtarget="'+q+'"><option value="">归入卷…</option>'+window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('')+'</select>'+
+        '<select data-ib-gtarget="'+q+'"><option value="">归入卷…</option>'+volumeOpts()+'</select>'+
         '<button class="am-op active" type="button" data-ib-gmove="'+q+'">整组归卷</button></li>';
       items.forEach(function(i){
         var v=window.INBOX[i];
-        var opts=window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('');
+        var opts=volumeOpts();
         var checked=checkedSet.has(v)?' checked':'';
         html+='<li class="am-row"><label class="ib-check"><input type="checkbox" data-ib-check="'+i+'"'+checked+'></label>'+
           '<div class="am-main"><b>'+((v.p||'未命名')+' · '+(v.t||''))+'</b>'+
@@ -3400,7 +3394,41 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     inboxListEl.innerHTML=html;
     renderBulkBar();
   }
+
+  function volumeOpts(){
+    var s = window.PROJECTS.map(function(pr){return '<option value="'+pr.k+'">'+pr.n+'</option>'}).join('');
+    s += '<option value="__gallery">— 图藏卷（图集）</option>';
+    s += '<option value="__concepts">— 幻境卷（概念图）</option>';
+    s += '<option value="__featured">— 藏卷四部·精选（待审）</option>';
+    return s;
+  }
+
   function moveInbox(items,pk){
+    // 特殊板块分流：图藏卷 / 幻境卷 / 精选待审
+    if(pk==='__gallery'||pk==='__concepts'||pk==='__featured'){
+      items.forEach(function(v){
+        var idx=window.INBOX.indexOf(v);
+        if(idx<0)return;
+        var copy=JSON.parse(JSON.stringify(v));
+        window.INBOX.splice(idx,1);
+        checkedSet.delete(v);
+        if(pk==='__gallery'){
+          window.GALLERY.push({img:copy.img, t:copy.t, k:copy.p||'未分类'});
+        }else if(pk==='__concepts'){
+          window.CONCEPTS.push({img:copy.img, t:copy.t, k:copy.p||'其他', u:copy.u||'', m:copy.m||''});
+        }else if(pk==='__featured'){
+          copy.pk=copy.pk||'p_other';
+          window.FEATURED_QUEUE.push(copy);
+        }
+      });
+      window.renderArchive();window.renderInbox();renderInboxList();
+      if(window.renderGallery)window.renderGallery();
+      if(window.renderConcepts)window.renderConcepts();
+      if(window.renderFeatured)window.renderFeatured();
+      if(typeof renderFeaturedQueueList==='function')renderFeaturedQueueList();
+      markInboxDone();
+      return;
+    }
     var proj=pk?projOf(pk):null;
     items.forEach(function(v){
       if(window.INBOX.indexOf(v)<0)return;
