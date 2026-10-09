@@ -29,7 +29,7 @@ export async function onRequestPut(context) {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   } catch (e) {
-    return new Response('Error: ' + e.message, { status: 500 });
+    return new Response('COS_ERROR_V2: ' + e.message, { status: 500 });
   }
 }
 
