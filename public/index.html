@@ -9,7 +9,9 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23C23B2E'/%3E%3Cpath d='M6 24 L14 9 L18 17 L20 12 L26 24 Z' fill='%23F5F0E6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
 <link rel="preconnect" href="https://huanshan-media-1496783426.cos.ap-guangzhou.myqcloud.com" crossorigin>
-<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<link rel="preload" as="image" href="assets/hero.jpg" fetchpriority="high">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"></noscript>
 <style>
 /* ============================================================
    设计 Token（电影感视觉体系 · 全站唯一取值来源）
@@ -968,7 +970,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 
 <!-- ===== 主视觉 ===== -->
 <section class="hero" id="top">
-  <img class="hero-bg" id="heroBg" src="assets/hero.jpg" alt="夜色墨山间宫阙灯影，雾中隐现巨兽剪影">
+  <img class="hero-bg" id="heroBg" src="assets/hero.jpg" alt="夜色墨山间宫阙灯影，雾中隐现巨兽剪影" fetchpriority="high" decoding="async">
   <div class="hero-veil"></div>
   <canvas class="hero-ember" id="emberCanvas" aria-hidden="true"></canvas>
   <div class="hero-inner">
@@ -989,7 +991,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
   <div class="scroll-cue" aria-hidden="true">滚动</div>
   <div class="hero-colophon" aria-hidden="true">讙山志 · 卷首</div>
   <div class="hero-archive" aria-hidden="true">
-    <img class="hero-brand-name" src="assets/brand/brand-name.png" alt="" draggable="false" oncontextmenu="return false">
+    <img class="hero-brand-name" src="assets/brand/brand-name.png" alt="" draggable="false" decoding="async" oncontextmenu="return false">
     <span class="hero-archive-no">ARCHIVE · 丙申年冬 · 第壹卷</span>
   </div>
 </section>
@@ -1366,12 +1368,12 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
     </div>
   </div>
   <div class="lb-strip" id="lbStrip" aria-label="卷宗胶片缩略">
-    <button class="lb-thumb active" data-i="0" aria-label="《雨夜行》"><img src="assets/work-01.jpg" alt=""></button>
-    <button class="lb-thumb" data-i="1" aria-label="《巨灵》"><img src="assets/work-02.jpg" alt=""></button>
-    <button class="lb-thumb" data-i="2" aria-label="《谶声》"><img src="assets/work-03.jpg" alt=""></button>
-    <button class="lb-thumb" data-i="3" aria-label="《云上城》"><img src="assets/work-04.jpg" alt=""></button>
-    <button class="lb-thumb" data-i="4" aria-label="《凝光》"><img src="assets/work-05.jpg" alt=""></button>
-    <button class="lb-thumb" data-i="5" aria-label="《萤夜》"><img src="assets/work-06.jpg" alt=""></button>
+    <button class="lb-thumb active" data-i="0" aria-label="《雨夜行》"><img loading="lazy" src="assets/work-01.jpg" alt=""></button>
+    <button class="lb-thumb" data-i="1" aria-label="《巨灵》"><img loading="lazy" src="assets/work-02.jpg" alt=""></button>
+    <button class="lb-thumb" data-i="2" aria-label="《谶声》"><img loading="lazy" src="assets/work-03.jpg" alt=""></button>
+    <button class="lb-thumb" data-i="3" aria-label="《云上城》"><img loading="lazy" src="assets/work-04.jpg" alt=""></button>
+    <button class="lb-thumb" data-i="4" aria-label="《凝光》"><img loading="lazy" src="assets/work-05.jpg" alt=""></button>
+    <button class="lb-thumb" data-i="5" aria-label="《萤夜》"><img loading="lazy" src="assets/work-06.jpg" alt=""></button>
   </div>
   <button class="lb-arrow lb-next" id="lbNext" aria-label="下一个作品">
     <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
