@@ -3449,7 +3449,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
         uploadProgress('视频压缩中（1080p H.264 CRF26）...');
         chain=loadFFmpeg().then(function(ff){
           return ff.writeFile('input.'+ext,file).then(function(){
-            return ff.exec(['-i','input.'+ext,'-vf','scale='min(1920,iw)':-2','-c:v','libx264','-crf','26','-preset','fast','-c:a','aac','-b:a','128k','-movflags','+faststart','-y','output.mp4']);
+            return ff.exec(['-i','input.'+ext,"-vf","scale='min(1920,iw)':-2",'-c:v','libx264','-crf','26','-preset','fast','-c:a','aac','-b:a','128k','-movflags','+faststart','-y','output.mp4']);
           }).then(function(){
             return ff.readFile('output.mp4');
           }).then(function(data){
