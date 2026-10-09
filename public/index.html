@@ -2637,6 +2637,7 @@ const VIDEOS = [
     if(lbCounter){ lbCounter.textContent = ("0" + (i+1)).slice(-2) + " / " + ("0" + GALLERY.length).slice(-2); }
   }
   function openArchiveImageLightbox(v){
+    visibleIndexes = []; lbPos = 0;
     lightbox.classList.add("pure-image");
     var img = document.createElement("img");
     img.src = v.img; img.alt = v.t;
@@ -2655,6 +2656,7 @@ const VIDEOS = [
     if(lbCloseBtn){ lbCloseBtn.focus(); }
   }
   function openInboxImageLightbox(v){
+    visibleIndexes = []; lbPos = 0;
     lightbox.classList.add("pure-image");
     var img = document.createElement("img");
     img.src = v.img; img.alt = v.t;
@@ -2821,6 +2823,7 @@ const VIDEOS = [
   var stripThumbs = Array.prototype.slice.call(document.querySelectorAll(".lb-thumb"));
   var lbPos = 0;
   function openLightbox(index){
+    lbGalleryMode = false; visibleIndexes = []; for(var _wi=0; _wi<WORKS.length; _wi++){ if(activeFilter==="all"||WORKS[_wi].key===activeFilter){ visibleIndexes.push(_wi); } }
     lbPos = visibleIndexes.indexOf(index);
     if(lbPos < 0){ lbPos = 0; }
     var data = WORKS[visibleIndexes[lbPos]];
