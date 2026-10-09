@@ -3304,7 +3304,25 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       if(Array.isArray(d.featured)){window.FEATURED.splice.apply(window.FEATURED,[0,window.FEATURED.length].concat(d.featured))}
       if(Array.isArray(d.featuredQueue)){window.FEATURED_QUEUE.splice.apply(window.FEATURED_QUEUE,[0,window.FEATURED_QUEUE.length].concat(d.featuredQueue))}
       if(Array.isArray(d.works)){window.WORKS.splice.apply(window.WORKS,[0,window.WORKS.length].concat(d.works));window.renderWorks();}
-      window.renderArchive();window.renderInbox();window.renderFilters();renderMembers();updateStaticCounts();window.renderFeatured();window.renderConcepts();if(window.renderGallery)window.renderGallery();
+      // 立即渲染首屏：精选 + 影像长卷默认卷
+      window.renderFeatured();renderMembers();updateStaticCounts();
+      window.renderFilters();window.renderArchive();
+      // IntersectionObserver 懒渲染下方 section（滚动接近时才渲染）
+      var _rendered={videos:false,concepts:false,gallery:false,inbox:false};
+      function _lazyRender(sectionId,fn,key){
+        if(_rendered[key])return;
+        var el=document.getElementById(sectionId);
+        if(!el){fn();_rendered[key]=true;return;}
+        var io=new IntersectionObserver(function(entries){
+          entries.forEach(function(e){
+            if(e.isIntersecting){_rendered[key]=true;io.disconnect();fn();}
+          });
+        },{rootMargin:"400px"});
+        io.observe(el);
+      }
+      _lazyRender("concepts",function(){window.renderConcepts();},"concepts");
+      _lazyRender("gallery",function(){if(window.renderGallery)window.renderGallery();},"gallery");
+      _lazyRender("inbox",function(){window.renderInbox();},"inbox");
     }catch(e){ if(window.console&&console.error){console.error('applyData failed',e)} }
   }
 
