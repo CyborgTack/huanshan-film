@@ -3022,22 +3022,6 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     document.body.appendChild(t);
     setTimeout(function(){t.remove()},4200);
   }
-  var carryBtn=document.getElementById('btnCarryNow');
-  if(carryBtn){
-    carryBtn.addEventListener('click',function(){
-      var pat=localStorage.getItem('hs_pat');
-      if(!pat){return}
-      carryBtn.disabled=true;
-      fetch('https://api.github.com/repos/CyborgTack/huanshan-film/actions/workflows/carry.yml/dispatches',{
-        method:'POST',
-        headers:{Authorization:'Bearer '+pat,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
-        body:JSON.stringify({ref:'main'})
-      }).then(function(r){
-        if(r.status===204){hsToast('已启动云端搬运 · 约数分钟全站生效')}
-        else{return r.text().then(function(txt){hsToast('启动失败 HTTP '+r.status,true)})}
-      }).catch(function(e){hsToast('网络错误，无法启动',true)}).then(function(){carryBtn.disabled=false});
-    });
-  }
   function openAdmin(){
     if(!admPanel)return;
     if(snapshot===null){snapshot={videos:JSON.parse(JSON.stringify(window.VIDEOS)),producers:window.PRODUCERS.slice(),inbox:JSON.parse(JSON.stringify(window.INBOX))}}
@@ -3214,31 +3198,19 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       });
     });
   }
-  /* ===== 真自动：GitHub 数据源 ===== */
-  var REMOTE='https://api.github.com/repos/CyborgTack/huanshan-film/contents/data.json';
-  var REMOTE_CDN='https://cdn.jsdelivr.net/gh/CyborgTack/huanshan-film@main/data.json';
-  var PAT_KEY='hs_pat';
+  /* ===== 数据源：Cloudflare Function 反代 COS /data.json ===== */
   function tryFetch(u,kind){
     return fetch(u,{cache:'no-store'}).then(function(r){
       if(!r.ok)return Promise.reject('src:'+kind);
-      if(kind==='api'){
-        return r.json().then(function(m){
-          if(!m||!m.content)return Promise.reject('api:empty');
-          var bin=atob(m.content.replace(/\s/g,''));
-          return JSON.parse(decodeURIComponent(escape(bin)));
-        });
-      }
       return r.json();
     });
   }
   var lastApplied='';var introFired=false;
   function loadRemote(){
     var sources=[
+      {u:'/data.json',k:'cos'},
       {u:'https://huanshantu.com/data.json',k:'domain'},
-      {u:'https://huanshan-film.pages.dev/data.json',k:'pages'},
-      {u:REMOTE_CDN,k:'cdn'},
-      {u:'https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/data.json',k:'raw'},
-      {u:REMOTE,k:'api'}
+      {u:'https://huanshan-film.pages.dev/data.json',k:'pages'}
     ];
     Promise.all(sources.map(function(s){
       return tryFetch(s.u,s.k).catch(function(){return null;});
@@ -3303,33 +3275,6 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
         if(doneEl)doneEl.textContent='入库失败：'+String(e)+'（再做一次操作自动重试）';
       });
     },3000);
-  }
-  var authBtn=document.getElementById('amAuth');
-  if(authBtn){
-    authBtn.addEventListener('click',function(){
-      var old=document.getElementById('amSyncRow');
-      if(old){old.remove();return}
-      var row=document.createElement('div');
-      row.className='am-sync-row';
-      row.id='amSyncRow';
-      var saved=localStorage.getItem(PAT_KEY)||'';
-      row.innerHTML='<input id="amPat" type="password" placeholder="GitHub 令牌（PAT，仅存本机浏览器）" value="'+saved+'">'+
-        '<button class="am-op active" type="button" data-save>保存</button>'+
-        '<button class="am-op" type="button" data-clear>清除</button>'+
-        '<button class="am-op" type="button" data-cancel>取消</button>';
-      listEl.parentNode.insertBefore(row,listEl);
-      var inp=row.querySelector('#amPat');if(!saved)inp.focus();
-      row.addEventListener('click',function(e){
-        if(e.target.dataset.save!==undefined){
-          var v=inp.value.trim();
-          if(!v){inp.focus();return}
-          localStorage.setItem(PAT_KEY,v);
-          row.remove();if(doneEl)doneEl.textContent='令牌已保存 · 后续写操作将自动入库';
-        }else if(e.target.dataset.clear!==undefined){
-          localStorage.removeItem(PAT_KEY);row.remove();if(doneEl)doneEl.textContent='令牌已清除';
-        }else if(e.target.dataset.cancel!==undefined){row.remove()}
-      });
-    });
   }
 
   /* ===== 本地上传（浏览器 ffmpeg 压缩 + COS 直传 + 自动封面） ===== */
@@ -3972,14 +3917,23 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   var undoBtn=document.getElementById('amUndo');
   if(undoBtn){
     undoBtn.addEventListener('click',function(){
-      if(snapshot){
-        window.VIDEOS.splice.apply(window.VIDEOS,[0,window.VIDEOS.length].concat(snapshot.videos));
-        window.PRODUCERS.splice(0,window.PRODUCERS.length);
-        snapshot.producers.forEach(function(n){window.PRODUCERS.push(n)});
-        renderMembers();
+      if(!snapshot){if(doneEl)doneEl.textContent='无快照可撤销';return}
+      if(!window.confirm('撤销本次管理面板内所有变更？（将恢复到打开时的状态）'))return;
+      window.VIDEOS.splice.apply(window.VIDEOS,[0,window.VIDEOS.length].concat(snapshot.videos));
+      window.PRODUCERS.splice(0,window.PRODUCERS.length);
+      snapshot.producers.forEach(function(n){window.PRODUCERS.push(n)});
+      renderMembers();
       if(snapshot.inbox){window.INBOX.splice.apply(window.INBOX,[0,window.INBOX.length].concat(snapshot.inbox))}
-      }
-      renderArchive();window.renderInbox();renderList();renderInboxList();if(doneEl)doneEl.textContent='已撤销全部变更';
+      if(snapshot.concepts){window.CONCEPTS.splice.apply(window.CONCEPTS,[0,window.CONCEPTS.length].concat(snapshot.concepts))}
+      if(snapshot.gallery){window.GALLERY.splice.apply(window.GALLERY,[0,window.GALLERY.length].concat(snapshot.gallery))}
+      if(snapshot.projects){window.PROJECTS.splice.apply(window.PROJECTS,[0,window.PROJECTS.length].concat(snapshot.projects))}
+      if(snapshot.featuredQueue){window.FEATURED_QUEUE.splice.apply(window.FEATURED_QUEUE,[0,window.FEATURED_QUEUE.length].concat(snapshot.featuredQueue))}
+      renderArchive();window.renderInbox();renderList();renderInboxList();
+      if(window.renderConcepts)window.renderConcepts();
+      if(window.renderGallery)window.renderGallery();
+      if(window.renderFeatured)window.renderFeatured();
+      if(typeof renderFeaturedQueueList==='function')renderFeaturedQueueList();
+      markDone();
     });
   }
   var closeBtn=document.getElementById('amClose');
@@ -4054,8 +4008,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
         <a class="am-op" id="amUploadLink" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">上呈作品
           <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor"/></svg>
         </a>
-        <button class="am-op active" id="btnCarryNow" type="button" hidden>立即搬运</button>
-      </div>
+              </div>
       <div class="am-grp">
         <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
         <button class="am-op" id="amAddProducer" type="button">新增制作人</button>
@@ -4065,7 +4018,6 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       <div class="am-grp">
         <button class="am-op active" id="amUploadLocal" type="button">本地上传</button>
         <button class="am-op active" id="amFeatReview" type="button">精选审核</button>
-        <button class="am-op" id="amAuth" type="button">高级：令牌</button>
         <button class="am-op" id="amUndo" type="button">撤销全部</button>
       </div>
     </div>
