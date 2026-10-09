@@ -9,12 +9,19 @@ export async function hmacSha1(key, msg) {
   return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function cosSign(env, method, keyPath, contentType) {
+async function sha1(msg) {
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-1', enc.encode(msg));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function cosSign(env, method, keyPath) {
   const now = Math.floor(Date.now() / 1000);
   const keyTime = `${now};${now + 7200}`;
   const signKey = await hmacSha1(env.COS_KEY, keyTime);
   const httpString = `${method.toLowerCase()}\n${keyPath}\n\n\n`;
-  const stringToSign = `sha1\n${keyTime}\n${await hmacSha1(signKey, httpString)}\n`;
+  const httpHash = await sha1(httpString);
+  const stringToSign = `sha1\n${keyTime}\n${httpHash}\n`;
   const signature = await hmacSha1(signKey, stringToSign);
   return `q-sign-algorithm=sha1&q-ak=${env.COS_ID}&q-sign-time=${keyTime}&q-key-time=${keyTime}&q-header-list=&q-url-param-list=&q-signature=${signature}`;
 }
