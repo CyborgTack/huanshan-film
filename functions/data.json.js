@@ -22,6 +22,15 @@ export async function onRequestPut(context) {
   if (auth !== (env.ADMIN_PWD || 'hs2026admin')) {
     return new Response('Unauthorized', { status: 401 });
   }
+  // DEBUG: check env vars
+  const dbg = {
+    hasKey: !!env.COS_KEY,
+    keyLen: env.COS_KEY ? env.COS_KEY.length : 0,
+    hasId: !!env.COS_ID,
+    bucket: env.COS_BUCKET,
+    region: env.COS_REGION,
+    pwd: env.ADMIN_PWD || 'default',
+  };
   const body = await request.arrayBuffer();
   try {
     await cosPut(env, 'data.json', body, 'application/json; charset=utf-8');
@@ -29,7 +38,7 @@ export async function onRequestPut(context) {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   } catch (e) {
-    return new Response('COS_ERROR_V2: ' + e.message, { status: 500 });
+    return new Response('COS_ERROR_V3: ' + JSON.stringify(dbg) + ' | ' + e.message, { status: 500 });
   }
 }
 
