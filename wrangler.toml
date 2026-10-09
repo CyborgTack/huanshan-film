@@ -1,0 +1,6 @@
+name = "huanshan-film"
+compatibility_date = "2024-01-01"
+
+[assets]
+directory = "."
+ignore = ["media/**", "*.mp4", "*.mov", "*.webm", "_works/**", "node_modules/**"]
