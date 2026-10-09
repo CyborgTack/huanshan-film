@@ -3026,7 +3026,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   if(carryBtn){
     carryBtn.addEventListener('click',function(){
       var pat=localStorage.getItem('hs_pat');
-      if(!pat){hsToast('请先在「管理卷宗 → 仓库授权」保存 GitHub 令牌',true);return}
+      if(!pat){return}
       carryBtn.disabled=true;
       fetch('https://api.github.com/repos/CyborgTack/huanshan-film/actions/workflows/carry.yml/dispatches',{
         method:'POST',
@@ -3294,7 +3294,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     if(doneEl)doneEl.textContent='已记录变更 · 3 秒后自动入库…';
     _autoSyncTimer=setTimeout(function(){
       var pat=localStorage.getItem(PAT_KEY);
-      if(!pat){ if(doneEl)doneEl.textContent='有变更待入库 · 请先「仓库授权」填令牌，下次写操作时会自动重试'; return; }
+      if(!pat){ return; }
       if(doneEl)doneEl.textContent='正在自动写入仓库…';
       syncToRepo().then(function(){
         if(doneEl)doneEl.textContent='已自动入库 · 刷新后全站生效（CDN 约数分钟）';
@@ -3904,7 +3904,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
         <a class="am-op" id="amUploadLink" href="https://my.feishu.cn/share/base/shrcnAi06xIDfxw4bSjZu9kU0vf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">上呈作品
           <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor"/></svg>
         </a>
-        <button class="am-op active" id="btnCarryNow" type="button">立即搬运</button>
+        <button class="am-op active" id="btnCarryNow" type="button" hidden>立即搬运</button>
       </div>
       <div class="am-grp">
         <button class="am-op" id="amAddInbox" type="button">上呈合集</button>
@@ -3914,7 +3914,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       </div>
       <div class="am-grp">
         <button class="am-op active" id="amFeatReview" type="button">精选审核</button>
-        <button class="am-op" id="amAuth" type="button">仓库授权</button>
+        <button class="am-op" id="amAuth" type="button" hidden>仓库授权</button>
         <button class="am-op" id="amUndo" type="button">撤销全部</button>
       </div>
     </div>
