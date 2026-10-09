@@ -1354,7 +1354,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
   </button>
   <div class="lb-stage">
     <div class="lb-video-wrap" id="lbVideoWrap" hidden>
-      <video id="lbVideo" controls playsinline preload="metadata"></video>
+      <video id="lbVideo" controls playsinline preload="auto"></video>
     </div>
     <figure class="lb-figure" id="lbFigure"></figure>
     <div class="lb-panel">
@@ -1404,19 +1404,21 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 
   /* ===== 开场：序曲盖章 → 卷轴展开（最短展示 + 数据就绪后进入） ===== */
   if(reduceMotion){ document.body.classList.remove("intro"); }
-  var __hsIntroMin = false, __hsIntroData = false, __hsIntroTimeout = false, __hsIntroClicked = false;
+  var __hsIntroMin = false, __hsIntroClicked = false;
   function __hsFinishIntro(){
     if(reduceMotion){ return; }
-    if(__hsIntroMin && (__hsIntroData || __hsIntroTimeout) && __hsIntroClicked){
+    // 点了就立刻撤走黑幕，不等数据；数据后台慢慢加载
+    if(__hsIntroClicked){
       document.body.classList.add("intro-done");
     }
   }
-  window.__hsIntroDataReady = function(){ __hsIntroData = true; __hsFinishIntro(); };
-  setTimeout(function(){ __hsIntroMin = true; __hsFinishIntro(); }, 1700);
-  setTimeout(function(){ __hsIntroTimeout = true; __hsFinishIntro(); }, 10000);
+  // 数据加载完成只用于标记，不再阻塞进入
+  window.__hsIntroDataReady = function(){};
+  // 自动进入兜底（用户不点，30秒后强制进入）
+  setTimeout(function(){ __hsIntroClicked = true; __hsFinishIntro(); }, 30000);
   var __hsEnter = document.getElementById("preludeEnter");
   if(__hsEnter){
-    setTimeout(function(){ __hsEnter.classList.add("show"); }, 2600);
+    // 按钮现在由CSS animation自动显示，这里不再setTimeout加show
     __hsEnter.addEventListener("click", function(){
       __hsIntroClicked = true;
       __hsFinishIntro();
@@ -2560,7 +2562,7 @@ const VIDEOS = [
   });
   function openVideoLightbox(v){
     if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
-    lbVideo.src = v.u; lbVideo.poster = v.img;
+    lbVideo.src = v.u; lbVideo.poster = v.img; lbVideo.preload = "auto";
     lbTitle.textContent = v.t;
     lbCat.textContent = v.p;
     lbMeta.textContent = (v.m ? v.m + " · " : "") + v.d;
@@ -2568,11 +2570,16 @@ const VIDEOS = [
     lbFigure.style.display = "none";
     lbVideoWrap.hidden = false;
     lightbox.classList.remove("pure-image");
-    lightbox.classList.remove("pure-image");
     lightbox.classList.add("video-mode");
     lightbox.classList.add("open");
     document.body.style.overflow = "hidden";
-    if(lbVideo){ lbVideo.play().catch(function(){}); }
+    // 等缓冲够了再播，期间显示poster封面
+    if(lbVideo){
+      var _started=false;
+      var _tp=function(){ if(!_started){_started=true; lbVideo.play().catch(function(){});} };
+      lbVideo.addEventListener("canplay", _tp, {once:true});
+      setTimeout(_tp, 6000);
+    }
     var lbCloseBtn = document.getElementById("lbClose");
     if(lbCloseBtn){ lbCloseBtn.focus(); }
   }

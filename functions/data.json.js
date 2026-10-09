@@ -1,6 +1,6 @@
 import { cosGet, cosPut } from './_cos.js';
 
-// GET: 拉 COS 上的 data.json，no-cache 确保实时
+// GET: 拉 COS 上的 data.json，CDN缓存5分钟
 export async function onRequestGet(context) {
   const { env } = context;
   const r = await cosGet(env, 'data.json');
@@ -9,9 +9,10 @@ export async function onRequestGet(context) {
     status: r.status,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store, must-revalidate',
+      'Cache-Control': 'public, max-age=300',
       'Access-Control-Allow-Origin': '*',
     },
+    cf: { cacheTtl: 300, cacheEverything: true },
   });
 }
 
