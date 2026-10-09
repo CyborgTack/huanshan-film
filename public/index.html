@@ -3486,6 +3486,11 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
           }else if(section==='featured'){
             data.featuredQueue=data.featuredQueue||[];
             data.featuredQueue.push(en);
+          }else if(section.indexOf('videos:')===0){
+            var vol=section.slice(7);
+            en.p=vol;
+            data.videos=data.videos||[];
+            data.videos.push(en);
           }else{
             data.inbox=data.inbox||[];
             data.inbox.push(en);
@@ -4086,10 +4091,24 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       <div id="ulFileList" style="font-size:12px;color:var(--text-dim);margin-bottom:6px"></div>
       <input id="ulAuthor" placeholder="作者（所有作品共用）" style="margin-bottom:6px;width:100%">
       <select id="ulSection" style="margin-bottom:6px;width:100%;background:var(--bg-elev);color:var(--text-bright);border:1px solid rgba(212,175,55,.2);padding:6px">
-        <option value="inbox">新作待归卷（推荐）</option>
-        <option value="gallery">图藏卷（图集）</option>
-        <option value="concepts">幻境卷（概念图）</option>
-        <option value="featured">藏卷四部·精选（待审）</option>
+        <optgroup label="—— 待处理（后续再归卷）——">
+          <option value="inbox">新作待归卷（推荐）</option>
+          <option value="featured">藏卷四部·精选（待审）</option>
+        </optgroup>
+        <optgroup label="—— 影像长卷（视频直接进卷）——">
+          <option value="videos:其他">其他卷（杂项收纳）</option>
+          <option value="videos:潮汐">潮汐</option>
+          <option value="videos:工厂宣传">工厂宣传</option>
+          <option value="videos:眼镜店宣传">眼镜店宣传</option>
+          <option value="videos:武林">武林</option>
+          <option value="videos:他过分野">他过分野</option>
+          <option value="videos:房产 TVC">房产 TVC</option>
+          <option value="videos:猫窝TVC">猫窝TVC</option>
+        </optgroup>
+        <optgroup label="—— 直接上架（图片为主）——">
+          <option value="gallery">图藏卷（图集）</option>
+          <option value="concepts">幻境卷（概念图）</option>
+        </optgroup>
       </select>
       <div id="ulProgress" style="font-size:12px;color:var(--text-dim);margin:6px 0"></div>
       <button class="am-op active" id="ulSubmit" type="button">开始上传</button>
