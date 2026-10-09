@@ -3293,29 +3293,16 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     if(_autoSyncTimer)clearTimeout(_autoSyncTimer);
     if(doneEl)doneEl.textContent='已记录变更 · 3 秒后自动入库…';
     _autoSyncTimer=setTimeout(function(){
-      var pat=localStorage.getItem(PAT_KEY);
-      if(!pat){ return; }
-      if(doneEl)doneEl.textContent='正在自动写入仓库…';
-      syncToRepo().then(function(){
-        if(doneEl)doneEl.textContent='已自动入库 · 刷新后全站生效（CDN 约数分钟）';
+      if(doneEl)doneEl.textContent='正在写入 COS…';
+      var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,gallery:window.GALLERY,projects:window.PROJECTS,works:window.WORKS,producers:window.PRODUCERS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
+      fetch('/data.json',{method:'PUT',headers:{'X-Admin-Password':UPLOAD_PWD,'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t)});return r.json()})
+      .then(function(){
+        if(doneEl)doneEl.textContent='已入库 · 实时生效';
       }).catch(function(e){
-        if(doneEl)doneEl.textContent='自动入库失败：'+String(e)+'（再做一次操作自动重试）';
+        if(doneEl)doneEl.textContent='入库失败：'+String(e)+'（再做一次操作自动重试）';
       });
     },3000);
-  }
-  function syncToRepo(){
-    var pat=localStorage.getItem(PAT_KEY);
-    if(!pat)return Promise.reject('nopat');
-    var payload={version:3,updatedAt:new Date().toISOString(),videos:window.VIDEOS,concepts:window.CONCEPTS,gallery:window.GALLERY,projects:window.PROJECTS,works:window.WORKS,producers:window.PRODUCERS,inbox:window.INBOX,featured:window.FEATURED,featuredQueue:window.FEATURED_QUEUE};
-    var content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-    return fetch(REMOTE,{headers:{Authorization:'Bearer '+pat}}).then(function(r){return r.json()}).then(function(meta){
-      if(!meta.sha)return Promise.reject('meta:'+JSON.stringify(meta).slice(0,80));
-      return fetch(REMOTE,{method:'PUT',headers:{Authorization:'Bearer '+pat,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
-        body:JSON.stringify({message:'讙山图管理卷宗·同步入库',content:content,sha:meta.sha})});
-    }).then(function(r){return r.json()}).then(function(d){
-      if(d.content&&d.content.sha)return {ok:true};
-      return Promise.reject('put:'+JSON.stringify(d).slice(0,120));
-    });
   }
   var authBtn=document.getElementById('amAuth');
   if(authBtn){
