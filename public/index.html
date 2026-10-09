@@ -8,6 +8,7 @@
 <meta name="description" content="讙山图是一间东方神怪志异影像档案馆。我们用生成式电影与 CG 造景，把东方传说里的一鳞半爪，做成可放映的异志。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23C23B2E'/%3E%3Cpath d='M6 24 L14 9 L18 17 L20 12 L26 24 Z' fill='%23F5F0E6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="preconnect" href="https://huanshan-media-1496783426.cos.ap-guangzhou.myqcloud.com" crossorigin>
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <style>
 /* ============================================================
@@ -3257,39 +3258,26 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     });
   }
   /* ===== 数据源：Cloudflare Function 反代 COS /data.json ===== */
-  function tryFetch(u,kind){
-    return fetch(u,{cache:'no-store'}).then(function(r){
-      if(!r.ok)return Promise.reject('src:'+kind);
+  function tryFetch(u){
+    return fetch(u).then(function(r){
+      if(!r.ok)return Promise.reject(r.status);
       return r.json();
     });
   }
   var lastApplied='';var introFired=false;
   function loadRemote(){
-    var sources=[
-      {u:'/data.json',k:'cos'},
-      {u:'https://huanshantu.com/data.json',k:'domain'},
-      {u:'https://huanshan-film.pages.dev/data.json',k:'pages'}
-    ];
-    Promise.all(sources.map(function(s){
-      return tryFetch(s.u,s.k).catch(function(){return null;});
-    })).then(function(list){
-      var best=null;
-      list.forEach(function(d){
-        if(d&&Array.isArray(d.videos)&&d.videos.length){
-          var newer = (d.updatedAt||'')>(best&&best.updatedAt||'');
-          var same = (d.updatedAt||'')===(best&&best.updatedAt||'');
-          if(!best||newer||(same&&d.videos.length>best.videos.length)){best=d;}
-        }
-      });
-      if(best){
-        var nu=best.updatedAt||'';
+    // 单路优先 /data.json → pages.dev 兜底，不并发抢带宽
+    tryFetch('/data.json')
+    .catch(function(){ return tryFetch('https://huanshan-film.pages.dev/data.json'); })
+    .then(function(d){
+      if(d&&Array.isArray(d.videos)&&d.videos.length){
+        var nu=d.updatedAt||';
         if(nu&&nu===lastApplied){introDone();return}
         lastApplied=nu;
-        applyData(best);
-      }
-      else{showDataErr()}
+        applyData(d);
+      } else { showDataErr(); }
       introDone();
-    }).catch(function(e){ showDataErr(); introDone(); });
+    }).catch(function(){ showDataErr(); introDone(); });
   }
   function introDone(){ if(!introFired&&window.__hsIntroDataReady){introFired=true;window.__hsIntroDataReady()} }
   function showDataErr(){
@@ -3997,7 +3985,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
   var closeBtn=document.getElementById('amClose');
   if(closeBtn){closeBtn.addEventListener('click',closeAdmin)}
   loadRemote();
-  setInterval(function(){loadRemote()},30000);
+  // 仅管理面板打开时才轮询同步数据，公共访客不轮询
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}
   else{init()}
