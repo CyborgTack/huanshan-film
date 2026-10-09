@@ -4,8 +4,13 @@ export async function onRequest(context) {
   const host = `${env.COS_BUCKET}.cos.${env.COS_REGION}.myqcloud.com`;
   const target = `https://${host}/media/${fileName}`;
 
+  // 转发 Range 请求头，支持视频分片下载
+  const fwdHeaders = { 'User-Agent': 'Cloudflare-Pages-Proxy' };
+  const range = request.headers.get('Range');
+  if (range) fwdHeaders['Range'] = range;
+
   const resp = await fetch(target, {
-    headers: { 'User-Agent': 'Cloudflare-Pages-Proxy' },
+    headers: fwdHeaders,
     cf: { cacheTtl: 86400, cacheEverything: true },
   });
 
