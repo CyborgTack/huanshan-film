@@ -1,7 +1,7 @@
 export async function onRequest(context) {
   const { request, params } = context;
   const fileName = Array.isArray(params.path) ? params.path.join('/') : params.path;
-  const target = 'https://raw.githubusercontent.com/CyborgTack/huanshan-film/main/media/' + fileName;
+  const target = 'https://huanshan-media-1496783426.cos.ap-guangzhou.myqcloud.com/media/' + fileName;
 
   const resp = await fetch(target, {
     headers: {
