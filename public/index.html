@@ -674,7 +674,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 .vg-head .vg-no{font-family:var(--font-latin);font-size:11px;letter-spacing:.3em;color:var(--ink-gold)}
 .vg-head h3{font-family:var(--font-display);font-size:20px;font-weight:600;letter-spacing:.08em}
 .vg-head .vg-count{font-size:12px;letter-spacing:.2em;color:var(--text-muted)}
-.vg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-5)}
+.vg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-4)}
 .vg-empty{grid-column:1/-1;color:var(--text-muted);font-size:12px;letter-spacing:.12em;padding:var(--space-5) 0;text-align:center;border:1px dashed rgba(212,175,55,.14);border-radius:var(--radius-md)}
 .vg-grid.feat{grid-template-columns:repeat(4,1fr)}
 .vg-grid:has(> :nth-child(5):last-child){grid-template-columns:repeat(3,1fr)}
@@ -697,15 +697,15 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 .vg-empty{padding:40px 0;text-align:center;color:var(--text-muted);font-size:13px;letter-spacing:.2em}
 
 /* ============ 幻境卷 · 概念画廊 ============ */
-.cg-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5)}
+.cg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)}
 .cg-card{position:relative;display:block;width:100%;text-align:left;padding:0;cursor:zoom-in;border-radius:var(--radius-md);overflow:hidden;border:1px solid rgba(234,227,210,.12);background:#121216;transition:transform .5s var(--ease),border-color .4s,box-shadow .5s}
 .cg-card:hover{transform:translateY(-4px);border-color:var(--border-gold);box-shadow:var(--shadow-card)}
-.cg-card figure{position:relative;aspect-ratio:16/9;overflow:hidden}
+.cg-card figure{position:relative;aspect-ratio:4/3;overflow:hidden}
 .cg-card img{width:100%;height:100%;object-fit:cover;filter:saturate(.72) contrast(1.05) sepia(.1) hue-rotate(-8deg);transition:transform .9s var(--ease)}
 .cg-card:hover img{transform:scale(1.05)}
 .cg-card figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:26px 18px 14px;background:linear-gradient(180deg,transparent,rgba(10,10,12,.9))}
-.cg-card figcaption b{font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:.08em}
-.cg-card figcaption span{font-size:10.5px;letter-spacing:.26em;color:var(--ink-gold)}
+.cg-card figcaption b{font-family:var(--font-display);font-size:13px;font-weight:600;letter-spacing:.06em}
+.cg-card figcaption span{font-size:9px;letter-spacing:.2em;color:var(--ink-gold)}
 .cg-play{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .cg-play svg{width:52px;height:52px;fill:rgba(255,255,255,.06);stroke:var(--ink-gold);stroke-width:1;transition:transform .4s var(--ease)}
 .cg-card:hover .cg-play svg{transform:scale(1.08)}
@@ -730,7 +730,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 .lightbox.pure-image .lb-figure img{max-width:92vw;max-height:94vh;width:auto;height:auto;object-fit:contain;border-radius:4px}
 
 @media(max-width:900px){
-  .vg-grid,.vg-grid.feat{grid-template-columns:repeat(2,1fr);gap:var(--space-4)}
+  .vg-grid,.vg-grid.feat{grid-template-columns:repeat(2,1fr);gap:var(--space-3)}
   .cg-grid{grid-template-columns:1fr;gap:var(--space-4)}
 }
 @media(max-width:560px){
@@ -2252,19 +2252,49 @@ const VIDEOS = [
   var rest = VIDEOS;
   function renderArchive(){
     var html = '<div class="vg-head"><div><span class="vg-no">VOL. 01</span><h3>全卷收录</h3></div><span class="vg-count">' + rest.length + ' 卷 · 按项目编目</span></div>';
-    PROJECTS.forEach(function(proj){
+    var VOL_LIMIT = 10;
+    PROJECTS.forEach(function(proj, pidx){
       var list = rest.filter(function(v){ return v.pk === proj.k; });
       var isEmpty = !list.length;
-      var isFirst = PROJECTS.indexOf(proj) === 0;
-      html += '<div class="vg-block" data-vgroup="' + proj.k + '">' +
-        '<div class="vg-head" role="button" aria-expanded="false"><div><span class="vg-no">' + ("0" + (PROJECTS.indexOf(proj) + 1)).slice(-2) + '</span><h3>' + proj.n + '</h3></div>' +
-        '<span class="vg-count">' + proj.d + ' · ' + (isEmpty ? "待归卷" : list.length + " 卷") + ' · ' + (isFirst ? "点此合卷" : "点此展卷") + '</span>' +
+      var isFirst = pidx === 0;
+      var gridHTML;
+      if(isEmpty){
+        gridHTML = '<div class="vg-empty">新卷待收 · 上呈作品归入此卷后展陈</div>';
+      } else {
+        var shown = list.slice(0, VOL_LIMIT).map(function(v){ return cardHTML(v, false); }).join("");
+        if(list.length > VOL_LIMIT){
+          var extra = list.slice(VOL_LIMIT).map(function(v){ return cardHTML(v, false); }).join("");
+          shown += '<div class="vg-extra-wrap" style="grid-column:1/-1">' +
+            '<div class="vg-extra" style="display:none">' + extra + '</div>' +
+            '<button class="vg-more-btn" style="display:block;width:100%;padding:14px;margin-top:8px;background:transparent;border:1px solid rgba(212,175,55,.3);color:var(--ink-gold);font-size:11px;letter-spacing:.22em;cursor:pointer;border-radius:2px">展开其余 ' + (list.length - VOL_LIMIT) + ' 部 ▾</button>' +
+            '</div>';
+        }
+        gridHTML = shown;
+      }
+      html += '<div class="vg-block' + (pidx>0?' collapsed':'') + '" data-vgroup="' + proj.k + '">' +
+        '<div class="vg-head" role="button" aria-expanded="' + (pidx===0?'true':'false') + '"><div><span class="vg-no">' + ("0" + (pidx + 1)).slice(-2) + '</span><h3>' + proj.n + '</h3></div>' +
+        '<span class="vg-count">' + proj.d + ' · ' + (isEmpty ? "待归卷" : list.length + " 卷") + '</span>' +
         '<svg class="vg-toggle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div>' +
-        '<div class="vg-grid">' + (isEmpty
-          ? '<div class="vg-empty">新卷待收 · 上呈作品归入此卷后展陈</div>'
-          : list.map(function(v){ return cardHTML(v, false); }).join("")) + '</div></div>';
+        '<div class="vg-grid">' + gridHTML + '</div></div>';
     });
     vgArchive.innerHTML = html;
+    // 绑定每卷的"展开更多"
+    vgArchive.querySelectorAll(".vg-more-btn").forEach(function(btn){
+      btn.addEventListener("click", function(e){
+        e.stopPropagation();
+        var wrap = btn.closest(".vg-extra-wrap");
+        var extra = wrap.querySelector(".vg-extra");
+        if(extra.style.display === "none"){
+          extra.style.display = "grid";
+          extra.style.gridTemplateColumns = "repeat(5,1fr)";
+          extra.style.gap = "var(--space-4)";
+          btn.textContent = "收起 ▴";
+        } else {
+          extra.style.display = "none";
+          btn.textContent = btn.textContent.replace("收起 ▴", "展开其余");
+        }
+      });
+    });
   }
   var vgInbox = document.getElementById("inboxStrip");
   var inboxCount = document.getElementById("inboxCount");
@@ -2316,36 +2346,37 @@ const VIDEOS = [
   function renderFilters(){
     var fw = document.getElementById("vFilters");
     if(!fw)return;
-    var html = '<button class="vfilter active" data-vfilter="all" role="tab" aria-selected="true">全部</button>';
-    html += PROJECTS.map(function(pr){
-      return '<button class="vfilter" data-vfilter="' + pr.k + '" role="tab" aria-selected="false">' + pr.n.replace(/[《》]/g,"") + '</button>';
+    var firstK = PROJECTS.length ? PROJECTS[0].k : "";
+    var html = PROJECTS.map(function(pr, idx){
+      return '<button class="vfilter' + (idx===0?' active':'') + '" data-vfilter="' + pr.k + '" role="tab" aria-selected="' + (idx===0?'true':'false') + '">' + pr.n.replace(/[《》]/g,"") + '</button>';
     }).join("");
     fw.innerHTML = html;
     var vfilters = Array.prototype.slice.call(fw.querySelectorAll(".vfilter"));
+    function applyFilter(f){
+      var blocks = document.querySelectorAll("#vgArchive .vg-block");
+      blocks.forEach(function(b){
+        b.style.display = (b.dataset.vgroup === f) ? "" : "none";
+        if(b.dataset.vgroup === f){
+          b.classList.remove("collapsed");
+          var h2 = b.querySelector(".vg-head");
+          if(h2){ h2.setAttribute("aria-expanded", "true"); }
+          var c2 = b.querySelector(".vg-count");
+          if(c2){
+            var tx = c2.textContent;
+            if(tx.indexOf("点此展卷") > -1){ c2.textContent = tx.replace("点此展卷", "点此合卷"); }
+          }
+        }
+      });
+    }
     vfilters.forEach(function(btn){
       btn.addEventListener("click", function(){
         vfilters.forEach(function(b){ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
         btn.classList.add("active"); btn.setAttribute("aria-selected","true");
-        var f = btn.dataset.vfilter;
-        var blocks = document.querySelectorAll("#vgArchive .vg-block");
-        blocks.forEach(function(b){
-          if(f === "all"){ b.style.display = ""; }
-          else{
-            b.style.display = (b.dataset.vgroup === f) ? "" : "none";
-            if(b.dataset.vgroup === f){
-              b.classList.remove("collapsed");
-              var h2 = b.querySelector(".vg-head");
-              if(h2){ h2.setAttribute("aria-expanded", "true"); }
-              var c2 = b.querySelector(".vg-count");
-              if(c2){
-                var tx = c2.textContent;
-                if(tx.indexOf("点此展卷") > -1){ c2.textContent = tx.replace("点此展卷", "点此合卷"); }
-              }
-            }
-          }
-        });
+        applyFilter(btn.dataset.vfilter);
       });
     });
+    // 默认只显示第一卷
+    if(firstK) applyFilter(firstK);
   }
   renderFilters();
   var videosSec = document.getElementById("videos");
@@ -2388,18 +2419,36 @@ const VIDEOS = [
   renderConcepts();
   /* 图藏卷 · 图谱渲染（纯图） */
   var galleryGrid = document.getElementById("galleryGrid");
+  var GALLERY_LIMIT = 16;
+  function galleryCardHTML(c, i){
+    var imgSrc=(c.img||'assets/brand/logo-totem.png');
+    return '<button class="cg-card gl-card" data-gi="' + i + '" aria-label="查看图谱 ' + (c.t||'') + '">' +
+      '<figure><img src="' + imgSrc + '" alt="' + (c.t||'') + '" loading="lazy">' +
+      '<figcaption><b>' + (c.t||'') + '</b><span>' + (c.k||'') + '</span></figcaption></figure></button>';
+  }
   function renderGallery(){
     if(!galleryGrid)return;
     if(!GALLERY.length){
       galleryGrid.innerHTML = '<div class="inbox-empty">图藏卷 · 待编修入藏</div>';
       return;
     }
-    galleryGrid.innerHTML = GALLERY.map(function(c, i){
-      var imgSrc=(c.img||'assets/brand/logo-totem.png');
-      return '<button class="cg-card gl-card" data-gi="' + i + '" aria-label="查看图谱 ' + (c.t||'') + '">' +
-        '<figure><img src="' + imgSrc + '" alt="' + (c.t||'') + '" loading="lazy">' +
-        '<figcaption><b>' + (c.t||'') + '</b><span>' + (c.k||'') + '</span></figcaption></figure></button>';
-    }).join("");
+    var html = GALLERY.slice(0, GALLERY_LIMIT).map(function(c, i){ return galleryCardHTML(c, i); }).join("");
+    if(GALLERY.length > GALLERY_LIMIT){
+      var rest = GALLERY.slice(GALLERY_LIMIT).map(function(c, i){ return galleryCardHTML(c, i + GALLERY_LIMIT); }).join("");
+      html += '<div class="gallery-more-wrap" style="grid-column:1/-1">' +
+        '<div class="gallery-extra" style="display:none">' + rest + '</div>' +
+        '<button class="gallery-toggle" style="display:block;width:100%;padding:18px;margin-top:8px;background:transparent;border:1px solid rgba(212,175,55,.35);color:var(--ink-gold);font-size:12px;letter-spacing:.25em;cursor:pointer;border-radius:2px">展开全部 ' + GALLERY.length + ' 帧 ▾</button>' +
+        '</div>';
+    }
+    galleryGrid.innerHTML = html;
+    var toggle = galleryGrid.querySelector(".gallery-toggle");
+    if(toggle){
+      toggle.addEventListener("click", function(){
+        var extra = galleryGrid.querySelector(".gallery-extra");
+        if(extra.style.display === "none"){ extra.style.display = "grid"; extra.style.gridTemplateColumns = "repeat(4,1fr)"; extra.style.gap = "var(--space-4)"; toggle.textContent = "收起 ▴"; }
+        else { extra.style.display = "none"; toggle.textContent = "展开全部 " + GALLERY.length + " 帧 ▾"; }
+      });
+    }
   }
   renderGallery();
   /* 藏卷四部 · 精选渲染 */
