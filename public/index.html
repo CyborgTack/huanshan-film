@@ -3345,7 +3345,8 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     });
   }
 
-  /* ===== 本地上传（浏览器端 ffmpeg 压缩 + GitHub API 直传） ===== */
+  /* ===== 本地上传（浏览器 ffmpeg 压缩 + COS 直传 + 自动封面） ===== */
+  var UPLOAD_PWD = 'hs2026admin';
   var uploadBtn=document.getElementById('amUploadLocal');
   var uploadPanel=document.getElementById('amUploadPanel');
   if(uploadBtn&&uploadPanel){
@@ -3356,26 +3357,37 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       uploadPanel.hidden=true;
     });
   }
-  function ghReq(url,opts){
-    var pat=localStorage.getItem(PAT_KEY);
-    if(!pat)return Promise.reject('NO_PAT');
-    opts=opts||{};
-    opts.headers=Object.assign({
-      'Authorization':'token '+pat,
-      'Accept':'application/vnd.github+json'
-    },opts.headers||{});
-    return fetch(url,opts).then(function(r){
-      if(!r.ok)return r.text().then(function(t){throw new Error('GH '+r.status+': '+t.slice(0,200))});
-      return r.json();
+  var selectedFiles=[];
+  var dropEl=document.getElementById('ulDrop');
+  var fileInput=document.getElementById('ulFile');
+  if(dropEl&&fileInput){
+    dropEl.addEventListener('click',function(){fileInput.click()});
+    fileInput.addEventListener('change',function(){
+      selectedFiles=Array.from(fileInput.files);
+      renderFileList();
+    });
+    ['dragover','dragleave','drop'].forEach(function(ev){
+      dropEl.addEventListener(ev,function(e){
+        e.preventDefault();
+        if(ev==='dragover')dropEl.style.borderColor='var(--gold)';
+        else dropEl.style.borderColor='rgba(212,175,55,.3)';
+        if(ev==='drop'){
+          selectedFiles=Array.from(e.dataTransfer.files);
+          renderFileList();
+        }
+      });
     });
   }
-  function blobToB64(blob){
-    return new Promise(function(res,rej){
-      var fr=new FileReader();
-      fr.onload=function(){res(fr.result.split(',')[1])};
-      fr.onerror=rej;
-      fr.readAsDataURL(blob);
-    });
+  function renderFileList(){
+    var el=document.getElementById('ulFileList');
+    if(!el)return;
+    el.innerHTML=selectedFiles.map(function(f,i){
+      return '<div>'+(i+1)+'. '+f.name+' ('+Math.round(f.size/1024/1024)+'MB)</div>';
+    }).join('');
+  }
+  function uploadProgress(msg){
+    var el=document.getElementById('ulProgress');
+    if(el)el.textContent=msg;
   }
   var ffmpegReady=null;
   function loadFFmpeg(){
@@ -3390,92 +3402,103 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
     });
     return ffmpegReady;
   }
-  function uploadProgress(msg){
-    var el=document.getElementById('ulProgress');
-    if(el)el.textContent=msg;
-  }
-  function uploadMediaToRepo(fileBlob,path){
-    return blobToB64(fileBlob).then(function(b64){
-      return ghReq('https://api.github.com/repos/CyborgTack/huanshan-film/contents/'+path,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({message:'upload '+path,content:b64})
-      });
+  async function uploadToCOS(blob,name){
+    var r=await fetch('/media/upload?name='+encodeURIComponent(name),{
+      method:'POST',
+      headers:{'X-Admin-Password':UPLOAD_PWD,'Content-Type':blob.type||'application/octet-stream'},
+      body:blob
     });
+    if(!r.ok)throw new Error('COS upload '+r.status+': '+await r.text());
+    return r.json();
   }
-  function updateDataJson(entry,section){
-    return ghReq('https://api.github.com/repos/CyborgTack/huanshan-film/contents/data.json').then(function(res){
-      var cur=JSON.parse(decodeURIComponent(escape(atob(res.content.replace(/\s/g,'')))));
-      if(section==='gallery'){
-        cur.gallery=cur.gallery||[];
-        cur.gallery.push({img:entry.img,t:entry.t,k:entry.p||'未分类'});
-      }else if(section==='concepts'){
-        cur.concepts=cur.concepts||[];
-        cur.concepts.push({img:entry.img,t:entry.t,k:entry.p||'其他',u:entry.u||'',m:entry.m||''});
-      }else if(section==='featured'){
-        cur.featuredQueue=cur.featuredQueue||[];
-        cur.featuredQueue.push(entry);
-      }else{
-        cur.inbox=cur.inbox||[];
-        cur.inbox.push(entry);
-      }
-      cur.updatedAt=new Date().toISOString();
-      var newB64=btoa(unescape(encodeURIComponent(JSON.stringify(cur,null,2))));
-      return ghReq('https://api.github.com/repos/CyborgTack/huanshan-film/contents/data.json',{
-        method:'PUT',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({message:'add '+entry.t,content:newB64,sha:res.sha})
-      });
+  async function getLatestData(){
+    var r=await fetch('/data.json?t='+Date.now());
+    if(!r.ok)throw new Error('load data '+r.status);
+    return r.json();
+  }
+  async function putData(data){
+    var r=await fetch('/data.json',{
+      method:'PUT',
+      headers:{'X-Admin-Password':UPLOAD_PWD,'Content-Type':'application/json'},
+      body:JSON.stringify(data)
     });
+    if(!r.ok)throw new Error('save data '+r.status+': '+await r.text());
   }
   var ulSubmit=document.getElementById('ulSubmit');
   if(ulSubmit){
-    ulSubmit.addEventListener('click',function(){
-      var file=document.getElementById('ulFile').files[0];
-      var title=document.getElementById('ulTitle').value.trim();
+    ulSubmit.addEventListener('click',async function(){
+      if(!selectedFiles.length){uploadProgress('请先选文件');return}
       var author=document.getElementById('ulAuthor').value.trim()||'佚名';
       var section=document.getElementById('ulSection').value;
-      if(!file){uploadProgress('请先选文件');return}
-      if(!title){uploadProgress('请填标题');return}
       ulSubmit.disabled=true;
-      var isVideo=/video\//.test(file.type);
-      var ext=file.name.split('.').pop().toLowerCase();
-      var stamp=Date.now();
-      var mediaName;
-      var entry={t:title,m:author,p:'其他',img:'assets/brand/logo-totem.png',u:''};
-      var chain;
-      if(isVideo){
-        mediaName='video_'+stamp+'.mp4';
-        uploadProgress('视频压缩中（1080p H.264 CRF26）...');
-        chain=loadFFmpeg().then(function(ff){
-          return ff.writeFile('input.'+ext,file).then(function(){
-            return ff.exec(['-i','input.'+ext,"-vf","scale='min(1920,iw)':-2",'-c:v','libx264','-crf','26','-preset','fast','-c:a','aac','-b:a','128k','-movflags','+faststart','-y','output.mp4']);
-          }).then(function(){
-            return ff.readFile('output.mp4');
-          }).then(function(data){
-            return new Blob([data.buffer],{type:'video/mp4'});
-          });
-        }).then(function(compressed){
-          uploadProgress('压缩完成 '+Math.round(compressed.size/1024/1024)+'MB，上传中...');
-          entry.u='https://huanshantu.com/media/'+mediaName;
-          return uploadMediaToRepo(compressed,'media/'+mediaName);
-        });
-      }else{
-        mediaName='img_'+stamp+'.'+ext;
-        uploadProgress('图片上传中...');
-        entry.img='https://huanshantu.com/media/'+mediaName;
-        chain=uploadMediaToRepo(file,'media/'+mediaName);
+      var entries=[];
+      for(var fi=0;fi<selectedFiles.length;fi++){
+        var file=selectedFiles[fi];
+        var title=file.name.replace(/\.[^.]+$/,'').replace(/^NO\.?\d+[\s_-]*/i,'').trim();
+        uploadProgress('['+(fi+1)+'/'+selectedFiles.length+'] '+title);
+        var stamp=Date.now()+fi;
+        var entry={t:title,m:author,p:'其他',img:'assets/brand/logo-totem.png',u:''};
+        try{
+          if(/^video\//.test(file.type)){
+            var ext=file.name.split('.').pop().toLowerCase();
+            var vName='video_'+stamp+'.mp4';
+            uploadProgress('压缩中: '+title);
+            var ff=await loadFFmpeg();
+            await ff.writeFile('input.'+ext,file);
+            await ff.exec(['-i','input.'+ext,'-vf',"scale='min(1920,iw)':-2",'-c:v','libx264','-crf','23','-preset','fast','-c:a','aac','-b:a','128k','-movflags','+faststart','-y','out.mp4']);
+            var vData=await ff.readFile('out.mp4');
+            var vBlob=new Blob([vData.buffer],{type:'video/mp4'});
+            // 自动截封面
+            uploadProgress('截封面: '+title);
+            await ff.exec(['-ss','1','-i','out.mp4','-frames:v','1','-q:v','3','-y','cover.jpg']);
+            var cData=await ff.readFile('cover.jpg');
+            var cBlob=new Blob([cData.buffer],{type:'image/jpeg'});
+            var cName='cover_'+stamp+'.jpg';
+            uploadProgress('上传: '+title);
+            await uploadToCOS(vBlob,vName);
+            await uploadToCOS(cBlob,cName);
+            entry.u='/media/'+vName;
+            entry.img='/media/'+cName;
+            await ff.delete('input.'+ext);await ff.delete('out.mp4');await ff.delete('cover.jpg');
+          }else{
+            var iext=file.name.split('.').pop().toLowerCase();
+            var iName='img_'+stamp+'.'+iext;
+            uploadProgress('上传: '+title);
+            await uploadToCOS(file,iName);
+            entry.img='/media/'+iName;
+          }
+          entries.push(entry);
+        }catch(e){
+          uploadProgress('❌ '+title+' 失败: '+e.message);
+        }
       }
-      chain.then(function(){
-        uploadProgress('更新 data.json...');
-        return updateDataJson(entry,section);
-      }).then(function(){
-        uploadProgress('✅ 完成！3 秒后自动刷新');
+      if(!entries.length){ulSubmit.disabled=false;return}
+      uploadProgress('写入 data.json...');
+      try{
+        var data=await getLatestData();
+        entries.forEach(function(en){
+          if(section==='gallery'){
+            data.gallery=data.gallery||[];
+            data.gallery.push({img:en.img,t:en.t,k:en.p||'未分类'});
+          }else if(section==='concepts'){
+            data.concepts=data.concepts||[];
+            data.concepts.push({img:en.img,t:en.t,k:en.p||'其他',u:en.u||'',m:en.m||''});
+          }else if(section==='featured'){
+            data.featuredQueue=data.featuredQueue||[];
+            data.featuredQueue.push(en);
+          }else{
+            data.inbox=data.inbox||[];
+            data.inbox.push(en);
+          }
+        });
+        data.updatedAt=new Date().toISOString();
+        await putData(data);
+        uploadProgress('✅ 完成！'+entries.length+' 件作品已上线，3 秒后刷新');
         setTimeout(function(){location.reload()},3000);
-      }).catch(function(err){
-        uploadProgress('❌ 失败: '+err.message);
+      }catch(e){
+        uploadProgress('❌ 保存失败: '+e.message);
         ulSubmit.disabled=false;
-      });
+      }
     });
   }
 
@@ -4055,10 +4078,13 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
       </div>
     </div>
     <div id="amUploadPanel" hidden style="padding:12px;border:1px solid rgba(212,175,55,.2);margin:8px 0;background:rgba(0,0,0,.2)">
-      <h4 style="margin:0 0 8px;color:var(--gold)">本地上传作品</h4>
-      <input id="ulFile" type="file" accept="video/mp4,video/quicktime,image/jpeg,image/png,image/webp" style="margin-bottom:8px;width:100%">
-      <input id="ulTitle" placeholder="作品标题" style="margin-bottom:6px;width:100%">
-      <input id="ulAuthor" placeholder="作者" style="margin-bottom:6px;width:100%">
+      <h4 style="margin:0 0 8px;color:var(--gold)">本地上传作品（可批量）</h4>
+      <div id="ulDrop" style="border:2px dashed rgba(212,175,55,.3);padding:20px;text-align:center;color:var(--text-dim);margin-bottom:8px;cursor:pointer">
+        拖拽视频/图片到这里，或 <span style="color:var(--gold)">点此选择文件</span>
+        <input id="ulFile" type="file" multiple accept="video/mp4,video/quicktime,image/jpeg,image/png,image/webp" style="display:none">
+      </div>
+      <div id="ulFileList" style="font-size:12px;color:var(--text-dim);margin-bottom:6px"></div>
+      <input id="ulAuthor" placeholder="作者（所有作品共用）" style="margin-bottom:6px;width:100%">
       <select id="ulSection" style="margin-bottom:6px;width:100%;background:var(--bg-elev);color:var(--text-bright);border:1px solid rgba(212,175,55,.2);padding:6px">
         <option value="inbox">新作待归卷（推荐）</option>
         <option value="gallery">图藏卷（图集）</option>
