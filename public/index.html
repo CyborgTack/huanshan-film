@@ -2565,9 +2565,20 @@ const VIDEOS = [
       return;
     }
   });
+  var _tpHandler=null, _startedFlag=false;
+  function _playWhenReady(){
+    if(_startedFlag) return;
+    _startedFlag=true;
+    if(lbVideo){ lbVideo.play().catch(function(){}); }
+  }
   function openVideoLightbox(v){
-    if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
-    lbVideo.src = v.u; lbVideo.poster = v.img; lbVideo.preload = "auto";
+    if(lbVideo){
+      lbVideo.pause();
+      if(_tpHandler){ lbVideo.removeEventListener("canplay", _tpHandler); _tpHandler=null; }
+      lbVideo.removeAttribute("src"); lbVideo.load();
+    }
+    _startedFlag=false;
+    lbVideo.src = v.u + (v.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = v.img; lbVideo.preload = "auto";
     lbTitle.textContent = v.t;
     lbCat.textContent = v.p;
     lbMeta.textContent = (v.m ? v.m + " · " : "") + v.d;
@@ -2578,12 +2589,10 @@ const VIDEOS = [
     lightbox.classList.add("video-mode");
     lightbox.classList.add("open");
     document.body.style.overflow = "hidden";
-    // 等缓冲够了再播，期间显示poster封面
     if(lbVideo){
-      var _started=false;
-      var _tp=function(){ if(!_started){_started=true; lbVideo.play().catch(function(){});} };
-      lbVideo.addEventListener("canplay", _tp, {once:true});
-      setTimeout(_tp, 6000);
+      _tpHandler = _playWhenReady;
+      lbVideo.addEventListener("canplay", _tpHandler);
+      setTimeout(_playWhenReady, 8000);
     }
     var lbCloseBtn = document.getElementById("lbClose");
     if(lbCloseBtn){ lbCloseBtn.focus(); }
@@ -2592,7 +2601,7 @@ const VIDEOS = [
     var c = CONCEPTS[i];
     if(c.u){
       if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
-      lbVideo.src = c.u; lbVideo.poster = c.img;
+      lbVideo.src = c.u + (c.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = c.img;
       lbTitle.textContent = c.t;
       lbCat.textContent = "幻境卷 · 概念造物";
       lbMeta.textContent = (c.m ? c.m + " · " : "") + c.k;
@@ -2620,7 +2629,11 @@ const VIDEOS = [
     document.body.style.overflow = "hidden";
     var lbCloseBtn = document.getElementById("lbClose");
     if(lbCloseBtn){ lbCloseBtn.focus(); }
-    if(lbVideo && c.u){ lbVideo.play().catch(function(){}); }
+    if(lbVideo && c.u){
+      _tpHandler = _playWhenReady;
+      lbVideo.addEventListener("canplay", _tpHandler);
+      setTimeout(_playWhenReady, 8000);
+    }
   }
   var lbGalleryMode = false;
   function openGalleryLightbox(i){
@@ -2953,7 +2966,7 @@ const VIDEOS = [
     document.addEventListener("mouseover", function(e){
       var card = e.target.closest(".vg-card,.cg-card");
       if(!card) return;
-      var idx = card.getAttribute("data-vg") || card.getAttribute("data-cg");
+      var idx = card.getAttribute("data-vi") || card.getAttribute("data-ci");
       if(idx == null) return;
       var arr = card.classList.contains("cg-card") ? (typeof CONCEPTS!=="undefined"&&CONCEPTS) : (typeof VIDEOS!=="undefined"&&VIDEOS);
       if(!arr) return;
