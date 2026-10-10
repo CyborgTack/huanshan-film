@@ -2572,13 +2572,19 @@ const VIDEOS = [
     if(lbVideo){ lbVideo.play().catch(function(){}); }
   }
   function openVideoLightbox(v){
-    if(lbVideo){
-      lbVideo.pause();
-      if(_tpHandler){ lbVideo.removeEventListener("canplay", _tpHandler); _tpHandler=null; }
-      lbVideo.removeAttribute("src"); lbVideo.load();
+    // 重建video元素，彻底清除旧缓冲（手机浏览器复用video元素会残留上一个视频画面）
+    if(lbVideoWrap){
+      var _old = lbVideoWrap.querySelector("video");
+      if(_old){ _old.pause(); _old.removeAttribute("src"); _old.load(); _old.remove(); }
+      lbVideo = document.createElement("video");
+      lbVideo.id = "lbVideo";
+      lbVideo.controls = true;
+      lbVideo.preload = "auto";
+      lbVideoWrap.appendChild(lbVideo);
     }
+    if(_tpHandler){ _tpHandler = null; }
     _startedFlag=false;
-    lbVideo.src = v.u + (v.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = v.img; lbVideo.preload = "auto";
+    lbVideo.src = v.u + (v.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = v.img;
     lbTitle.textContent = v.t;
     lbCat.textContent = v.p;
     lbMeta.textContent = (v.m ? v.m + " · " : "") + v.d;
@@ -2600,13 +2606,19 @@ const VIDEOS = [
   function openConceptLightbox(i){
     var c = CONCEPTS[i];
     if(c.u){
-      if(lbVideo){
-        lbVideo.pause();
-        if(_tpHandler){ lbVideo.removeEventListener("canplay", _tpHandler); _tpHandler=null; }
-        lbVideo.removeAttribute("src"); lbVideo.load();
+      // 重建video元素，清除旧缓冲
+      if(lbVideoWrap){
+        var _oldc = lbVideoWrap.querySelector("video");
+        if(_oldc){ _oldc.pause(); _oldc.removeAttribute("src"); _oldc.load(); _oldc.remove(); }
+        lbVideo = document.createElement("video");
+        lbVideo.id = "lbVideo";
+        lbVideo.controls = true;
+        lbVideo.preload = "auto";
+        lbVideoWrap.appendChild(lbVideo);
       }
+      if(_tpHandler){ _tpHandler = null; }
       _startedFlag=false;
-      lbVideo.src = c.u + (c.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = c.img; lbVideo.preload = "auto";
+      lbVideo.src = c.u + (c.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = c.img;
       lbTitle.textContent = c.t;
       lbCat.textContent = "幻境卷 · 概念造物";
       lbMeta.textContent = (c.m ? c.m + " · " : "") + c.k;
