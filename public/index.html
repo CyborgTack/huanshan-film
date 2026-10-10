@@ -2600,8 +2600,13 @@ const VIDEOS = [
   function openConceptLightbox(i){
     var c = CONCEPTS[i];
     if(c.u){
-      if(lbVideo){ lbVideo.pause(); lbVideo.removeAttribute("src"); lbVideo.load(); }
-      lbVideo.src = c.u + (c.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = c.img;
+      if(lbVideo){
+        lbVideo.pause();
+        if(_tpHandler){ lbVideo.removeEventListener("canplay", _tpHandler); _tpHandler=null; }
+        lbVideo.removeAttribute("src"); lbVideo.load();
+      }
+      _startedFlag=false;
+      lbVideo.src = c.u + (c.u.indexOf("?")>-1?"&":"?") + "t=" + Date.now(); lbVideo.poster = c.img; lbVideo.preload = "auto";
       lbTitle.textContent = c.t;
       lbCat.textContent = "幻境卷 · 概念造物";
       lbMeta.textContent = (c.m ? c.m + " · " : "") + c.k;
@@ -2609,8 +2614,12 @@ const VIDEOS = [
       lbFigure.style.display = "none";
       lbVideoWrap.hidden = false;
       lightbox.classList.remove("pure-image");
-    lightbox.classList.remove("pure-image");
-    lightbox.classList.add("video-mode");
+      lightbox.classList.add("video-mode");
+      if(lbVideo){
+        _tpHandler = _playWhenReady;
+        lbVideo.addEventListener("canplay", _tpHandler);
+        setTimeout(_playWhenReady, 8000);
+      }
     }else{
       lightbox.classList.add("pure-image");
       var img = document.createElement("img");
@@ -2875,7 +2884,12 @@ const VIDEOS = [
     lightbox.classList.remove("open","pure-image","video-mode");
     lightbox.classList.remove("video-mode");
     var vid = document.getElementById("lbVideo");
-    if(vid){ vid.pause(); vid.removeAttribute("src"); vid.load(); }
+    if(vid){
+      vid.pause();
+      if(_tpHandler){ vid.removeEventListener("canplay", _tpHandler); _tpHandler=null; }
+      vid.removeAttribute("src"); vid.load();
+    }
+    _startedFlag = false;
     document.body.style.overflow = "";
     lbGalleryMode = false;
   }
