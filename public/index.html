@@ -2878,6 +2878,11 @@ const VIDEOS = [
     img.alt = data.title + "：馆藏展陈";
     lbFigure.innerHTML = "";
     lbFigure.appendChild(img);
+    lbFigure.style.display = "";
+    if(lbVideo){ lbVideo.pause(); if(_tpHandler){ lbVideo.removeEventListener("canplay", _tpHandler); _tpHandler=null; } lbVideo.removeAttribute("src"); lbVideo.load(); }
+    if(lbVideoWrap){ lbVideoWrap.hidden = true; }
+    lightbox.classList.remove("video-mode");
+    lightbox.classList.add("pure-image");
     lbTitle.textContent = data.title;
     lbCat.textContent = data.cat;
     lbMeta.textContent = (data.no ? data.no + " · " : "") + data.meta;
