@@ -1451,12 +1451,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
   // ===== 密钥验证（访问密码，前端校验，防普通访客） =====
   // 密码 "111111" 以偏移存储，避免明文直写
   var __hsKey = [50,50,50,50,50,50]; // 每位 charCode+1
-  var __hsAuthed = false;
-  try{ __hsAuthed = sessionStorage.getItem("hs_key_ok") === "1"; }catch(e){}
-  if(__hsAuthed){
-    __hsIntroClicked = true;
-    document.body.classList.add("intro-done");
-  }
+  // 每次加载都强制密钥验证：不读取任何已认证标记，一律从开场页开始
   function __hsTryEnter(){
     var inp = document.getElementById("preludePass");
     var err = document.getElementById("preludePassErr");
@@ -1466,7 +1461,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
       for(var i=0;i<v.length;i++){ if(v.charCodeAt(i) !== __hsKey[i]-1){ ok=false; break; } }
     }
     if(ok){
-      try{ sessionStorage.setItem("hs_key_ok","1"); }catch(e){}
+      
       __hsIntroClicked = true;
       __hsFinishIntro();
     } else {
