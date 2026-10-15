@@ -967,7 +967,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
   </div>
 </div>
 <script>
-!function(){var b=document.getElementById("preludeEnter");if(b)b.addEventListener("click",function(){document.body.classList.add("pass-mode");var p=document.getElementById("preludePass");if(p){setTimeout(function(){p.focus();},80);}});}();
+!function(){var b=document.getElementById("preludeEnter");if(b)b.addEventListener("click",function(){document.body.classList.add("pass-mode");var pv=document.querySelector(".prelude");if(pv)pv.classList.add("pass-mode");var p=document.getElementById("preludePass");if(p){setTimeout(function(){p.focus();},80);}});}();
 </script>
 <div class="atmos" aria-hidden="true"></div>
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -1473,7 +1473,7 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
   var __hsEnter = document.getElementById("preludeEnter");
   if(__hsEnter){
     __hsEnter.addEventListener("click", function(){
-      document.body.classList.add("pass-mode");
+      document.body.classList.add("pass-mode");var pv=document.querySelector(".prelude");if(pv)pv.classList.add("pass-mode");
       var p = document.getElementById("preludePass");
       if(p){ setTimeout(function(){ p.focus(); }, 80); }
     });
