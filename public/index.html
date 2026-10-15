@@ -203,6 +203,31 @@ body.intro-done .prelude{opacity:0;visibility:hidden}
 .prelude-enter:hover{background:var(--gold);color:#0b0b10;box-shadow:0 0 0 6px rgba(212,175,55,.14)}
 .prelude-enter.show{opacity:1;visibility:visible;transform:none}
 
+/* ============ 开场密钥验证 ============ */
+.prelude-pass{display:none;flex-direction:column;align-items:center;gap:16px;width:min(320px,82vw);padding-top:8px}
+.prelude.pass-mode .prelude-seal,
+.prelude.pass-mode .prelude-line,
+.prelude.pass-mode .prelude-latin,
+.prelude.pass-mode .prelude-enter{display:none}
+.prelude.pass-mode .prelude-pass{display:flex}
+.prelude-pass-title{font-family:var(--font-display);font-size:13px;letter-spacing:.5em;text-indent:.5em;color:var(--ink-gold);margin-bottom:4px}
+.prelude-pass-input{
+  width:100%;padding:13px 16px;background:rgba(8,8,11,.66);border:1px solid rgba(212,175,55,.38);
+  border-radius:2px;color:var(--text-primary);font-family:var(--font-latin);font-size:18px;letter-spacing:.42em;text-align:center;
+  outline:none;transition:border-color .3s,box-shadow .3s;
+}
+.prelude-pass-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.12)}
+.prelude-pass-input::placeholder{color:rgba(245,240,230,.28);font-size:12px;letter-spacing:.28em}
+.prelude-pass-btn{
+  width:100%;padding:13px 0;border:1px solid rgba(212,175,55,.55);border-radius:2px;background:rgba(212,175,55,.08);
+  color:var(--gold);font-family:var(--font-display);font-size:13px;letter-spacing:.42em;text-indent:.42em;
+  cursor:pointer;transition:background .35s,color .35s,box-shadow .35s;
+}
+.prelude-pass-btn:hover{background:var(--gold);color:#0b0b10;box-shadow:0 0 0 6px rgba(212,175,55,.14)}
+.prelude-pass-err{display:none;font-size:11px;letter-spacing:.2em;color:#e07a6a}
+.prelude-pass-err.show{display:block}
+.prelude-pass-hint{font-size:9px;letter-spacing:.3em;color:var(--text-muted)}
+
 /* ============ 导航 ============ */
 
 
@@ -931,10 +956,16 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
     <span class="prelude-line"></span>
     <span class="prelude-latin">HUAN SHAN FILM · ARCHIVE</span>
     <button class="prelude-enter" id="preludeEnter" type="button">点击进入 · 启卷讙山</button>
+    <div class="prelude-pass">
+      <span class="prelude-pass-title">密 钥 验 证</span>
+      <input class="prelude-pass-input" id="preludePass" type="password" inputmode="numeric" maxlength="12" placeholder="请输入访问密钥" autocomplete="off">
+      <button class="prelude-pass-btn" id="preludePassBtn" type="button">确认进入</button>
+      <span class="prelude-pass-err" id="preludePassErr">密钥错误 · 请重试</span>
+    </div>
   </div>
 </div>
 <script>
-!function(){var b=document.getElementById("preludeEnter");if(b)b.addEventListener("click",function(){document.body.classList.add("intro-done");});}();
+!function(){var b=document.getElementById("preludeEnter");if(b)b.addEventListener("click",function(){document.body.classList.add("pass-mode");var p=document.getElementById("preludePass");if(p){setTimeout(function(){p.focus();},80);}});}();
 </script>
 <div class="atmos" aria-hidden="true"></div>
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -1411,21 +1442,54 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
   var __hsIntroMin = false, __hsIntroClicked = false;
   function __hsFinishIntro(){
     if(reduceMotion){ return; }
-    // 点了就立刻撤走黑幕，不等数据；数据后台慢慢加载
     if(__hsIntroClicked){
       document.body.classList.add("intro-done");
     }
   }
   // 数据加载完成只用于标记，不再阻塞进入
   window.__hsIntroDataReady = function(){};
-  // 自动进入兜底（用户不点，30秒后强制进入）
-  setTimeout(function(){ __hsIntroClicked = true; __hsFinishIntro(); }, 30000);
-  var __hsEnter = document.getElementById("preludeEnter");
-  if(__hsEnter){
-    // 按钮现在由CSS animation自动显示，这里不再setTimeout加show
-    __hsEnter.addEventListener("click", function(){
+  // ===== 密钥验证（访问密码，前端校验，防普通访客） =====
+  // 密码 "111111" 以偏移存储，避免明文直写
+  var __hsKey = [50,50,50,50,50,50]; // 每位 charCode+1
+  var __hsAuthed = false;
+  try{ __hsAuthed = sessionStorage.getItem("hs_key_ok") === "1"; }catch(e){}
+  if(__hsAuthed){
+    __hsIntroClicked = true;
+    document.body.classList.add("intro-done");
+  }
+  function __hsTryEnter(){
+    var inp = document.getElementById("preludePass");
+    var err = document.getElementById("preludePassErr");
+    var v = inp ? (inp.value || "") : "";
+    var ok = v.length === __hsKey.length;
+    if(ok){
+      for(var i=0;i<v.length;i++){ if(v.charCodeAt(i) !== __hsKey[i]-1){ ok=false; break; } }
+    }
+    if(ok){
+      try{ sessionStorage.setItem("hs_key_ok","1"); }catch(e){}
       __hsIntroClicked = true;
       __hsFinishIntro();
+    } else {
+      if(err){ err.classList.add("show"); }
+      if(inp){ inp.value=""; inp.focus(); }
+    }
+  }
+  var __hsEnter = document.getElementById("preludeEnter");
+  if(__hsEnter){
+    __hsEnter.addEventListener("click", function(){
+      document.body.classList.add("pass-mode");
+      var p = document.getElementById("preludePass");
+      if(p){ setTimeout(function(){ p.focus(); }, 80); }
+    });
+  }
+  var __hsPassBtn = document.getElementById("preludePassBtn");
+  if(__hsPassBtn){ __hsPassBtn.addEventListener("click", __hsTryEnter); }
+  var __hsPassInp = document.getElementById("preludePass");
+  if(__hsPassInp){
+    __hsPassInp.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){ e.preventDefault(); __hsTryEnter(); }
+      var err = document.getElementById("preludePassErr");
+      if(err){ err.classList.remove("show"); }
     });
   }
 
@@ -2089,14 +2153,7 @@ const VIDEOS = [
     "d": "新卷 · 待编修归卷"
   },];
   var PRODUCERS = [
-  "史顺棋",
-  "李尚书",
-  "王奥",
-  "杨子琪",
-  "郭子键",
-  "廖棋稚",
-  "艾文",
-  "狄龙舞"
+  "李尚书"
 ];
   const INBOX = [
   {
@@ -3114,7 +3171,7 @@ window.FEATURED=FEATURED;window.FEATURED_QUEUE=FEATURED_QUEUE;
 /* ===== 管理卷宗 ===== */
 (function(){
   function init(){
-  var PW_HASH = "a470d9d7d1215aba80a86a7f8edbb4acbdab2181ff7f12cf637c228743303644";
+  var PW_HASH = "94edf28c6d6da38fd35d7ad53e485307f89fbeaf120485c8d17a43f323deee71"; // 666666
   function checkPwd(s){
     return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(d){
       var hex='';
