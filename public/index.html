@@ -945,7 +945,9 @@ img, video{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
   html{scroll-behavior:auto}
   [data-reveal],.work-card{opacity:1;transform:none}
   .hero-ember{display:none}
-  .prelude{display:none}
+  /* 强制密码门在减少动画模式下仍然显示（不隐藏、不依赖动画淡入） */
+  .prelude{display:flex}
+  .prelude-seal,.prelude-enter,.prelude-latin,.prelude-line,.prelude-pass,.prelude-sub{opacity:1!important;visibility:visible!important;transform:none!important}
 }
 </style>
 </head>
